@@ -7,7 +7,7 @@ to javascript and HTML5 canvas.
 
 You can use the openCV cascades to build your detectors.
 
-To do this just transform tyhe opencv xml file to javascript
+To do this just transform the opencv xml file to javascript
 using the haartojs tool (in cascades folder)
 
 example:
@@ -21,7 +21,7 @@ the variable to use in javascript
 is similarly
 haarcascades_frontalface_alt
 
-Examples  included with face and mouth detction
+Examples  included with face and mouth detection
 
 Complete source code
 
