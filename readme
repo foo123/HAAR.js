@@ -1,0 +1,27 @@
+HAAR.js Feature Detection Library for javascript and HTML5 canvas
+
+This is a port of OpenCV C++ Haar Detection (actually a port of JViolaJones which is a port of OpenCV for Java)
+to javascript and HTML5 canvas.
+
+You can use the openCV cascades to build your detectors.
+
+To do this just transform tyhe opencv xml file to javascript
+using the haartojs tool (in cascades folder)
+
+example:
+( to use opencv's haarcascades_frontalface_alt.xml  run following command)
+haartojs haarcascades_frontalface_alt 
+
+this creates a javascript file:
+haarcascades_frontalface_alt.js which you can include in your html file
+
+the variable to use in javascript
+is similarly
+haarcascades_frontalface_alt
+
+Examples  included with face and mouth detction
+
+Complete source code
+
+*Author* Nikos M.
+*URL* http://nikos-web-development.netai.net/
