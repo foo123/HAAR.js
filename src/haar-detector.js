@@ -1,4 +1,13 @@
+/**************************************************************************************
+** HAAR.js Feature Detection Library based on Viola-Jones Haar Detection algorithm
+** Port of jviolajones (Java) which is a port of openCV C++ Haar Detector
+**
+** Author Nikos M.
+** url http://nikos-web-development.netai.net/
+**************************************************************************************/
+
 var HAAR=HAAR||{};
+// Detector Class with the haar cascade data
 HAAR.Detector=function(haardata)
 {
 	this.haardata=haardata;
@@ -7,6 +16,7 @@ HAAR.Detector=function(haardata)
 	this.Image=null;
 	this.canvas=null;
 };
+// set image for detector along with scaling
 HAAR.Detector.prototype.image=function(image,scale)
 {
 	this.Image=image;
@@ -20,11 +30,44 @@ HAAR.Detector.prototype.image=function(image,scale)
 	this.canvas.getContext('2d').drawImage(image, 0, 0, image.width, image.height, 0, 0, this.ratio*image.width, this.ratio*image.height);
 	return this;
 };
+// detector on complete callback
 HAAR.Detector.prototype.complete=function(func)
 {
 	this.onComplete=func;
 	return this;
 };
+// Detector detect method to start detection
+HAAR.Detector.prototype.detect=function(baseScale, scale_inc, increment, min_neighbors, doCannyPruning)
+{
+	if (typeof doCannyPruning=='undefined')
+		doCannyPruning=true;
+	this.doCannyPruning=doCannyPruning;
+	this.ret=[];
+	var sizex=this.haardata.size1;
+	var sizey=this.haardata.size2;
+	this.computeGray(this.canvas);
+	var w=this.width;
+	var h=this.height;
+	this.maxScale = Math.min((w)/sizex,(h)/sizey);
+	this.canny = null;
+	if(this.doCannyPruning)
+		this.canny = this.IntegralCanny(this.img);
+	this.scale=baseScale;
+	this.min_neighbors=min_neighbors;
+	this.scale_inc=scale_inc;
+	this.increment=increment;
+	this.ready=false;
+	var thiss=this;
+	//if (this.async)
+		this.interval=setInterval(function(){thiss.detectAsync()},30);
+	/*else
+	{
+		while(this.scale<=this.maxScale+1)
+			this.detectAsync();
+		return this.objects;
+	}*/
+};
+// Private functions for detection
 HAAR.Detector.prototype.computeGray=function(image)
 {
 	this.gray=[];
@@ -58,36 +101,6 @@ HAAR.Detector.prototype.computeGray=function(image)
 			col2+=grayc*grayc;
 		}
 	}
-};
-HAAR.Detector.prototype.detect=function(baseScale, scale_inc, increment, min_neighbors, doCannyPruning)
-{
-	if (typeof doCannyPruning=='undefined')
-		doCannyPruning=true;
-	this.doCannyPruning=doCannyPruning;
-	this.ret=[];
-	var sizex=this.haardata.size1;
-	var sizey=this.haardata.size2;
-	this.computeGray(this.canvas);
-	var w=this.width;
-	var h=this.height;
-	this.maxScale = Math.min((w)/sizex,(h)/sizey);
-	this.canny = null;
-	if(this.doCannyPruning)
-		this.canny = this.IntegralCanny(this.img);
-	this.scale=baseScale;
-	this.min_neighbors=min_neighbors;
-	this.scale_inc=scale_inc;
-	this.increment=increment;
-	this.ready=false;
-	var thiss=this;
-	//if (this.async)
-		this.interval=setInterval(function(){thiss.detectAsync()},30);
-	/*else
-	{
-		while(this.scale<=this.maxScale+1)
-			this.detectAsync();
-		return this.objects;
-	}*/
 };
 HAAR.Detector.prototype.detectAsync=function()
 {
