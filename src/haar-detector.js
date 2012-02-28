@@ -78,7 +78,7 @@ HAAR.Detector.prototype.computeGray=function(image)
 	this.height=data.height;
 	var w=data.width;
 	var h=data.height;
-	var col,col2,i,j,pix,r,g,b,grayc;
+	var col,col2,i,j,pix,r,g,b,grayc,grayc2;
 	var rm=30/100,gm=59/100,bm=11/100;
 	var im=data.data;
 	for(i=0;i<w;i++)
@@ -94,11 +94,12 @@ HAAR.Detector.prototype.computeGray=function(image)
 			green = im[pix+1];
 			blue = im[pix+2];
 			grayc=(rm*red +gm*green +bm*blue);
+			grayc2=grayc*grayc;
 			this.img[ind]=grayc;
 			this.gray[ind]=(i>0?this.gray[i-1+j*w]:0)+col+grayc;
-			this.squares[ind]=(i>0?this.squares[i-1+j*w]:0)+col2+grayc*grayc;
+			this.squares[ind]=(i>0?this.squares[i-1+j*w]:0)+col2+grayc2;
 			col+=grayc;
-			col2+=grayc*grayc;
+			col2+=grayc2;
 		}
 	}
 };
