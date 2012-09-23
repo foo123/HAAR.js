@@ -33,10 +33,12 @@
 		new HAAR.Detector(haarcascade_frontalface_alt).image(image).complete(function(){
 			wait.style.display='none';
 			alert(this.objects.length+" Objects found");
-			var rect=this.objects[0];
-			var ctx=canvas.getContext('2d');
-			ctx.strokeStyle="rgba(0,0,0,1)";
-			ctx.strokeRect(rect.x,rect.y,rect.width,rect.height);
+			for(i=0; i< this.objects.length; i++){
+			    var rect=this.objects[i];
+			    var ctx=canvas.getContext('2d');
+			    ctx.strokeStyle="rgba(0,0,0,1)";
+			    ctx.strokeRect(rect.x,rect.y,rect.width,rect.height);
+			}
 		}).detect(1, 1.25, 0.1, 1, true);
 	};
 	image.src='model1.jpg';
