@@ -21,7 +21,25 @@ the variable to use in javascript
 is similarly
 haarcascades_frontalface_alt
 
-Examples  included with face and mouth detection
+The Code works in the browser and inside nodejs
+
+Runing inside the brower
+ Loading wth script tags
+ Loading with RequireJS 
+
+Running inside node
+ For running, the package have a dependency on canvas
+ You can find an example inside examples/nodes.js
+
+Valide Output
+node examples/node.js 
+processing the picture
+[{"x":102.5,"y":105.5,"width":160.66666666666666,"height":160.66666666666666}]
+
+To work properly canvas need some system depencency
+You can find instruction on https://github.com/LearnBoost/node-canvas/wiki
+For example for Ubuntu : 
+sudo apt-get install libcairo2-dev libjpeg8-dev libpango1.0-dev libgif-dev
 
 Complete source code
 
