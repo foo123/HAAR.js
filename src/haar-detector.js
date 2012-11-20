@@ -5,8 +5,7 @@
 ** Author Nikos M.
 ** url http://nikos-web-development.netai.net/
 **************************************************************************************/
-
-var HAAR=HAAR||{};
+HAAR={};
 // Detector Class with the haar cascade data
 HAAR.Detector=function(haardata)
 {
@@ -17,10 +16,10 @@ HAAR.Detector=function(haardata)
 	this.canvas=null;
 };
 // set image for detector along with scaling
-HAAR.Detector.prototype.image=function(image,scale)
+HAAR.Detector.prototype.image=function(image,scale,canvas)
 {
 	this.Image=image;
-	this.canvas=document.createElement('canvas');
+	this.canvas= canvas || document.createElement('canvas');
 	if (typeof scale=='undefined')
 		scale=0.5;
 	this.ratio=scale;
