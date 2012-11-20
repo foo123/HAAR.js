@@ -12,7 +12,9 @@ using the haartojs tool (in cascades folder)
 
 example:
 ( to use opencv's haarcascades_frontalface_alt.xml  run following command)
-haartojs haarcascades_frontalface_alt 
+```bash
+haartojs haarcascades_frontalface_alt
+```
 
 this creates a javascript file:
 haarcascades_frontalface_alt.js which you can include in your html file
@@ -37,11 +39,12 @@ processing the picture
 [{"x":102.5,"y":105.5,"width":160.66666666666666,"height":160.66666666666666}]
 ```
 
-To work properly canvas need some system depencency
+To work properly canvas need some system depencencies.
 You can find instruction on https://github.com/LearnBoost/node-canvas/wiki
 For example for Ubuntu : 
+```bash
 sudo apt-get install libcairo2-dev libjpeg8-dev libpango1.0-dev libgif-dev
-
+```
 
 ##Loading with RequireJS ##
  As a third option, you can load the library with requireJS, both on the browser on with node.
