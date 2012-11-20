@@ -1,0 +1,23 @@
+{
+  "name": "HAAR.js",
+  "version": "0.0.0",
+  "description": "HAAR.js Feature Detection Library for javascript and HTML5 canvas",
+  "main": "index.js",
+  "directories": {
+    "example": "examples"
+  },
+  "dependencies": {
+    "canvas": "~0.13.1"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/foo123/HAAR.js.git"
+  },
+  "author": "",
+  "license": "BSD",
+  "readmeFilename": "readme"
+}
