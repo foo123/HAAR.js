@@ -5,6 +5,9 @@ based on [Viola-Jones Feature Detection Algorithm using Haar Cascades](http://ww
 This is a port of [OpenCV C++ Haar Detection](http://opencv.willowgarage.com/wiki/) (actually a port of [JViolaJones](http://code.google.com/p/jviolajones/) which is a port of OpenCV for Java)
 to javascript and HTML5 canvas.
 
+![Haar.js](/examples/haar-face.jpg)
+
+
 You can use the existing openCV cascades to build your detectors.
 
 To do this just transform the opencv xml file to javascript
