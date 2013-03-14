@@ -1,0 +1,6 @@
+@DEPENDENCIES
+haar-detector.js
+@MINIFY
+--language_in=ECMASCRIPT5_STRICT
+@OUT
+haar-detector.js
