@@ -1,8 +1,8 @@
 {
   "name": "HAAR.js",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "description": "HAAR.js Feature Detection Library for javascript and HTML5 canvas",
-  "main": "src/haar-detector.js",
+  "main": "build/haar-detector.min.js",
   "directories": {
     "example": "examples"
   },
@@ -19,5 +19,5 @@
   },
   "author": "",
   "license": "BSD",
-  "readmeFilename": "readme"
+  "readmeFilename": "Readme.md"
 }
