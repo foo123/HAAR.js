@@ -37,6 +37,7 @@ haarcascades_frontalface_alt
 
 ##Todo
 * optimize detector for real-time usage on browsers (eg. reference-> https://github.com/liuliu/ccv)
+* keep up with the changes in openCV cascades xml format
 
 The Code works in the browser and inside node.js
 
