@@ -31,7 +31,9 @@ haarcascades_frontalface_alt
 * customization to work with node.js and require.js by [maxired](https://github.com/maxired)  (using js closures) 
 
 ##Usage Ideas
-* check [SmileDetectJS](https://github.com/roironn/SmileDetectJS)
+* [SmileDetectJS](https://github.com/roironn/SmileDetectJS)
+* [ObjectDetect](https://github.com/mtschirs/js-objectdetect)
+* [JSFeat](https://github.com/inspirit/jsfeat)
 
 ##Todo
 * optimize detector for real-time usage on browsers (eg. reference-> https://github.com/liuliu/ccv)
@@ -40,7 +42,7 @@ The Code works in the browser and inside node.js
 
 ##Runing inside the brower##
  Loading wth script tags
-	You can run the example face.html or mouth.html inside your browser
+    You can run the example face.html or mouth.html inside your browser
 
 ##Running inside node##
  For running, the package have a dependency on canvas
