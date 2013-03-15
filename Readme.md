@@ -30,6 +30,12 @@ haarcascades_frontalface_alt
 * initial commit by [Nikos M.](https://github.com/foo123) (works on browser)
 * customization to work with node.js and require.js by [maxired](https://github.com/maxired)  (using js closures) 
 
+##Usage Ideas
+* check [SmileDetectJS](https://github.com/roironn/SmileDetectJS)
+
+##Todo
+* optimize detector for real-time usage on browsers (eg. reference-> https://github.com/liuliu/ccv)
+
 The Code works in the browser and inside node.js
 
 ##Runing inside the brower##
