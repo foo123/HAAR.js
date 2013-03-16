@@ -7,6 +7,9 @@ to javascript and HTML5 canvas.
 
 ![Haar.js](/examples/haar-face.jpg)
 
+##Live Example
+http://foo123.github.com/examples/face-detection/
+
 
 You can use the existing openCV cascades to build your detectors.
 
