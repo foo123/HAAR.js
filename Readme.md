@@ -29,6 +29,13 @@ which you can include in your html file or node file
 the variable to use in javascript is similarly  
 haarcascades_frontalface_alt
 
+###Where to find Haar Cascades xml files to use for feature detection
+
+* [OpenCV](http://opencv.org/)
+* [This resource](http://alereimondo.no-ip.org/OpenCV/34)
+* search the web :)
+
+
 ###Usage Ideas
 
 * [SmileDetectJS](https://github.com/roironn/SmileDetectJS)
