@@ -34,6 +34,7 @@ haarcascades_frontalface_alt
 * [OpenCV](http://opencv.org/)
 * [This resource](http://alereimondo.no-ip.org/OpenCV/34)
 * search the web :)
+* [Train your own](http://docs.opencv.org/doc/user_guide/ug_traincascade.html)
 
 
 ###Usage Ideas
