@@ -41,7 +41,6 @@ haarcascades_frontalface_alt
 
 * [SmileDetectJS](https://github.com/roironn/SmileDetectJS)
 * [ObjectDetect](https://github.com/mtschirs/js-objectdetect)
-* [JSFeat](https://github.com/inspirit/jsfeat)
 
 ###Todo
 * optimize detector for real-time usage on browsers (eg. reference-> https://github.com/liuliu/ccv)
