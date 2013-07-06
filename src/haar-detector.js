@@ -1,12 +1,16 @@
-/**************************************************************************************
- ** HAAR.js Feature Detection Library based on Viola-Jones Haar Detection algorithm
- ** Port of jviolajones (Java) which is a port of openCV C++ Haar Detector
- **
- ** Contributor Nikos M. (http://nikos-web-development.netai.net/)
- **
- ** Contributor maxired (https://github.com/maxired)
- **
- **************************************************************************************/
+/**
+*
+* HAAR.js Feature Detection Library based on Viola-Jones Haar Detection algorithm
+* Port of jviolajones (Java) which is a port of openCV C++ Haar Detector
+*
+* version: 0.2
+*
+*
+* @contributor Nikos M.  (http://nikos-web-development.netai.net/)
+* https://github.com/foo123/HAAR.js
+* @contributor maxired (https://github.com/maxired)
+*
+**/
 (function() {
   var root = this;
 

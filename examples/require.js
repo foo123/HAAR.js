@@ -3,7 +3,7 @@ var requirejs = require('requirejs');
 requirejs.config({
   nodeRequire: require,
   paths: {
-    'haar-detector': '../build/haar-detector',
+    'haar-detector': '../build/haar-detector.min',
     'haarcascade_frontalface_alt': '../cascades/haarcascade_frontalface_alt'
   },
   shim: {
