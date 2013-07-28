@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en"><head>
 <meta http-equiv="content-type" content="text/html; charset=UTF-8">
-<title>Mouth detection demo with Haar cascades detector in javascript and HTML5 canvas</title>
+<title>Eye detection demo with Haar cascades detector in javascript and HTML5 canvas</title>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
 	<style>
@@ -13,10 +13,10 @@
 	}
 	</style>
 	<script type="text/javascript" src="../build/haar-detector.min.js"></script>
-	<script type="text/javascript" src="../cascades/haarcascade_mcs_mouth.js"></script>
+	<script type="text/javascript" src="../cascades/haarcascade_eye.js"></script>
 	</head>
 	<body>
-	<div>Mouth Detection with OpenCV haar cascades in Javascript</div>
+	<div>Face Detection with OpenCV haar cascades in Javascript</div>
 	<div id="wait" style="display:none"><img src='ajax-loader.gif' /></div>
 	<div id="container" style="position:relative;"><canvas id='image'></canvas></div>
 	<div style="font-size:18px"><a href="http://nikos-web-development.netai.net/">Nikos M.</a></div>
@@ -30,7 +30,7 @@
 		canvas.width=image.width;
 		canvas.height=image.height;
 		canvas.getContext('2d').drawImage(image,0,0);
-		new HAAR.Detector(haarcascade_mcs_mouth).image(image).complete(function(){
+		new HAAR.Detector(haarcascade_eye).image(image).complete(function(){
 			wait.style.display='none';
 			alert(this.objects.length+" Objects found");
 			for(i=0; i< this.objects.length; i++){
@@ -39,7 +39,7 @@
 			    ctx.strokeStyle="rgba(0,0,0,1)";
 			    ctx.strokeRect(rect.x,rect.y,rect.width,rect.height);
 			}
-		}).detect(1, 1.19, 0.18, 1, true);
+		}).detect(1, 1.1, 0.1, 1, true);
 	};
 	image.src='model1.jpg';
 	</script>

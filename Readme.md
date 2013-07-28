@@ -36,6 +36,7 @@ the variable to use in javascript is similarly
 * [This resource](http://alereimondo.no-ip.org/OpenCV/34)
 * search the web :)
 * [Train your own](http://docs.opencv.org/doc/user_guide/ug_traincascade.html)
+* A [haarcascade for eyes](/cascades/haarcascade_eye.js) contributed by [Mar Canet](http://www-personal.umich.edu/~shameem/haarcascade_eye.html) demo [here](/examples/eye.html)
 
 
 ###Usage Ideas
