@@ -50,6 +50,10 @@ the variable to use in javascript is similarly
 
 ###ChangeLog
 
+__0.2.1__
+* use TypedArrays if available for faster array operations
+* minor index/number optimizations
+
 __0.2__
 * add haartojs tool in php (in cascades folder)
 * haartojs produces a javascript file using closures (fixes previous issue with the java tool)
