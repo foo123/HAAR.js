@@ -1,6 +1,6 @@
 {
   "name": "HAAR.js",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "HAAR.js Feature Detection Library for javascript and HTML5 canvas",
   "main": "build/haar-detector.min.js",
   "directories": {

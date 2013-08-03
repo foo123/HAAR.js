@@ -8,10 +8,20 @@ This is a port of [OpenCV C++ Haar Detection](http://opencv.willowgarage.com/wik
 
 [![Haar.js](/examples/haar-face.jpg)](http://foo123.github.com/examples/face-detection/)
 
+###Contents
+
+* [Live Examples](#live-example)
+* [How to Use](#how-to-use)
+* [Haar Cascades](#where-to-find-haar-cascades-xml-files-to-use-for-feature-detection)
+* [Usage Ideas](#usage-ideas)
+* [Todo](#todo)
+* [Changelog](#changelog)
+
 ###Live Example
 * [Face Detection](http://foo123.github.com/examples/face-detection/)
 
 
+###How To use
 You can use the __existing openCV cascades__ to build your detectors.
 
 To do this just transform the opencv xml file to javascript
@@ -30,48 +40,13 @@ which you can include in your html file or node file
 the variable to use in javascript is similarly  
 *haarcascades_frontalface_alt*
 
-###Where to find Haar Cascades xml files to use for feature detection
-
-* [OpenCV](http://opencv.org/)
-* [This resource](http://alereimondo.no-ip.org/OpenCV/34)
-* search the web :)
-* [Train your own](http://docs.opencv.org/doc/user_guide/ug_traincascade.html)
-* A [haarcascade for eyes](http://www-personal.umich.edu/~shameem/haarcascade_eye.html) contributed by [Mar Canet](https://github.com/mcanet) demo [here](/examples/eye.html)
-
-
-###Usage Ideas
-
-* [SmileDetectJS](https://github.com/roironn/SmileDetectJS)
-* [ObjectDetect](https://github.com/mtschirs/js-objectdetect)
-
-###TODO
-* optimize detector for real-time usage on browsers (eg. reference-> https://github.com/liuliu/ccv)
-* keep up with the changes in openCV cascades xml format (will try)
-
-###ChangeLog
-
-__0.2.1__
-* use TypedArrays if available for faster array operations
-* minor index/number optimizations
-
-__0.2__
-* add haartojs tool in php (in cascades folder)
-* haartojs produces a javascript file using closures (fixes previous issue with the java tool)
-
-__0.1.1__
-* customization to work with Node.js and require.js by [maxired](https://github.com/maxired)  (using js closures) 
-
-__0.1__
-* initial commit by [Nikos M.](https://github.com/foo123) (works on browser)
-
-
 __HAAR.js works in the browser and inside Node.js__
 
-###Runing inside the brower
+####Runing inside the brower
  Loading wth script tags
     You can run the example face.html or mouth.html inside your browser
 
-###Running inside Node
+####Running inside Node
  For running, the package have a dependency on canvas
  You can find an example inside examples/nodes.js
 Valid Output
@@ -88,10 +63,49 @@ For example for Ubuntu :
 sudo apt-get install libcairo2-dev libjpeg8-dev libpango1.0-dev libgif-dev
 ```
 
-###Loading with RequireJS
+####Loading with RequireJS
  As a third option, you can load the library with requireJS, both on the browser on with node.
 There is an example of loading with RequireJS inside node in examples/require.js.
 The configuration would be the same inside a browser
+
+
+
+###Where to find Haar Cascades xml files to use for feature detection
+* [OpenCV](http://opencv.org/)
+* [This resource](http://alereimondo.no-ip.org/OpenCV/34)
+* search the web :)
+* [Train your own](http://docs.opencv.org/doc/user_guide/ug_traincascade.html)
+* A [haarcascade for eyes](http://www-personal.umich.edu/~shameem/haarcascade_eye.html) contributed by [Mar Canet](https://github.com/mcanet) demo [here](/examples/eye.html)
+
+
+
+###Usage Ideas
+* [SmileDetectJS](https://github.com/roironn/SmileDetectJS)
+* [ObjectDetect](https://github.com/mtschirs/js-objectdetect)
+
+
+
+###TODO
+* optimize detector for real-time usage on browsers (eg. reference-> https://github.com/liuliu/ccv)
+* keep up with the changes in openCV cascades xml format (will try)
+
+
+
+###ChangeLog
+
+__0.2.1__
+* use TypedArrays if available for faster array operations
+* minor index/number optimizations
+
+__0.2__
+* add haartojs tool in php (in cascades folder)
+* haartojs produces a javascript file using closures (fixes previous issue with the java tool)
+
+__0.1.1__
+* customization to work with Node.js and require.js by [maxired](https://github.com/maxired)  (using js closures) 
+
+__0.1__
+* initial commit by [Nikos M.](https://github.com/foo123) (works on browser)
 
 
 *Contributor* Nikos M.  
