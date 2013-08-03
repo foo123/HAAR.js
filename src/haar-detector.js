@@ -40,10 +40,9 @@
         // set image for detector along with scaling
         image : function(image, scale, canvas) {
             this.Image = image;   this.canvas = canvas || document.createElement('canvas');
-            if(typeof scale == 'undefined') scale = 0.5;
-            this.ratio = scale;   this.async = true;
-            this.canvas.width = this.ratio * image.width;   this.canvas.height = this.ratio * image.height;
-            this.canvas.getContext('2d').drawImage(image, 0, 0, image.width, image.height, 0, 0, this.ratio * image.width, this.ratio * image.height);
+            if(typeof scale == 'undefined') scale = 0.5;  this.ratio = scale;   this.async = true;
+            this.canvas.width = scale * image.width;   this.canvas.height = scale * image.height;
+            this.canvas.getContext('2d').drawImage(image, 0, 0, image.width, image.height, 0, 0, scale * image.width, scale * image.height);
             return this;
         },
 
@@ -79,9 +78,7 @@
                 rm = 0.30, gm = 0.59, bm = 0.11, count=w*h;
 
             this.width = w;  this.height = h;
-            this.gray = new Array32U(count);
-            this.img = new Array8U(count);
-            this.squares = new Array32U(count);
+            this.gray = new Array64F(count); this.img = new Array32F(count);  this.squares = new Array64F(count);
 
             for(i = 0; i < w; i++) 
             {
@@ -90,11 +87,11 @@
                 {
                     ind = (j * w + i);   pix = ind * 4;
                     red = im[pix];  green = im[pix + 1];  blue = im[pix + 2];
-                    grayc = (rm * red + gm * green + bm * blue);   grayc2 = grayc * grayc;
-                    this.img[ind] = grayc;
-                    this.gray[ind] = (i > 0 ? this.gray[i - 1 + j * w] : 0) + col + grayc;
-                    this.squares[ind] = (i > 0 ? this.squares[i - 1 + j * w] : 0) + col2 + grayc2;
+                    grayc = (rm * red + gm * green + bm * blue);  grayc2 = grayc * grayc;
                     col += grayc;  col2 += grayc2;
+                    this.img[ind] = grayc;
+                    this.gray[ind] = (i > 0 ? this.gray[i - 1 + j * w] : 0) + col;
+                    this.squares[ind] = (i > 0 ? this.squares[i - 1 + j * w] : 0) + col2;
                 }
             }
         },
@@ -123,10 +120,8 @@
                             if(pass == false) break;
                         }
                         if(pass) this.ret.push({
-                                x: i,
-                                y: j,
-                                width: size,
-                                height: size
+                                x: i, y: j,
+                                width: size,  height: size
                             });
                     }
                 }
@@ -199,9 +194,8 @@
                 col = 0;
                 for(j = 0; j < h; j++) 
                 {
-                    ind0=j*w; value = grad[i + ind0];
-                    canny[i + ind0] = (i > 0 ? canny[i - 1 + ind0] : 0) + col + value;
-                    col += value;
+                    ind0=j*w; value = grad[i + ind0];  col += value;
+                    canny[i + ind0] = (i > 0 ? canny[i - 1 + ind0] : 0) + col;
                 }
             }
             return canny;
@@ -232,10 +226,8 @@
             {
                 neighbors[i] = 0;
                 rect[i] = {
-                    x: 0,
-                    y: 0,
-                    width: 0,
-                    height: 0
+                    x: 0,  y: 0,
+                    width: 0, height: 0
                 };
             }
             for(var i = 0; i < rects.length; i++) 
@@ -252,10 +244,8 @@
                 if(n >= min_neighbors) 
                 {
                     var r = {
-                        x: 0,
-                        y: 0,
-                        width: 0,
-                        height: 0
+                        x: 0, y: 0,
+                        width: 0, height: 0
                     };
                     r.x = (rect[i].x * 2 + n) / (2 * n);
                     r.y = (rect[i].y * 2 + n) / (2 * n);
@@ -270,20 +260,17 @@
                 for(var i = 0; i < retour.length; i++) 
                 {
                     var rr = retour[i];
-                    rr = {
-                        x: rr.x * ratio,
-                        y: rr.y * ratio,
-                        width: rr.width * ratio,
-                        height: rr.height * ratio
+                    retour[i] = {
+                        x: rr.x * ratio, y: rr.y * ratio,
+                        width: rr.width * ratio,  height: rr.height * ratio
                     };
-                    retour[i] = rr;
                 }
             }
             return retour;
         },
 
         equals : function(r1, r2) {
-            var distance = Math.floor(r1.width * 0.2);
+            var distance = Math.max(Math.floor(r1.width * 0.2), Math.floor(r2.width * 0.2)) ;
 
             if(r2.x <= r1.x + distance && r2.x >= r1.x - distance && r2.y <= r1.y + distance && r2.y >= r1.y - distance && r2.width <= Math.floor(r1.width * 1.2) && Math.floor(r2.width * 1.2) >= r1.width) return true;
             if(r1.x >= r2.x && r1.x + r1.width <= r2.x + r2.width && r1.y >= r2.y && r1.y + r1.height <= r2.y + r2.height) return true;
@@ -325,7 +312,7 @@
         getLeftOrRight : function(s, t, f, i, j, scale) {
             var sizex = this.haardata.size1, sizey = this.haardata.size2;
             var w = Math.floor(scale * sizex), h = Math.floor(scale * sizey);
-            var ww = this.width, hh = this.height, inv_area = 1.0 / (w * h), ind=j*ww, indh=(j + h)*ww;
+            var ww = this.width, hh = this.height, inv_area = 1.0 /(w*h), ind=j*ww, indh=(j+h)*ww;
             var grayImage = this.gray, squares = this.squares;
             var total_x = grayImage[i + w + indh] + grayImage[i + ind] - grayImage[i + indh] - grayImage[i + w + ind];
             var total_x2 = squares[i + w + indh] + squares[i + ind] - squares[i + indh] - squares[i + w + ind];
