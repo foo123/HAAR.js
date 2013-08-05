@@ -11,11 +11,12 @@
 * @contributor maxired (https://github.com/maxired)
 *
 **/
-(function() {
-    var root = this, HAAR;
+(function(root) {
+    var HAAR;
 
     // export using window object on browser, or export object on node,require
-    if(typeof exports !== 'undefined')  HAAR = exports;
+    if ('undefined' != typeof (module) && module.exports)  HAAR = module.exports;
+    else if ('undefined' != typeof (exports) )  HAAR = exports;
     else  HAAR = root.HAAR = {};
 
     var // machine arrays substitute 
@@ -335,4 +336,4 @@
         }
     }
 
-}).call(this);
+})(this);
