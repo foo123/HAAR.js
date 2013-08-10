@@ -74,7 +74,7 @@ The configuration would be the same inside a browser
 * [OpenCV](http://opencv.org/)
 * [This resource](http://alereimondo.no-ip.org/OpenCV/34)
 * search the web :)
-* [Train your own](http://docs.opencv.org/doc/user_guide/ug_traincascade.html)
+* [Train your own](http://docs.opencv.org/doc/user_guide/ug_traincascade.html) with a little extra help [here](http://note.sonots.com/SciSoftware/haartraining.html) and [here](http://coding-robin.de/2013/07/22/train-your-own-opencv-haar-classifier.html)
 * A [haarcascade for eyes](http://www-personal.umich.edu/~shameem/haarcascade_eye.html) contributed by [Mar Canet](https://github.com/mcanet) demo [here](/examples/eye.html)
 
 
