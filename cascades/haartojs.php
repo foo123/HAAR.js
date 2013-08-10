@@ -145,8 +145,7 @@ class HaarToJsConverter
         //return;
         
         // use closure for compatibility with browser, node, common amd and requirejs (similar scheme to Backbone.js)
-        echo("(function() {");
-        echo("var root = this;");
+        echo("(function(root) { ");
         echo("var " . $var_to_use . "={");
 		$size = explode(' ', trim($racine["size"]));
         echo("size1:" . $size[0] . ",size2:" . $size[1]);
@@ -233,10 +232,10 @@ class HaarToJsConverter
 			$i1++;
 		}
         echo("]};\n");
-        echo("if(typeof exports !== 'undefined'){ ");
-        echo("exports.".$var_to_use." = ".$var_to_use.";} else {");
-        echo("root.".$var_to_use." = ".$var_to_use.";}");
-        echo("}).call(this);\n");
+        echo("if(typeof module !== 'undefined' && module.exports){ module.exports.".$var_to_use." = ".$var_to_use."; } ");
+        echo("else if(typeof exports !== 'undefined'){ exports.".$var_to_use." = ".$var_to_use."; } ");
+        echo("else { root.".$var_to_use." = ".$var_to_use."; } ");
+        echo("})(this);\n");
     }
 }
 
