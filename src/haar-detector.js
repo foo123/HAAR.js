@@ -34,6 +34,7 @@
         this.onComplete = null;
         this.Image = null;
         this.canvas = null;
+        this._interval=30;
     };
 
     HAAR.Detector.prototype = {
@@ -52,6 +53,11 @@
             this.onComplete = func;   return this;
         },
 
+        // detector set detection interval
+        interval : function(it) {
+            this._interval = it;   return this;
+        },
+        
         // Detector detect method to start detection
         detect : function(baseScale, scale_inc, increment, min_neighbors, doCannyPruning) {
             if(typeof doCannyPruning == 'undefined') doCannyPruning = true;
@@ -67,7 +73,7 @@
             this.scale_inc = scale_inc;  this.increment = increment;   this.ready = false;
             var self = this;
             //if (this.async)
-            this.interval = setInterval(function() {  self.detectAsync()  }, 30);
+            this._timeinterval = setInterval(function() {  self.detectAsync()  }, this._interval);
         },
 
 
@@ -130,7 +136,7 @@
             } 
             else 
             {
-                clearInterval(this.interval);
+                clearInterval(this._timeinterval);
                 this.objects = this.merge(this.ret, this.min_neighbors);
                 this.ready = true;
                 if(this.async && this.onComplete) this.onComplete.call(this);

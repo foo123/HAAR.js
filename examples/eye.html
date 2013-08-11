@@ -30,7 +30,7 @@
 		canvas.width=image.width;
 		canvas.height=image.height;
 		canvas.getContext('2d').drawImage(image,0,0);
-		new HAAR.Detector(haarcascade_eye).image(image, 0.7).complete(function(){
+		new HAAR.Detector(haarcascade_eye).image(image, 0.7).interval(30).complete(function(){
 			wait.style.display='none';
 			alert(this.objects.length+" Objects found");
 			for(i=0; i< this.objects.length; i++){
