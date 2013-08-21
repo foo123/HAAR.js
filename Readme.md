@@ -42,6 +42,8 @@ the variable to use in javascript is similarly
 
 __HAAR.js works in the browser and inside Node.js__
 
+__HAAR.js supports parallel computation both in browser and inside Node.js__
+
 ####Runing inside the brower
  Loading wth script tags
     You can run the example face.html or mouth.html inside your browser
@@ -68,6 +70,8 @@ sudo apt-get install libcairo2-dev libjpeg8-dev libpango1.0-dev libgif-dev
 There is an example of loading with RequireJS inside node in examples/require.js.
 The configuration would be the same inside a browser
 
+####Supporting parallel computation
+ The [parallel.js](https://github.com/adambom/parallel.js) library is included in this repository, see the _face.html_ example for how to use
 
 
 ###Where to find Haar Cascades xml files to use for feature detection
@@ -92,6 +96,11 @@ The configuration would be the same inside a browser
 
 
 ###ChangeLog
+
+__0.3__
+* support optional parallel computation/detection (browser and nodejs) using [parallel.js](https://github.com/adambom/parallel.js) library (included)
+* NOTE: results might NOT be same when using parallel version instead of asynchronous version
+* refactoring of code
 
 __0.2.1__
 * use TypedArrays if available for faster array operations

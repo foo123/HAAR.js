@@ -12,6 +12,8 @@
 	 font-size:32px;
 	}
 	</style>
+    <!-- support parallel computations using web-workers (parallel.js) -->
+	<script type="text/javascript" src="../build/parallel/parallel.min.js"></script>
 	<script type="text/javascript" src="../build/haar-detector.min.js"></script>
 	<script type="text/javascript" src="../cascades/haarcascade_frontalface_alt.js"></script>
 	</head>
@@ -30,7 +32,7 @@
 		canvas.width=image.width;
 		canvas.height=image.height;
 		canvas.getContext('2d').drawImage(image,0,0);
-		new HAAR.Detector(haarcascade_frontalface_alt).image(image).interval(30).complete(function(){
+		new HAAR.Detector(haarcascade_frontalface_alt, Parallel).image(image).interval(30).complete(function(){
 			wait.style.display='none';
 			alert(this.objects.length+" Objects found");
 			for(i=0; i< this.objects.length; i++){
