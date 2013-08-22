@@ -369,7 +369,7 @@
     //
     //
     // HAAR Detector Class (with the haar cascade data)
-    HAAR.Detector = function(haardata, Parallel) {
+    HAAR.Detector = function(haardata, ParallelClass) {
         this.haardata = haardata;
         this.Async = true;
         this.Ready = false;
@@ -379,7 +379,7 @@
         this.TimeInterval=null;
         this.DetectInterval=30;
         this.Ratio=0.5;
-        this.Parallel= Parallel || false;
+        this.Parallel= ParallelClass || false;
         this.onComplete = null;
     };
 
@@ -419,7 +419,7 @@
             self.maxScale = Math.min(self.width/sizex, self.height/sizey); self.scale = baseScale; self.min_neighbors = min_neighbors; 
             self.scale_inc = scale_inc; self.increment = increment; self.Ready = false;
             
-            if (self.Parallel)
+            if (self.Parallel && self.Parallel.isSupported()) // custom method isSupported()
             {
                 var data=[], sc, i=0; 
                 for (sc=baseScale; sc<=self.maxScale; sc*=scale_inc)  
@@ -442,7 +442,7 @@
                 // needs parallel.js library (included)
                 // parallelize the detection, using map-reduce
                 // should also work in Nodejs (using child processes)
-                new self.Parallel(data)
+                new self.Parallel(data, {synchronous: false})
                     .require(evalStage, evalTree, getLeftOrRight, detectParallel, mergeParallel)
                     .map(detectParallel).reduce(mergeParallel)
                     .then(function(results){detectEnd(self, results);})
