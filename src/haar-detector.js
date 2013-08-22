@@ -412,6 +412,11 @@
             var self = this, 
                 sizex = self.haardata.size1, sizey = self.haardata.size2, grayData;
             
+            baseScale = (typeof baseScale == 'undefined') ? 1.0 : baseScale;
+            scale_inc = (typeof scale_inc == 'undefined') ? 1.25 : scale_inc;
+            increment = (typeof increment == 'undefined') ? 0.1 : increment;
+            min_neighbors = (typeof min_neighbors == 'undefined') ? 1 : min_neighbors;
+            
             self.doCannyPruning = (typeof doCannyPruning == 'undefined') ? true : doCannyPruning;
             grayData = computeGray(self.Canvas); self.gray=grayData.gray; self.squares=grayData.squares;
             self.canny = (self.doCannyPruning) ? integralCanny(grayData.img, self.width, self.height) : null; grayData=null;
