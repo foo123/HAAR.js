@@ -71,7 +71,8 @@ There is an example of loading with RequireJS inside node in examples/require.js
 The configuration would be the same inside a browser
 
 ####Supporting parallel computation
- The [parallel.js](https://github.com/adambom/parallel.js) library is included in this repository, see the _face.html_ example for how to use
+ The [parallel.js](https://github.com/adambom/parallel.js) library is included in this repository, see the _face.html_ example for how to use.
+ In most cases using parallel computation (if supported) can be much faster (eg _eye.html_ example)
 
 
 ###Where to find Haar Cascades xml files to use for feature detection
@@ -90,12 +91,17 @@ The configuration would be the same inside a browser
 
 
 ###TODO
-* optimize detector for real-time usage on browsers (eg. reference-> https://github.com/liuliu/ccv)
+* optimize detector for real-time usage on browsers (eg. reference-> https://github.com/liuliu/ccv) (parallel computation added)
 * keep up with the changes in openCV cascades xml format (will try)
 
 
 
 ###ChangeLog
+
+__0.3.1__
+* fix ordering issue when using parallel computations (rectangles merged in random order)
+* fix dimensions computation when scale <> 1 (floating point numbers can give errors)
+* minor refactoring, optimizations
 
 __0.3__
 * support optional parallel computation/detection (browser and nodejs) using [parallel.js](https://github.com/adambom/parallel.js) library (included)

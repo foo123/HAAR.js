@@ -23,11 +23,7 @@ if (!class_exists('HaarToJsConverter'))
 
 class HaarToJsConverter
 {
-    public static function error($msg)
-    {
-        trigger_error ( $msg,  E_USER_WARNING );
-        die(1);
-    }
+    public static function error($msg) { trigger_error ( $msg,  E_USER_WARNING );  die(1); }
     
     public static function toArray($element) 
     {

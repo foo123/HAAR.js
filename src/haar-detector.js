@@ -3,9 +3,10 @@
 * HAAR.js Feature Detection Library based on Viola-Jones Haar Detection algorithm
 * Port of jviolajones (Java) which is a port of openCV C++ Haar Detector
 *
-* Supports parallel "map-reduce" computation both in browser and nodejs (using parallel.js library)
+* Supports parallel "map-reduce" computation both in browser and nodejs using parallel.js library 
+* https://github.com/adambom/parallel.js (included)
 *
-* version: 0.3
+* version: 0.3.1
 * https://github.com/foo123/HAAR.js
 *
 *
@@ -31,14 +32,13 @@
 
     
     // Private methods for detection
-    function computeGray(self, image) {
-        var 
-            data = image.getContext('2d').getImageData(0, 0, image.width, image.height),
-            w = data.width, h = data.height, col, col2, i, j, pix, r, g, b, grayc, grayc2, im = data.data,
-            rm = 0.30, gm = 0.59, bm = 0.11, count=w*h, img = new Array32F(count);
-
-        self.width = w;  self.height = h;
-        self.gray = new Array64F(count); self.squares = new Array64F(count);
+    function computeGray(image) 
+    {
+        var data = image.getContext('2d').getImageData(0, 0, image.width, image.height),
+            w = data.width, h = data.height, im = data.data,
+            rm = 0.30, gm = 0.59, bm = 0.11, col, col2, i, j, pix, r, g, b, grayc, grayc2, 
+            count=w*h, img = new Array32F(count), gray = new Array64F(count), squares = new Array64F(count)
+            ;
 
         for(i = 0; i < w; i++) 
         {
@@ -50,16 +50,17 @@
                 grayc = (rm * red + gm * green + bm * blue);  grayc2 = grayc * grayc;
                 col += grayc;  col2 += grayc2;
                 img[ind] = grayc;
-                self.gray[ind] = (i > 0 ? self.gray[i - 1 + j * w] : 0) + col;
-                self.squares[ind] = (i > 0 ? self.squares[i - 1 + j * w] : 0) + col2;
+                gray[ind] = (i > 0 ? gray[i - 1 + j * w] : 0) + col;
+                squares[ind] = (i > 0 ? squares[i - 1 + j * w] : 0) + col2;
             }
         }
-        return img;
+        return {img:img, gray:gray, squares:squares};
     };
 
-    function IntegralCanny(self, grayImage) {
+    function integralCanny(grayImage, w, h) 
+    {
         var 
-            i, j, sum, w = self.width, h = self.height, grad_x, grad_y, col, value,
+            i, j, sum, grad_x, grad_y, col, value,
             ind0, ind1, ind2, nd_1, ind_2,
             count=w*h, canny = new Array64F(count), grad = new Array64F(count)
         ;
@@ -95,7 +96,7 @@
                 sum += 4 * grayImage[i + 2 + ind1];
                 sum += 2 * grayImage[i + 2 + ind2];
 
-                canny[i + ind0] = sum / 159;
+                canny[i + ind0] = sum*0.0062893081761006;  // 1.0 / 159;
             }
         }
         
@@ -122,10 +123,12 @@
         return canny;
     };
 
-    function merge(self, rects, min_neighbors) {
+    function merge(rects, min_neighbors, ratio) 
+    {
         var retlen=rects.length, ret = new Array(retlen), nb_classes = 0, retour=[], 
             found=false, neighbors, rect, r, i, j, n;
-        for(r = 0; r < retlen; r++)  ret[r] = 0;
+        
+        for(i = 0; i < retlen; i++)  ret[i] = 0;
         for(i = 0; i < retlen; i++) 
         {
             found = false;
@@ -137,12 +140,14 @@
                     ret[i] = ret[j];
                 }
             }
+            
             if(!found) 
             {
                 ret[i] = nb_classes;
                 nb_classes++;
             }
         }
+        
         neighbors = new Array(nb_classes);  rect = new Array(nb_classes);
         for(i = 0; i < nb_classes; i++) 
         {
@@ -152,7 +157,7 @@
                 width: 0, height: 0
             };
         }
-        for(i = 0; i < rects.length; i++) 
+        for(i = 0; i < retlen; i++) 
         {
             neighbors[ret[i]]++;
             rect[ret[i]].x += rects[i].x;
@@ -176,9 +181,9 @@
                 retour.push(r);
             }
         }
-        if(self.ratio != 1) // scaled down, scale them back up
+        if(ratio != 1) // scaled down, scale them back up
         {
-            var rr, ratio = 1.0 / self.ratio;
+            var rr; ratio = 1.0 / ratio;
             for(i = 0; i < retour.length; i++) 
             {
                 rr = retour[i];
@@ -191,7 +196,8 @@
         return retour;
     };
 
-    function equals(r1, r2) {
+    function equals(r1, r2) 
+    {
         var distance = Math.max(Math.floor(r1.width * 0.2), Math.floor(r2.width * 0.2)) ;
 
         if(r2.x <= r1.x + distance && r2.x >= r1.x - distance && r2.y <= r1.y + distance && r2.y >= r1.y - distance && r2.width <= Math.floor(r1.width * 1.2) && Math.floor(r2.width * 1.2) >= r1.width) return true;
@@ -200,7 +206,8 @@
     };
     
     // used for parallel "map" computation
-    function detectParallel(self) {
+    function detectParallel(self) 
+    {
         var scale=self.scale, sizex = self.haardata.size1, sizey = self.haardata.size2,
             ret=[], w = self.width, h = self.height, step, size, edges_density, d, ind1, ind2, pass,
             i, j, s, il, jl, sl;
@@ -243,23 +250,20 @@
     */
     
     // used for parallel "reduce" computation
-    function mergeParallel(d) { 
+    function mergeParallel(d) 
+    { 
         // concat and sort according to serial ordering
         if (d[1].length) d[0]=d[0].concat(d[1]).sort(function(a, b){return a.i-b.i;}); 
         return d[0]; 
     };
     
-    function endParallel(self, data){        
-        //console.log(data);
-        self.objects = merge(self, data, self.min_neighbors); self.ready = true;
-        if(self.async && self.onComplete) self.onComplete.call(self);
-    };
-    
     // used for asynchronous computation using fixed intervals
-    function detectAsync(self) {
+    function detectAsync(self) 
+    {
         var sizex = self.haardata.size1, sizey = self.haardata.size2,
             w = self.width, h = self.height, step, size, edges_density, d, ind1, ind2, pass,
             i, j, s, il, jl, sl;
+        
         if(self.scale <= self.maxScale) 
         {
             step = Math.floor(self.scale * sizex * self.increment); size = Math.floor(self.scale * sizex);
@@ -288,24 +292,28 @@
             }
             self.scale *= self.scale_inc;
         } 
-        else { detectEnd(self); }
+        else { clearInterval(self.TimeInterval); detectEnd(self, self.ret); }
     };
 
-    function detectEnd(self) {
-        clearInterval(self._timeinterval);
-        self.objects = merge(self, self.ret, self.min_neighbors); self.ready = true;
-        if(self.async && self.onComplete) self.onComplete.call(self);
+    // called when detection ends, calls user-callback if any
+    function detectEnd(self, rects) 
+    {
+        console.log(rects);
+        self.objects = merge(rects, self.min_neighbors, self.Ratio); self.Ready = true;
+        if(self.Async && self.onComplete) self.onComplete.call(self);
     };
     
     // Viola-Jones HAAR-Stage evaluator
-    function evalStage(self, s, i, j, scale) {
+    function evalStage(self, s, i, j, scale) 
+    {
         var sum = 0, threshold = self.haardata.stages[s].thres, trees = self.haardata.stages[s].trees, t, tl = trees.length;
         for(t = 0; t < tl; t++) { sum += evalTree(self, s, t, i, j, scale); }
         return (sum > threshold);
     };
 
     // Viola-Jones HAAR-Tree evaluator
-    function evalTree(self, s, t, i, j, scale) {
+    function evalTree(self, s, t, i, j, scale) 
+    {
         var features = self.haardata.stages[s].trees[t].feats, cur_node_ind = 0, cur_node = features[cur_node_ind];
         while(true) 
         {
@@ -332,28 +340,28 @@
     };
 
     // Viola-Jones HAAR-Leaf evaluator
-    function getLeftOrRight(self, s, t, f, i, j, scale) {
-        var sizex = self.haardata.size1, sizey = self.haardata.size2;
-        var w = Math.floor(scale * sizex), h = Math.floor(scale * sizey);
-        var ww = self.width, hh = self.height, inv_area = 1.0 /(w*h), ind=j*ww, indh=(j+h)*ww;
-        var grayImage = self.gray, squares = self.squares;
-        var total_x = grayImage[i + w + indh] + grayImage[i + ind] - grayImage[i + indh] - grayImage[i + w + ind];
-        var total_x2 = squares[i + w + indh] + squares[i + ind] - squares[i + indh] - squares[i + w + ind];
-        var moy = total_x * inv_area, vnorm = total_x2 * inv_area - moy * moy;
-        var feature = self.haardata.stages[s].trees[t].feats[f], rects = feature.rects, nb_rects = rects.length, threshold = feature.thres;
+    function getLeftOrRight(self, s, t, f, i, j, scale) 
+    {
+        var sizex = self.haardata.size1, sizey = self.haardata.size2,
+            w = Math.floor(scale * sizex), h = Math.floor(scale * sizey),
+            ww = self.width, hh = self.height, inv_area = 1.0 /(w*h), ind=j*ww, indh=(j+h)*ww,
+            grayImage = self.gray, squares = self.squares,
+            total_x = grayImage[i + w + indh] + grayImage[i + ind] - grayImage[i + indh] - grayImage[i + w + ind],
+            total_x2 = squares[i + w + indh] + squares[i + ind] - squares[i + indh] - squares[i + w + ind],
+            moy = total_x * inv_area, vnorm = total_x2 * inv_area - moy * moy,
+            feature = self.haardata.stages[s].trees[t].feats[f], rects = feature.rects, nb_rects = rects.length, threshold = feature.thres,
+            rect_sum = 0, rect_sum2, k, r, rx1, rx2, ry1, ry2
+            ;
+        
         vnorm = (vnorm > 1) ? Math.sqrt(vnorm) : 1;
-
-        var rect_sum = 0;
-        for(var k = 0; k < nb_rects; k++) 
+        for(k = 0; k < nb_rects; k++) 
         {
-            var r = rects[k];
-            var rx1 = i + Math.floor(scale * r.x1);
-            var rx2 = i + Math.floor(scale * (r.x1 + r.y1));
-            var ry1 = j + Math.floor(scale * r.x2);
-            var ry2 = j + Math.floor(scale * (r.x2 + r.y2));
+            r = rects[k];
+            rx1 = i + Math.floor(scale * r.x1); rx2 = i + Math.floor(scale * (r.x1 + r.y1));
+            ry1 = j + Math.floor(scale * r.x2); ry2 = j + Math.floor(scale * (r.x2 + r.y2));
             rect_sum += Math.floor((grayImage[rx2 + ry2 * ww] - grayImage[rx1 + ry2 * ww] - grayImage[rx2 + ry1 * ww] + grayImage[rx1 + ry1 * ww]) * r.f);
         }
-        var rect_sum2 = rect_sum * inv_area;
+        rect_sum2 = rect_sum * inv_area;
         return(rect_sum2 < threshold * vnorm) ? 0 : 1;
     };
     
@@ -363,10 +371,14 @@
     // HAAR Detector Class (with the haar cascade data)
     HAAR.Detector = function(haardata, Parallel) {
         this.haardata = haardata;
-        this.async = true;
-        this.ready = false;
-        this.canvas = null;
-        this._interval=30;
+        this.Async = true;
+        this.Ready = false;
+        this.doCannyPruning=false;
+        this.Canvas = null;
+        this.ret=null;
+        this.TimeInterval=null;
+        this.DetectInterval=30;
+        this.Ratio=0.5;
         this.Parallel= Parallel || false;
         this.onComplete = null;
     };
@@ -377,17 +389,17 @@
         image : function(image, scale, canvas) {
             if (image)
             {
-                this.canvas = canvas || document.createElement('canvas');
-                this.ratio = (typeof scale == 'undefined') ? 0.5 : scale; this.async = true; this.ready = false;
-                this.canvas.width = this.ratio * image.width; this.canvas.height = this.ratio * image.height;
-                this.canvas.getContext('2d').drawImage(image, 0, 0, image.width, image.height, 0, 0, this.canvas.width, this.canvas.height);
+                this.Canvas = canvas || document.createElement('canvas');
+                this.Ratio = (typeof scale == 'undefined') ? 0.5 : scale; this.Async = true; this.Ready = false;
+                this.width = this.Canvas.width = Math.floor(this.Ratio * image.width); this.height = this.Canvas.height = Math.floor(this.Ratio * image.height);
+                this.Canvas.getContext('2d').drawImage(image, 0, 0, image.width, image.height, 0, 0, this.Canvas.width, this.Canvas.height);
             }
             return this;
         },
 
         // detector set detection interval
         interval : function(it) {
-            if (it>0) {this._interval = it;} return this;
+            if (it>0) {this.DetectInterval = it;} return this;
         },
         
         // detector on complete callback
@@ -398,14 +410,14 @@
         // Detector detect method to start detection
         detect : function(baseScale, scale_inc, increment, min_neighbors, doCannyPruning) {
             var self = this, 
-                sizex = self.haardata.size1, sizey = self.haardata.size2, img;
+                sizex = self.haardata.size1, sizey = self.haardata.size2, grayData;
             
             self.doCannyPruning = (typeof doCannyPruning == 'undefined') ? true : doCannyPruning;
-            img = computeGray(self, self.canvas);
-            self.canny = (self.doCannyPruning) ? IntegralCanny(self, img) : null; img=null;
+            grayData = computeGray(self.Canvas); self.gray=grayData.gray; self.squares=grayData.squares;
+            self.canny = (self.doCannyPruning) ? integralCanny(grayData.img, self.width, self.height) : null; grayData=null;
             
             self.maxScale = Math.min(self.width/sizex, self.height/sizey); self.scale = baseScale; self.min_neighbors = min_neighbors; 
-            self.scale_inc = scale_inc; self.increment = increment; self.ready = false;
+            self.scale_inc = scale_inc; self.increment = increment; self.Ready = false;
             
             if (self.Parallel)
             {
@@ -433,14 +445,14 @@
                 new self.Parallel(data)
                     .require(evalStage, evalTree, getLeftOrRight, detectParallel, mergeParallel)
                     .map(detectParallel).reduce(mergeParallel)
-                    .then(function(results){endParallel(self, results);})
+                    .then(function(results){detectEnd(self, results);})
                 ;
             }
             else//if (this.async)
             {
                 // else detect asynchronously using fixed intervals
                 self.ret = [];
-                self._timeinterval = setInterval(function() { detectAsync(self); }, self._interval);
+                self.TimeInterval = setInterval(function() { detectAsync(self); }, self.DetectInterval);
             }
             return this;
         }
