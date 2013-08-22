@@ -35,10 +35,10 @@
         var 
             data = image.getContext('2d').getImageData(0, 0, image.width, image.height),
             w = data.width, h = data.height, col, col2, i, j, pix, r, g, b, grayc, grayc2, im = data.data,
-            rm = 0.30, gm = 0.59, bm = 0.11, count=w*h;
+            rm = 0.30, gm = 0.59, bm = 0.11, count=w*h, img = new Array32F(count);
 
         self.width = w;  self.height = h;
-        self.gray = new Array64F(count); self.img = new Array32F(count);  self.squares = new Array64F(count);
+        self.gray = new Array64F(count); self.squares = new Array64F(count);
 
         for(i = 0; i < w; i++) 
         {
@@ -49,11 +49,12 @@
                 red = im[pix];  green = im[pix + 1];  blue = im[pix + 2];
                 grayc = (rm * red + gm * green + bm * blue);  grayc2 = grayc * grayc;
                 col += grayc;  col2 += grayc2;
-                self.img[ind] = grayc;
+                img[ind] = grayc;
                 self.gray[ind] = (i > 0 ? self.gray[i - 1 + j * w] : 0) + col;
                 self.squares[ind] = (i > 0 ? self.squares[i - 1 + j * w] : 0) + col2;
             }
         }
+        return img;
     };
 
     function IntegralCanny(self, grayImage) {
@@ -122,12 +123,13 @@
     };
 
     function merge(self, rects, min_neighbors) {
-        var retlen=rects.length, ret = new Array(retlen), nb_classes = 0, retour=[], found=false, neighbors, rect;
-        for(var r = 0; r < retlen; r++)  ret[r] = 0;
-        for(var i = 0; i < retlen; i++) 
+        var retlen=rects.length, ret = new Array(retlen), nb_classes = 0, retour=[], 
+            found=false, neighbors, rect, r, i, j, n;
+        for(r = 0; r < retlen; r++)  ret[r] = 0;
+        for(i = 0; i < retlen; i++) 
         {
             found = false;
-            for(var j = 0; j < i; j++) 
+            for(j = 0; j < i; j++) 
             {
                 if(equals(rects[j], rects[i])) 
                 {
@@ -142,7 +144,7 @@
             }
         }
         neighbors = new Array(nb_classes);  rect = new Array(nb_classes);
-        for(var i = 0; i < nb_classes; i++) 
+        for(i = 0; i < nb_classes; i++) 
         {
             neighbors[i] = 0;
             rect[i] = {
@@ -150,7 +152,7 @@
                 width: 0, height: 0
             };
         }
-        for(var i = 0; i < rects.length; i++) 
+        for(i = 0; i < rects.length; i++) 
         {
             neighbors[ret[i]]++;
             rect[ret[i]].x += rects[i].x;
@@ -158,12 +160,12 @@
             rect[ret[i]].height += rects[i].height;
             rect[ret[i]].width += rects[i].width;
         }
-        for(var i = 0; i < nb_classes; i++) 
+        for(i = 0; i < nb_classes; i++) 
         {
-            var n = neighbors[i];
+            n = neighbors[i];
             if(n >= min_neighbors) 
             {
-                var r = {
+                r = {
                     x: 0, y: 0,
                     width: 0, height: 0
                 };
@@ -176,10 +178,10 @@
         }
         if(self.ratio != 1) // scaled down, scale them back up
         {
-            var ratio = 1.0 / self.ratio;
-            for(var i = 0; i < retour.length; i++) 
+            var rr, ratio = 1.0 / self.ratio;
+            for(i = 0; i < retour.length; i++) 
             {
-                var rr = retour[i];
+                rr = retour[i];
                 retour[i] = {
                     x: rr.x * ratio, y: rr.y * ratio,
                     width: rr.width * ratio,  height: rr.height * ratio
@@ -199,15 +201,16 @@
     
     // used for parallel "map" computation
     function detectParallel(self) {
-        var scale=self.scale, sizex = self.haardata.size1, sizey = self.haardata.size2;
-        var ret=[], w = self.width, h = self.height, step, size, edges_density, d, ind1, ind2, pass;
+        var scale=self.scale, sizex = self.haardata.size1, sizey = self.haardata.size2,
+            ret=[], w = self.width, h = self.height, step, size, edges_density, d, ind1, ind2, pass,
+            i, j, s, il, jl, sl;
         
         if(scale <= self.maxScale) 
         {
             step = Math.floor(scale * sizex * self.increment); size = Math.floor(scale * sizex);
-            for(var i = 0, il=w-size; i < il; i += step) 
+            for(i = 0, il=w-size; i < il; i += step) 
             {
-                for(var j = 0, jl=h-size; j < jl; j += step) 
+                for(j = 0, jl=h-size; j < jl; j += step) 
                 {
                     if(self.doCannyPruning) 
                     {
@@ -217,12 +220,13 @@
                         if(d < 20 || d > 100) continue;
                     }
                     pass = true;
-                    for(var s = 0, sl=self.haardata.stages.length; s < sl; s++) 
+                    for(s = 0, sl=self.haardata.stages.length; s < sl; s++) 
                     {
                         pass = evalStage(self, s, i, j, scale);
                         if(pass == false) break;
                     }
                     if(pass) ret.push({
+                            i: self.i,
                             x: i, y: j,
                             width: size,  height: size
                         });
@@ -232,25 +236,36 @@
         return ret;        
     };
     
+    /*
+    splice subarray (not used)
+    http://stackoverflow.com/questions/1348178/a-better-way-to-splice-an-array-into-an-array-in-javascript
+    Array.prototype.splice.apply(d[0], [prev, 0].concat(d[1])); 
+    */
+    
     // used for parallel "reduce" computation
-    function mergeParallel(d) { return d[0].concat(d[1]); };
+    function mergeParallel(d) { 
+        // concat and sort according to serial ordering
+        if (d[1].length) d[0]=d[0].concat(d[1]).sort(function(a, b){return a.i-b.i;}); 
+        return d[0]; 
+    };
     
     function endParallel(self, data){        
-        self.objects = merge(self, data, self.min_neighbors);
-        self.ready = true;
+        //console.log(data);
+        self.objects = merge(self, data, self.min_neighbors); self.ready = true;
         if(self.async && self.onComplete) self.onComplete.call(self);
     };
     
     // used for asynchronous computation using fixed intervals
     function detectAsync(self) {
-        var sizex = self.haardata.size1, sizey = self.haardata.size2;
-        var w = self.width, h = self.height, step, size, edges_density, d, ind1, ind2, pass;
+        var sizex = self.haardata.size1, sizey = self.haardata.size2,
+            w = self.width, h = self.height, step, size, edges_density, d, ind1, ind2, pass,
+            i, j, s, il, jl, sl;
         if(self.scale <= self.maxScale) 
         {
             step = Math.floor(self.scale * sizex * self.increment); size = Math.floor(self.scale * sizex);
-            for(var i = 0, il=w-size; i < il; i += step) 
+            for(i = 0, il=w-size; i < il; i += step) 
             {
-                for(var j = 0, jl=h-size; j < jl; j += step) 
+                for(j = 0, jl=h-size; j < jl; j += step) 
                 {
                     if(self.doCannyPruning) 
                     {
@@ -260,7 +275,7 @@
                         if(d < 20 || d > 100) continue;
                     }
                     pass = true;
-                    for(var s = 0, sl=self.haardata.stages.length; s < sl; s++) 
+                    for(s = 0, sl=self.haardata.stages.length; s < sl; s++) 
                     {
                         pass = evalStage(self, s, i, j, self.scale);
                         if(pass == false) break;
@@ -278,8 +293,7 @@
 
     function detectEnd(self) {
         clearInterval(self._timeinterval);
-        self.objects = merge(self, self.ret, self.min_neighbors);
-        self.ready = true;
+        self.objects = merge(self, self.ret, self.min_neighbors); self.ready = true;
         if(self.async && self.onComplete) self.onComplete.call(self);
     };
     
@@ -350,7 +364,7 @@
     HAAR.Detector = function(haardata, Parallel) {
         this.haardata = haardata;
         this.async = true;
-        this.Image = null;
+        this.ready = false;
         this.canvas = null;
         this._interval=30;
         this.Parallel= Parallel || false;
@@ -361,70 +375,72 @@
 
         // set image for detector along with scaling (and an optional canvas, eg for nodejs)
         image : function(image, scale, canvas) {
-            this.Image = image;   this.canvas = canvas || document.createElement('canvas');
-            if(typeof scale == 'undefined') scale = 0.5;  this.ratio = scale;   this.async = true;
-            this.canvas.width = scale * image.width;   this.canvas.height = scale * image.height;
-            this.canvas.getContext('2d').drawImage(image, 0, 0, image.width, image.height, 0, 0, scale * image.width, scale * image.height);
+            if (image)
+            {
+                this.canvas = canvas || document.createElement('canvas');
+                this.ratio = (typeof scale == 'undefined') ? 0.5 : scale; this.async = true; this.ready = false;
+                this.canvas.width = this.ratio * image.width; this.canvas.height = this.ratio * image.height;
+                this.canvas.getContext('2d').drawImage(image, 0, 0, image.width, image.height, 0, 0, this.canvas.width, this.canvas.height);
+            }
             return this;
-        },
-
-        // detector on complete callback
-        complete : function(func) {
-            this.onComplete = func;   return this;
         },
 
         // detector set detection interval
         interval : function(it) {
-            this._interval = it;   return this;
+            if (it>0) {this._interval = it;} return this;
         },
         
+        // detector on complete callback
+        complete : function(func) {
+            this.onComplete = func; return this;
+        },
+
         // Detector detect method to start detection
         detect : function(baseScale, scale_inc, increment, min_neighbors, doCannyPruning) {
-            if(typeof doCannyPruning == 'undefined') doCannyPruning = true;
-            this.doCannyPruning = doCannyPruning;
-            this.ret = [];
-            computeGray(this, this.canvas);
-            var self = this, sizex = this.haardata.size1, sizey = this.haardata.size2, w = this.width, h = this.height;
-            this.maxScale = Math.min((w) / sizex, (h) / sizey);  this.canny = null;
-            if(this.doCannyPruning) this.canny = IntegralCanny(this, this.img);
-            this.scale = baseScale;   this.min_neighbors = min_neighbors;
-            this.scale_inc = scale_inc;  this.increment = increment;   this.ready = false;
+            var self = this, 
+                sizex = self.haardata.size1, sizey = self.haardata.size2, img;
             
-            if (this.Parallel)
+            self.doCannyPruning = (typeof doCannyPruning == 'undefined') ? true : doCannyPruning;
+            img = computeGray(self, self.canvas);
+            self.canny = (self.doCannyPruning) ? IntegralCanny(self, img) : null; img=null;
+            
+            self.maxScale = Math.min(self.width/sizex, self.height/sizey); self.scale = baseScale; self.min_neighbors = min_neighbors; 
+            self.scale_inc = scale_inc; self.increment = increment; self.ready = false;
+            
+            if (self.Parallel)
             {
-                // needs parallel.js library (included)
-                // parallelize the detection, using map-reduce
-                // might also work in Nodejs (using child processes) ??
-                var data=[]; 
-                for (var sc=baseScale; sc<=this.maxScale; sc*=scale_inc)  
+                var data=[], sc, i=0; 
+                for (sc=baseScale; sc<=self.maxScale; sc*=scale_inc)  
                     data.push({
-                        haardata:this.haardata,
-                        width:this.width,
-                        height:this.height,
-                        ratio:this.ratio,
-                        gray:this.gray,
-                        img:this.img,
-                        squares:this.squares,
-                        doCannyPruning:this.doCannyPruning,
-                        canny:this.canny,
-                        maxScale:this.maxScale,
-                        min_neighbors:this.min_neighbors,
-                        scale_inc:this.scale_inc,
-                        increment:this.increment,
-                        scale:sc
+                        haardata : self.haardata,
+                        width : self.width,
+                        height : self.height,
+                        gray : self.gray,
+                        squares : self.squares,
+                        doCannyPruning : self.doCannyPruning,
+                        canny : self.canny,
+                        maxScale : self.maxScale,
+                        min_neighbors : min_neighbors,
+                        scale_inc : scale_inc,
+                        increment : increment,
+                        scale : sc, // current scale to check
+                        i : i++ // serial ordering
                     });
                 
-                new this.Parallel(data)
+                // needs parallel.js library (included)
+                // parallelize the detection, using map-reduce
+                // should also work in Nodejs (using child processes)
+                new self.Parallel(data)
                     .require(evalStage, evalTree, getLeftOrRight, detectParallel, mergeParallel)
-                    .map(detectParallel)
-                    .reduce(mergeParallel)
-                    .then(function(data){endParallel(self, data);})
+                    .map(detectParallel).reduce(mergeParallel)
+                    .then(function(results){endParallel(self, results);})
                 ;
             }
             else//if (this.async)
             {
                 // else detect asynchronously using fixed intervals
-                this._timeinterval = setInterval(function() {  detectAsync(self)  }, this._interval);
+                self.ret = [];
+                self._timeinterval = setInterval(function() { detectAsync(self); }, self._interval);
             }
             return this;
         }

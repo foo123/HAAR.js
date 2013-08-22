@@ -99,7 +99,6 @@ The configuration would be the same inside a browser
 
 __0.3__
 * support optional parallel computation/detection (browser and nodejs) using [parallel.js](https://github.com/adambom/parallel.js) library (included)
-* NOTE: results might NOT be same when using parallel version instead of asynchronous version
 * refactoring of code
 
 __0.2.1__
