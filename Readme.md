@@ -122,13 +122,14 @@ The configuration would be the same inside a browser
 
 ###Usage Ideas
 * [SmileDetectJS](https://github.com/roironn/SmileDetectJS)
-* [ObjectDetect](https://github.com/mtschirs/js-objectdetect) (some ideas from HAAR.js are used with extra functionality like object tracking)
+* [ObjectDetect](https://github.com/mtschirs/js-objectdetect) (some common ideas with HAAR.js are used with extra functionality like object tracking)
 
 
 
 ###TODO
 * optimize detector for real-time usage on browsers (eg. reference-> https://github.com/liuliu/ccv) (parallel computation added)
 * keep up with the changes in openCV cascades xml format (will try)
+* add some real-performance tests (anyone interested??)
 
 
 
