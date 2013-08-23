@@ -129,7 +129,9 @@ The configuration would be the same inside a browser
 ###TODO
 * optimize detector for real-time usage on browsers (eg. reference-> https://github.com/liuliu/ccv) (parallel computation added)
 * keep up with the changes in openCV cascades xml format (will try)
-* add some real-performance tests (anyone interested??)
+* add selection option so detection can be confined only to that selection (ie detect nose, while face is already detected etc..)
+* check if some operations can use fixed-point arithmetic, or other micro-optimizations (will try)
+* add some real performance tests (anyone interested??)
 
 
 
