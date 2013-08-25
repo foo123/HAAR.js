@@ -56,24 +56,24 @@ __Explanation of parameters__
 
 __image()__
 ```javascript
-detector.image(imageOrCanvas, scale, CanvasClass);
+detector.image(ImageOrVideoOrCanvas, scale, CanvasClass);
 ```
 
 __Explanation of parameters__
 
-* _imageOrCanvas_ : an actual Image or Canvas Object (in this case they are equivalent).
+* _ImageOrVideoOrCanvas_ : an actual Image or Video element or Canvas Object (in this case they are equivalent).
 * _scale_ : The percent of scaling from the original image, so detection proceeds faster on a smaller image (default __0.5__ ). __NOTE__ scaling might alter the detection results sometimes, if having problems opt towards 1 (slower)
 * _CanvasClass_ : This is optional and used only when running in nodejs (passing the node-canvas object).
 
 
 __interval()__
 ```javascript
-detector.interval(detection_interval);
+detector.interval(detectionInterval);
 ```
 
 __Explanation of parameters__
 
-* _detection_interval_ : interval to run the detection asynchronously (if not parallel) in  microseconds (default __30__).
+* _detectionInterval_ : interval to run the detection asynchronously (if not parallel) in  microseconds (default __30__).
 
 
 __selection()__
@@ -97,9 +97,9 @@ __cannyThreshold()__
 detector.cannyThreshold({low: lowThreshold, high: highThreshold});
 ```
 
-Set the threshold when canny Pruning is used, for extra fine-tuning
-Canny Pruning, detects the number/density of edges in a given region, so a region with too few or too many edges is unlikely to be a feature
-Default values work fine in most cases, however depending on the image size and the specific feature, some fine tuning could be needed
+Set the thresholds when Canny Pruning is used, for extra fine-tuning. 
+Canny Pruning detects the number/density of edges in a given region. A region with too few or too many edges is unlikely to be a feature. 
+Default values work fine in most cases, however depending on image size and the specific feature, some fine tuning could be needed
 
 __Explanation of parameters__
 
@@ -170,11 +170,11 @@ The configuration would be the same inside a browser
 
 
 ###TODO
-* [x] optimize detector for real-time usage on browsers (eg. reference-> https://github.com/liuliu/ccv) [DONE, parallel.js]
-* [x] add selection option, detection is confined to that selection (eg detect nose while face already detected) [DONE]
-* [x] check if some operations can use fixed-point arithmetic, or other micro-optimizations (will try) [DONE where applicable]
-* [ ] keep up with the changes in openCV cascades xml format (will try)
-* [ ] add some real performance tests (anyone interested??)
+-[x] optimize detector for real-time usage on browsers (eg. reference-> https://github.com/liuliu/ccv) [DONE, parallel.js]
+-[x] add selection option, detection is confined to that selection (eg detect nose while face already detected) [DONE]
+-[x] check if some operations can use fixed-point arithmetic, or other micro-optimizations (will try) [DONE where applicable]
+-[ ] keep up with the changes in openCV cascades xml format (will try)
+-[ ] add some real performance tests (anyone interested??)
 
 
 
