@@ -7,8 +7,8 @@ Based on [Viola-Jones Feature Detection Algorithm using Haar Cascades](http://ww
 This is a port of [OpenCV C++ Haar Detection](http://opencv.willowgarage.com/wiki/) (actually a port of [JViolaJones](http://code.google.com/p/jviolajones/) which is a port of OpenCV for Java) to javascript and HTML5 canvas.
 
 [![Haar.js Face Detection](/examples/haar-face-detection.png)](http://foo123.github.com/examples/face-detection/)
-[![Haar.js Many Faces Detection](/examples/haar-faces-detection.png)](http://foo123.github.com/examples/face-detection/)
-[![Haar.js Face Detection](/examples/haar-mouth-detection.png)](http://foo123.github.com/examples/face-detection/)
+[![Haar.js Many Faces Detection](/examples/haar-faces-detection.png)](http://foo123.github.com/examples/faces-detection/)
+[![Haar.js Face Detection](/examples/haar-mouth-detection.png)](http://foo123.github.com/examples/mouth-detection/)
 
 ###Contents
 
@@ -21,6 +21,8 @@ This is a port of [OpenCV C++ Haar Detection](http://opencv.willowgarage.com/wik
 
 ###Live Example
 * [Face Detection](http://foo123.github.com/examples/face-detection/)
+* [Many Faces Detection](http://foo123.github.com/examples/faces-detection/)
+* [Mouth Detection](http://foo123.github.com/examples/mouth-detection/)
 
 
 ###How To use
