@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
     <head>
-        <title>Mouth detection demo with Haar cascades detector in javascript and HTML5 canvas</title>
+        <title>Many Faces detection demo with Haar cascades detector in javascript and HTML5 canvas</title>
         <meta http-equiv="content-type" content="text/html; charset=UTF-8">
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
@@ -16,21 +16,21 @@
         <!-- support parallel computations using web-workers (parallel.js) -->
         <script type="text/javascript" src="../build/parallel/parallel.min.js"></script>
         <script type="text/javascript" src="../build/haar-detector.min.js"></script>
-        <script type="text/javascript" src="../cascades/haarcascade_mcs_mouth.js"></script>
+        <script type="text/javascript" src="../cascades/haarcascade_frontalface_alt.js"></script>
     </head>
     <body>
         <a href="https://github.com/foo123/HAAR.js">
         <img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_red_aa0000.png" alt="Fork me on GitHub">
         </a>
         
-        <div>Mouth Detection with OpenCV haar cascades in Javascript</div>
+        <div>Many Faces Detection with OpenCV haar cascades in Javascript</div>
         <div id="wait" style="display:none"><img src='ajax-loader.gif' /></div>
         <div id="container" style="position:relative;"><canvas id='image'></canvas></div>
         <div style="font-size:18px"><a href="http://nikos-web-development.netai.net/">Nikos M.</a></div>
         
         <script>
         //<![CDATA[
-        var wait=document.getElementById('wait'), canvas=document.getElementById('image'), 
+        var wait=document.getElementById('wait'), canvas=document.getElementById('image'),
             ctx=canvas.getContext('2d'), image=new Image();
             
         image.onload=function(){
@@ -39,9 +39,12 @@
             ctx.drawImage(image,0,0);
             
             // detect the feature
-            new HAAR.Detector(haarcascade_mcs_mouth, Parallel)
+            new HAAR.Detector(haarcascade_frontalface_alt, Parallel)
                     .image(image) // use the image
-                    .interval(30) // set detection interval for asynchronous detection (if not parallel)
+                    .interval(40) // set detection interval for asynchronous detection (if not parallel)
+                    .selection('auto')  // set custom detection region
+                    //.selection({x:100, y:0, width:'auto', height:'auto'})  // set custom detection region
+                    //.selection(0, 0, 250, 200)  // set custom detection region
                     .complete(function(){  // onComplete callback
                         var i, rect, l=this.objects.length;
                         wait.style.display='none';
@@ -56,10 +59,10 @@
                         console.log(this.Selection, this.objects);
                         alert(l+" Objects found");
                     })
-                    //.detect(1, 1.15, 0.2, 1, true); // go
-                    .detect(1, 1.19, 0.18, 1, true); // go
+                    .cannyThreshold({low:95, high:170})  // custom thresholds for canny pruning (for best results)
+                    .detect(1, 1.25, 0.1, 2, true); // go
         };
-        image.src='model1.jpg'; // load it
+        image.src='Group_Faces2.jpg'; // load it
         //]]>
         </script>
     </body>

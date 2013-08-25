@@ -6,7 +6,9 @@ Based on [Viola-Jones Feature Detection Algorithm using Haar Cascades](http://ww
 
 This is a port of [OpenCV C++ Haar Detection](http://opencv.willowgarage.com/wiki/) (actually a port of [JViolaJones](http://code.google.com/p/jviolajones/) which is a port of OpenCV for Java) to javascript and HTML5 canvas.
 
-[![Haar.js](/examples/haar-face.jpg)](http://foo123.github.com/examples/face-detection/)
+[![Haar.js Face Detection](/examples/haar-face-detection.png)](http://foo123.github.com/examples/face-detection/)
+[![Haar.js Many Faces Detection](/examples/haar-faces-detection.png)](http://foo123.github.com/examples/face-detection/)
+[![Haar.js Face Detection](/examples/haar-mouth-detection.png)](http://foo123.github.com/examples/face-detection/)
 
 ###Contents
 
@@ -25,7 +27,7 @@ This is a port of [OpenCV C++ Haar Detection](http://opencv.willowgarage.com/wik
 You can use the __existing openCV cascades__ to build your detectors.
 
 To do this just transform the opencv xml file to javascript
-using the haartojs (php or java) tool (in cascades folder)
+using the haartojs (php ~~or java~~) tool (in cascades folder)
 
 example:
 ( to use opencv's haarcascades_frontalface_alt.xml  run following command)
@@ -62,6 +64,47 @@ __Explanation of parameters__
 * _imageOrCanvas_ : an actual Image or Canvas Object (in this case they are equivalent).
 * _scale_ : The percent of scaling from the original image, so detection proceeds faster on a smaller image (default __0.5__ ). __NOTE__ scaling might alter the detection results sometimes, if having problems opt towards 1 (slower)
 * _CanvasClass_ : This is optional and used only when running in nodejs (passing the node-canvas object).
+
+
+__interval()__
+```javascript
+detector.interval(detection_interval);
+```
+
+__Explanation of parameters__
+
+* _detection_interval_ : interval to run the detection asynchronously (if not parallel) in  microseconds (default __30__).
+
+
+__selection()__
+```javascript
+detector.selection('auto'|object|feature|x [,y, width, height]);
+```
+
+Allow to set a custom region in the image to confine the detection process only in that region (eg detect nose while face already detected)
+
+__Explanation of parameters__
+
+* _1st parameter_ : This can be the string 'auto' which sets the whole image as the selection, or an object ie: {x:10, y:'auto', width:100, height:'auto'} (every param set as 'auto' will take the default image value) or a detection rectangle/feature, or a x coordinate (along with rest coordinates).
+* _y_ : (Optional) the selection start y coordinate, can be an actual value or 'auto' (y=0)
+* _width_ : (Optional) the selection width, can be an actual value or 'auto' (width=image.width)
+* _height_ : (Optional) the selection height, can be an actual value or 'auto' (height=image.height)
+
+The actual selection rectangle/feature is available as this.Selection or detector.Selection
+
+__cannyThreshold()__
+```javascript
+detector.cannyThreshold({low: lowThreshold, high: highThreshold});
+```
+
+Set the threshold when canny Pruning is used, for extra fine-tuning
+Canny Pruning, detects the number/density of edges in a given region, so a region with too few or too many edges is unlikely to be a feature
+Default values work fine in most cases, however depending on the image size and the specific feature, some fine tuning could be needed
+
+__Explanation of parameters__
+
+* _low_ : (Optional) The low threshold (default __20__ ).
+* _high_ : (Optional) The high threshold (default __100__ ).
 
 
 __detect()__
@@ -127,15 +170,27 @@ The configuration would be the same inside a browser
 
 
 ###TODO
-* optimize detector for real-time usage on browsers (eg. reference-> https://github.com/liuliu/ccv) (parallel computation added)
-* keep up with the changes in openCV cascades xml format (will try)
-* add selection option so detection can be confined only to that selection (ie detect nose, while face is already detected etc..)
-* check if some operations can use fixed-point arithmetic, or other micro-optimizations (will try)
-* add some real performance tests (anyone interested??)
+* [x] optimize detector for real-time usage on browsers (eg. reference-> https://github.com/liuliu/ccv) [DONE, parallel.js]
+* [x] add selection option, detection is confined to that selection (eg detect nose while face already detected) [DONE]
+* [x] check if some operations can use fixed-point arithmetic, or other micro-optimizations (will try) [DONE where applicable]
+* [ ] keep up with the changes in openCV cascades xml format (will try)
+* [ ] add some real performance tests (anyone interested??)
 
 
 
 ###ChangeLog
+
+__0.4__
+* add selection option to confine detection to a specific image region 
+* add fine-tuning for canny pruning thresholds
+* refactor/optimize merge method (filter features/rectangles that are inside other features), detection features may be slightly different now
+* reduce unnecessary loops/computations from java port (now it is more javascript-esque or in some cases even asm-esque)
+* implement fixed-point arithmetic where applicable (gray-scaling, canny computation, references included)
+* optimize array indexing (remove unnecessary multiplications use only additions/subtractions)
+* features are now custom classes with own methods (much easier to handle while backwards-compatible)
+* partial code refactoring / minor fixes
+* add more examples (eg many faces detection, tilted faces detection)
+* update Readme
 
 __0.3.1__
 * fix ordering issue when using parallel computations (rectangles merged in random order)
@@ -161,9 +216,6 @@ __0.1__
 * initial commit by [Nikos M.](https://github.com/foo123) (works on browser)
 
 
-*Contributor* Nikos M.  
 *URL* [Nikos Web Development](http://nikos-web-development.netai.net/ "Nikos Web Development")  
 *URL* [Haar.js blog post](http://nikos-web-development.netai.net/blog/haar-js-feature-detection-in-javascript-and-html5-canvas/ "Haar.js blog post")  
 *URL* [WorkingClassCode](http://workingclasscode.uphero.com/ "Working Class Code")  
-
-*Contributor* [maxired](https://github.com/maxired)
