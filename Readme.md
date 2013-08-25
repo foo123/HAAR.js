@@ -8,18 +8,19 @@ This is a port of [OpenCV C++ Haar Detection](http://opencv.willowgarage.com/wik
 
 [![Haar.js Face Detection](/examples/haar-face-detection.png)](http://foo123.github.com/examples/face-detection/)
 [![Haar.js Many Faces Detection](/examples/haar-faces-detection.png)](http://foo123.github.com/examples/faces-detection/)
-[![Haar.js Face Detection](/examples/haar-mouth-detection.png)](http://foo123.github.com/examples/mouth-detection/)
+[![Haar.js Mouth Detection](/examples/haar-mouth-detection.png)](http://foo123.github.com/examples/mouth-detection/)
+![Haar.js Eyes Detection](/examples/haar-eyes-detection.png)
 
 ###Contents
 
-* [Live Examples](#live-example)
+* [Live Examples](#live-examples)
 * [How to Use](#how-to-use)
 * [Haar Cascades](#where-to-find-haar-cascades-xml-files-to-use-for-feature-detection)
 * [Usage Ideas](#usage-ideas)
 * [Todo](#todo)
 * [Changelog](#changelog)
 
-###Live Example
+###Live Examples
 * [Face Detection](http://foo123.github.com/examples/face-detection/)
 * [Many Faces Detection](http://foo123.github.com/examples/faces-detection/)
 * [Mouth Detection](http://foo123.github.com/examples/mouth-detection/)
