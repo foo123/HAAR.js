@@ -4,7 +4,7 @@
 * Port of jviolajones (Java) which is a port of openCV C++ Haar Detector
 *
 * https://github.com/foo123/HAAR.js
-* @version: 0.4
+* @version: 0.4.1
 *
 * Supports parallel "map-reduce" computation both in browser and nodejs using parallel.js library 
 * https://github.com/adambom/parallel.js (included)

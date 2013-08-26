@@ -4,7 +4,7 @@
 * Port of jviolajones (Java) which is a port of openCV C++ Haar Detector
 *
 * https://github.com/foo123/HAAR.js
-* @version: 0.4
+* @version: 0.4.1
 *
 * Supports parallel "map-reduce" computation both in browser and nodejs using parallel.js library 
 * https://github.com/adambom/parallel.js (included)
@@ -38,9 +38,10 @@
     //
     
     // compute gray-scale image, integral image and square image (Viola-Jones)
-    function integralImage(canvas, selection) 
+    function integralImage(canvas/*, selection*/) 
     {
-        var data = canvas.getContext('2d').getImageData(selection.x, selection.y, selection.width, selection.height),
+        //var data = canvas.getContext('2d').getImageData(selection.x, selection.y, selection.width, selection.height),
+        var data = canvas.getContext('2d').getImageData(0, 0, canvas.width, canvas.height),
             w = data.width, h = data.height, im = data.data, count=w*h,
             col, col2, i, j, k, pix, ind,
             gray = new Array8U(count), integral = new Array32U(count), squares = new Array32U(count)
@@ -197,6 +198,56 @@
         return canny;
     };
 
+    // Viola-Jones HAAR-Stage evaluator
+    function evalStage(self, s, i, j, scale, vnorm, inv_area) 
+    {
+        var Floor=Floor || Math.floor, 
+            stage=self.haardata.stages[s], threshold=stage.thres, trees=stage.trees, tl=trees.length,
+            integralImage=self.integral, squares=self.squares, ww=self.scaledSelection.width, hh=self.scaledSelection.height, 
+            t, cur_node_ind, where, features, feature, rects, nb_rects, thresholdf, 
+            rect_sum, k, r, rx1, rx2, ry1, ry2, sum=0
+        ;
+        
+        for (t = 0; t < tl; t++) 
+        { 
+            //
+            // inline the tree and leaf evaluators to avoid function calls per-loop (faster)
+            //
+            
+            // Viola-Jones HAAR-Tree evaluator
+            features=trees[t].feats; cur_node_ind=0;
+            while (true) 
+            {
+                feature=features[cur_node_ind]; 
+                // Viola-Jones HAAR-Leaf evaluator
+                rects=feature.rects; nb_rects=rects.length; thresholdf=feature.thres; rect_sum=0;
+                for (k = 0; k < nb_rects; k++) 
+                {
+                    r = rects[k];
+                    rx1 = i + Floor(scale * r.x1); rx2 = i + Floor(scale * (r.x1 + r.y1));
+                    ry1 = ww*(j + Floor(scale * r.x2)); ry2 = ww*(j + Floor(scale * (r.x2 + r.y2)));
+                    rect_sum+= /*Floor*/(r.f * (integralImage[rx2 + ry2] - integralImage[rx1 + ry2] - integralImage[rx2 + ry1] + integralImage[rx1 + ry1]));
+                }
+                where = (rect_sum * inv_area < thresholdf * vnorm) ? 0 : 1;
+                // END Viola-Jones HAAR-Leaf evaluator
+                
+                if (0 == where) 
+                {
+                    if (feature.has_l) { sum+=feature.l_val; break; } 
+                    else { cur_node_ind=feature.l_node; }
+                } 
+                else 
+                {
+                    if (feature.has_r) { sum+=feature.r_val; break; } 
+                    else { cur_node_ind=feature.r_node; }
+                }
+            }
+            // END Viola-Jones HAAR-Tree evaluator
+        }
+        return (sum > threshold);
+        // END Viola-Jones HAAR-Stage evaluator
+    };
+    
     // merge the detected features if needed
     function merge(rects, min_neighbors, ratio, selection) 
     {
@@ -252,7 +303,7 @@
             {
                 // scaled down, scale them back up
                 if (ratio != 1)  feats[i].scale(ratio); 
-                feats[i].x+=selection.x; feats[i].y+=selection.y;
+                //feats[i].x+=selection.x; feats[i].y+=selection.y;
                 feats[i].round().computeArea(); 
             }
         }
@@ -273,7 +324,7 @@
         var Floor= Floor || Math.floor, Sqrt= Sqrt || Math.sqrt, scale=self.scale, sizex = self.haardata.size1, sizey = self.haardata.size2,
             ret=[], w = self.scaledSelection.width, h = self.scaledSelection.height, step, size, edges_density, d, ds, pass, 
             ind1, ind2, k, kw, ks, i, j, s, il, jl, sl,
-            cL=self.cannyLow, cH=self.cannyHigh,
+            cL=self.cannyLow, cH=self.cannyHigh, starti=self.scaledSelection.x, startj=self.scaledSelection.y, 
             // pre-compute some values for speed
             sw, sh, swh, wh, inv_area, ii, iih, total_x, total_x2, mu, vnorm;
         
@@ -283,10 +334,10 @@
             kw=size*w; ks=step*w; ds=1/(size*size);
             // pre-compute some values for speed
             sw = size; sh = Floor(self.scale * sizey); swh=sw*sh; wh=w*sh; inv_area=1.0/swh;
-            for (i = 0, il=w-size; i < il; i += step) 
+            for (i = starti, il=w-size; i < il; i += step) 
             {
-                k=0;
-                for (j = 0, jl=h-size; j < jl; j += step) 
+                k=(startj) ? startj*ks : 0;
+                for (j = startj, jl=h-size; j < jl; j += step) 
                 {
                     ind1=i + k + kw; ind2=i + k; k+=ks;
                     if (self.doCannyPruning) 
@@ -391,55 +442,6 @@
         if (self.onComplete) self.onComplete.call(self);
     };
     
-    // Viola-Jones HAAR-Stage evaluator
-    function evalStage(self, s, i, j, scale, vnorm, inv_area) 
-    {
-        var sum = 0, threshold = self.haardata.stages[s].thres, trees = self.haardata.stages[s].trees, t, tl = trees.length;
-        for (t = 0; t < tl; t++) { sum += evalTree(self, s, t, i, j, scale, vnorm, inv_area); }
-        return (sum > threshold);
-    };
-
-    // Viola-Jones HAAR-Tree evaluator
-    function evalTree(self, s, t, i, j, scale, vnorm, inv_area) 
-    {
-        var features = self.haardata.stages[s].trees[t].feats, cur_node_ind = 0, cur_node = features[0], where;
-        while (true) 
-        {
-            where = getLeftOrRight(self, s, t, cur_node_ind, i, j, scale, vnorm, inv_area);
-            if (0 == where) 
-            {
-                if (cur_node.has_l) {  return cur_node.l_val; } 
-                else { cur_node_ind = cur_node.l_node;  cur_node = features[cur_node_ind]; }
-            } 
-            else 
-            {
-                if (cur_node.has_r) {  return cur_node.r_val; } 
-                else { cur_node_ind = cur_node.r_node;  cur_node = features[cur_node_ind]; }
-            }
-        }
-    };
-
-    // Viola-Jones HAAR-Leaf evaluator
-    function getLeftOrRight(self, s, t, f, i, j, scale, vnorm, inv_area) 
-    {
-        var Floor=Floor || Math.floor,
-            integralImage = self.integral, squares = self.squares,
-            feature = self.haardata.stages[s].trees[t].feats[f], rects = feature.rects, nb_rects = rects.length, threshold = feature.thres,
-            sizex = self.haardata.size1, sizey = self.haardata.size2,
-            ww = self.scaledSelection.width, hh = self.scaledSelection.height,
-            rect_sum = 0, k, r, rx1, rx2, ry1, ry2
-            ;
-        
-        for (k = 0; k < nb_rects; k++) 
-        {
-            r = rects[k];
-            rx1 = i + Floor(scale * r.x1); rx2 = i + Floor(scale * (r.x1 + r.y1));
-            ry1 = j + Floor(scale * r.x2); ry2 = j + Floor(scale * (r.x2 + r.y2));
-            ry1*=ww; ry2*=ww;
-            rect_sum+= /*Floor*/(r.f * (integralImage[rx2 + ry2] - integralImage[rx1 + ry2] - integralImage[rx2 + ry1] + integralImage[rx1 + ry1]));
-        }
-        return (rect_sum * inv_area < threshold * vnorm) ? 0 : 1;
-    };
     
     //
     //
@@ -501,7 +503,7 @@
         
         almostEqual : function(f) { 
             var d1=Max(f.width, this.width)*0.18, d2=Max(f.height, this.height)*0.18;
-            return ( Abs(this.x-f.x) <= d1 && Abs(this.y-f.y) <= d2 && Abs(this.width-f.width) <= d1  && Abs(this.height-f.height) <= d2 ) ? true : false; 
+            return ( Abs(this.x-f.x) <= d1 && Abs(this.y-f.y) <= d2 && Abs(this.width-f.width) <= d1 && Abs(this.height-f.height) <= d2 ) ? true : false; 
         },
         
         clone : function(f) {
@@ -528,6 +530,7 @@
         this.TimeInterval=null;
         this.DetectInterval=30;
         this.Ratio=0.5;
+        this.ImageChanged=false;
         this.cannyLow=20;
         this.cannyHigh=100;
         this.Parallel= ParallelClass || false;
@@ -550,6 +553,7 @@
                 this.origWidth=image.width;  this.origHeight=image.height;
                 this.width = this.Canvas.width = Round(this.Ratio * image.width); this.height = this.Canvas.height = Round(this.Ratio * image.height);
                 this.Canvas.getContext('2d').drawImage(image, 0, 0, image.width, image.height, 0, 0, this.width, this.height);
+                this.ImageChanged=true;
             }
             return this;
         },
@@ -593,9 +597,13 @@
             min_neighbors = (typeof min_neighbors == 'undefined') ? 1 : min_neighbors;
             self.doCannyPruning = (typeof doCannyPruning == 'undefined') ? true : doCannyPruning;
             
-            integralImg = integralImage(self.Canvas, self.scaledSelection);
-            self.canny = (self.doCannyPruning) ? integralCanny(integralImg.gray, self.scaledSelection.width, self.scaledSelection.height) : null;
-            self.integral=integralImg.integral; self.squares=integralImg.squares; integralImg=null;
+            if (this.ImageChanged) // allow to use cached image data with same image/different selection
+            {
+                integralImg = integralImage(self.Canvas/*, self.scaledSelection*/);
+                self.canny = (self.doCannyPruning) ? integralCanny(integralImg.gray, self.width, self.height/*, self.scaledSelection.width, self.scaledSelection.height*/) : null;
+                self.integral=integralImg.integral; self.squares=integralImg.squares; integralImg=null;
+            }
+            this.ImageChanged=false;
             
             self.maxScale = Min(self.width/sizex, self.height/sizey); self.scale = baseScale; self.min_neighbors = min_neighbors; 
             self.scale_inc = scale_inc; self.increment = increment; self.Ready = false;
@@ -627,7 +635,7 @@
                 // parallelize the detection, using map-reduce
                 // should also work in Nodejs (using child processes)
                 new self.Parallel(data, {synchronous: false})
-                    .require(byOrder, evalStage, evalTree, getLeftOrRight, detectParallel, mergeParallel)
+                    .require(byOrder, evalStage, detectParallel, mergeParallel)
                     .map(detectParallel).reduce(mergeParallel)
                     .then(function(results){detectEnd(self, results);})
                 ;

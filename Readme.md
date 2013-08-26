@@ -183,6 +183,10 @@ The configuration would be the same inside a browser
 
 ###ChangeLog
 
+__0.4.1__
+* cache image data to use with different selection (not re-compute if image is same but selection different)
+* inline the haar-tree and haar-leaf evaluators inside the haar-stage evaluator for speed
+
 __0.4__
 * add selection option to confine detection to a specific image region 
 * add fine-tuning for canny pruning thresholds
