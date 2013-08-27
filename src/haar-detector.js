@@ -389,7 +389,7 @@
         var Floor= Floor || Math.floor, sizex = self.haardata.size1, sizey = self.haardata.size2,
             w = self.scaledSelection.width, h = self.scaledSelection.height, step, size, edges_density, d, ds, pass, 
             ind1, ind2, k, kw, ks, i, j, s, il, jl, sl, 
-            cL=self.cannyLow, cH=self.cannyHigh,
+            cL=self.cannyLow, cH=self.cannyHigh, starti=self.scaledSelection.x, startj=self.scaledSelection.y,
             // pre-compute some values for speed
             sw, sh, swh, wh, inv_area, ii, iih, total_x, total_x2, mu, vnorm;
         
@@ -399,10 +399,10 @@
             kw=size*w; ks=step*w; ds=1/(size*size);
             // pre-compute some values for speed
             sw = size; sh = Floor(self.scale * sizey); swh=sw*sh; wh=w*sh; inv_area=1.0/swh;
-            for (i = 0, il=w-size; i < il; i += step) 
+            for (i = starti, il=w-size; i < il; i += step) 
             {
-                k=0;
-                for (j = 0, jl=h-size; j < jl; j += step) 
+                k=(startj) ? startj*ks : 0;
+                for (j = startj, jl=h-size; j < jl; j += step) 
                 {
                     ind1=i + k + kw; ind2=i + k; k+=ks;
                     if (self.doCannyPruning) 
