@@ -4,7 +4,7 @@
 * Port of jviolajones (Java) which is a port of openCV C++ Haar Detector
 *
 * https://github.com/foo123/HAAR.js
-* @version: 0.4.1
+* @version: 0.4.2
 *
 * Supports parallel "map-reduce" computation both in browser and nodejs using parallel.js library 
 * https://github.com/adambom/parallel.js (included)
@@ -544,6 +544,9 @@
         Selection : null,
         Ready : false,
         
+        // set haardata, use same detector with cached data, to detect different feature
+        cascade : function(haardata) { this.haardata=haardata; return this; },
+    
         // set image for detector along with scaling (and an optional canvas, eg for nodejs)
         image : function(image, scale, canvas) {
             if (image)
@@ -561,7 +564,7 @@
         // detector set detection interval
         interval : function(it) { if (it>0) {this.DetectInterval = it;} return this; },
         
-        // customize canny prunign thresholds for best results
+        // customize canny prunning thresholds for best results
         cannyThreshold : function(thres) {
             (thres && 'undefined'!=typeof(thres.low)) && (this.cannyLow=thres.low);
             (thres && 'undefined'!=typeof(thres.high)) && (this.cannyHigh=thres.high);
@@ -597,13 +600,13 @@
             min_neighbors = (typeof min_neighbors == 'undefined') ? 1 : min_neighbors;
             self.doCannyPruning = (typeof doCannyPruning == 'undefined') ? true : doCannyPruning;
             
-            if (this.ImageChanged) // allow to use cached image data with same image/different selection
+            if (self.ImageChanged) // allow to use cached image data with same image/different selection
             {
                 integralImg = integralImage(self.Canvas/*, self.scaledSelection*/);
                 self.canny = (self.doCannyPruning) ? integralCanny(integralImg.gray, self.width, self.height/*, self.scaledSelection.width, self.scaledSelection.height*/) : null;
                 self.integral=integralImg.integral; self.squares=integralImg.squares; integralImg=null;
             }
-            this.ImageChanged=false;
+            self.ImageChanged=false;
             
             self.maxScale = Min(self.width/sizex, self.height/sizey); self.scale = baseScale; self.min_neighbors = min_neighbors; 
             self.scale_inc = scale_inc; self.increment = increment; self.Ready = false;
