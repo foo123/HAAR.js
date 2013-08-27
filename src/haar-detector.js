@@ -324,19 +324,19 @@
         var Floor= Floor || Math.floor, Sqrt= Sqrt || Math.sqrt, scale=self.scale, sizex = self.haardata.size1, sizey = self.haardata.size2,
             ret=[], w = self.scaledSelection.width, h = self.scaledSelection.height, step, size, edges_density, d, ds, pass, 
             ind1, ind2, k, kw, ks, i, j, s, il, jl, sl,
-            cL=self.cannyLow, cH=self.cannyHigh, starti=self.scaledSelection.x, startj=self.scaledSelection.y, 
+            cL=self.cannyLow, cH=self.cannyHigh, starti=self.scaledSelection.x, startj=self.scaledSelection.y, startk,
             // pre-compute some values for speed
             sw, sh, swh, wh, inv_area, ii, iih, total_x, total_x2, mu, vnorm;
         
         if (scale <= self.maxScale) 
         {
             step = Floor(scale * sizex * self.increment); size = Floor(scale * sizex); 
-            kw=size*w; ks=step*w; ds=1/(size*size);
+            kw=size*w; ks=step*w; ds=1/(size*size); startk=(startj) ? startj*ks : 0;
             // pre-compute some values for speed
             sw = size; sh = Floor(self.scale * sizey); swh=sw*sh; wh=w*sh; inv_area=1.0/swh;
             for (i = starti, il=w-size; i < il; i += step) 
             {
-                k=(startj) ? startj*ks : 0;
+                k=startk;
                 for (j = startj, jl=h-size; j < jl; j += step) 
                 {
                     ind1=i + k + kw; ind2=i + k; k+=ks;
@@ -389,19 +389,19 @@
         var Floor= Floor || Math.floor, sizex = self.haardata.size1, sizey = self.haardata.size2,
             w = self.scaledSelection.width, h = self.scaledSelection.height, step, size, edges_density, d, ds, pass, 
             ind1, ind2, k, kw, ks, i, j, s, il, jl, sl, 
-            cL=self.cannyLow, cH=self.cannyHigh, starti=self.scaledSelection.x, startj=self.scaledSelection.y,
+            cL=self.cannyLow, cH=self.cannyHigh, starti=self.scaledSelection.x, startj=self.scaledSelection.y, startk,
             // pre-compute some values for speed
             sw, sh, swh, wh, inv_area, ii, iih, total_x, total_x2, mu, vnorm;
         
         if (self.scale <= self.maxScale) 
         {
             step = Floor(self.scale * sizex * self.increment); size = Floor(self.scale * sizex);
-            kw=size*w; ks=step*w; ds=1/(size*size);
+            kw=size*w; ks=step*w; ds=1/(size*size); startk=(startj) ? startj*ks : 0;
             // pre-compute some values for speed
             sw = size; sh = Floor(self.scale * sizey); swh=sw*sh; wh=w*sh; inv_area=1.0/swh;
             for (i = starti, il=w-size; i < il; i += step) 
             {
-                k=(startj) ? startj*ks : 0;
+                k=startk;
                 for (j = startj, jl=h-size; j < jl; j += step) 
                 {
                     ind1=i + k + kw; ind2=i + k; k+=ks;
