@@ -45,12 +45,10 @@
     //
     
     // compute grayscale image, integral image (SAT) and squares image (Viola-Jones)
-    function integralImage(canvas/*, selection*/) 
+    function integralImage(im, w, h/*, selection*/) 
     {
-        //var data = canvas.getContext('2d').getImageData(selection.x, selection.y, selection.width, selection.height),
-        var data = canvas.getContext('2d').getImageData(0, 0, canvas.width, canvas.height),
-            w = data.width, h = data.height, im = data.data, count=w*h, imLen=im.length,
-            sum, sum2, i, j, k, y, g
+        var imLen=im.length, count=w*h
+            , sum, sum2, i, j, k, y, g
             , gray = new Array8U(count)
             // Viola-Jones
             , integral = new Array32U(count), squares = new Array32U(count)
@@ -117,16 +115,16 @@
     {
         var i, j, k, sum, grad_x, grad_y,
             ind0, ind1, ind2, ind_1, ind_2, count=gray.length, 
-            grad = new Array8U(count), canny = new Array32U(count)
+            lowpass = new Array8U(count), canny = new Array32U(count)
         ;
         
         // first, second rows, last, second-to-last rows
         for (i=0; i<w; i++)
         {
-            grad[i]=0;
-            grad[i+w]=0;
-            grad[i+count-w]=0;
-            grad[i+count-w-w]=0;
+            lowpass[i]=0;
+            lowpass[i+w]=0;
+            lowpass[i+count-w]=0;
+            lowpass[i+count-w-w]=0;
             
             canny[i]=0;
             canny[i+count-w]=0;
@@ -134,16 +132,15 @@
         // first, second columns, last, second-to-last columns
         for (j=0, k=0; j<h; j++, k+=w)
         {
-            grad[0+k]=0;
-            grad[1+k]=0;
-            grad[w-1+k]=0;
-            grad[w-2+k]=0;
+            lowpass[0+k]=0;
+            lowpass[1+k]=0;
+            lowpass[w-1+k]=0;
+            lowpass[w-2+k]=0;
             
             canny[0+k]=0;
             canny[w-1+k]=0;
         }
-        // lowpass filter
-        // inside area
+        // gauss lowpass
         for (i=2; i<w-2; i++)
         {
             sum=0;
@@ -213,11 +210,11 @@
                 // 2^14 = 16384, 16384/2 = 8192
                 // 2^14/159 = 103,0440251572322304 =~ 103 +/- 2^13
                 //grad[ind0] = (( ((sum << 6)&0xFFFFFFFF)>>>0 + ((sum << 5)&0xFFFFFFFF)>>>0 + ((sum << 3)&0xFFFFFFFF)>>>0 + ((8192-sum)&0xFFFFFFFF)>>>0 ) >>> 14) >>> 0;
-                grad[ind0] = ((((103*sum + 8192)&0xFFFFFFFF) >>> 14)&0xFF) >>> 0;
+                lowpass[ind0] = ((((103*sum + 8192)&0xFFFFFFFF) >>> 14)&0xFF) >>> 0;
             }
         }
         
-        // gradient
+        // sobel gradient
         for (i=1; i<w-1 ; i++)
         {
             //sum=0; 
@@ -229,30 +226,30 @@
                 ind_1=ind0-w; 
                 
                 grad_x = ((0
-                        - grad[ind_1-1] 
-                        + grad[ind_1+1] 
-                        - grad[ind0-1] - grad[ind0-1]
-                        + grad[ind0+1] + grad[ind0+1]
-                        - grad[ind1-1] 
-                        + grad[ind1+1]
+                        - lowpass[ind_1-1] 
+                        + lowpass[ind_1+1] 
+                        - lowpass[ind0-1] - lowpass[ind0-1]
+                        + lowpass[ind0+1] + lowpass[ind0+1]
+                        - lowpass[ind1-1] 
+                        + lowpass[ind1+1]
                         ))//&0xFFFFFFFF
                         ;
                 grad_y = ((0
-                        + grad[ind_1-1] 
-                        + grad[ind_1] + grad[ind_1]
-                        + grad[ind_1+1] 
-                        - grad[ind1-1] 
-                        - grad[ind1] - grad[ind1]
-                        - grad[ind1+1]
+                        + lowpass[ind_1-1] 
+                        + lowpass[ind_1] + lowpass[ind_1]
+                        + lowpass[ind_1+1] 
+                        - lowpass[ind1-1] 
+                        - lowpass[ind1] - lowpass[ind1]
+                        - lowpass[ind1+1]
                         ))//&0xFFFFFFFF
                         ;
                 
                 //sum += (Abs(grad_x) + Abs(grad_y))&0xFFFFFFFF;
-                canny[ind0] = (Abs(grad_x) + Abs(grad_y))&0xFFFFFFFF;
+                canny[ind0] = ( Abs(grad_x) + Abs(grad_y) )&0xFFFFFFFF;
            }
         }
         
-        // integral cany
+        // integral canny
         // first row
         i=0; sum=0;
         while (i<w)
@@ -645,27 +642,39 @@
             return this; 
         },
         
-        // set image for detector along with scaling (and an optional canvas, eg for nodejs)
+        // set image for detector along with scaling (and an optional canvas, eg for node)
         image : function(image, scale, canvas) {
             if (image)
             {
+                var ctx, imdata, integralImg, w, h, sw, sh, r;
+                
                 // re-use the existing canvas if possible and not create new one
                 if (!this.Canvas) this.Canvas = canvas || document.createElement('canvas');
-                this.Ratio = (typeof scale == 'undefined') ? 0.5 : scale; 
+                r = this.Ratio = (typeof scale == 'undefined') ? 0.5 : scale; 
                 this.Ready = false;
-                this.origWidth = image.width;  
-                this.origHeight = image.height;
-                this.width = this.Canvas.width = Round(this.Ratio * image.width); 
-                this.height = this.Canvas.height = Round(this.Ratio * image.height);
-                this.Canvas.getContext('2d').drawImage(image, 0, 0, image.width, image.height, 0, 0, this.width, this.height);
+                
+                // make easy for video element to be used as input image
+                w = this.origWidth = (image instanceof HTMLVideoElement) ? image.videoWidth : image.width;
+                h = this.origHeight = (image instanceof HTMLVideoElement) ? image.videoHeight : image.height;
+                sw = this.width = this.Canvas.width = Round(r * w); 
+                sh = this.height = this.Canvas.height = Round(r * h);
+                
+                ctx = this.Canvas.getContext('2d');
+                ctx.drawImage(image, 0, 0, w, h, 0, 0, sw, sh);
                 
                 // compute image data now, once per image change
-                var integralImg = integralImage(this.Canvas/*, this.scaledSelection*/);
-                this.canny = integralCanny(integralImg.gray, this.width, this.height/*, this.scaledSelection.width, this.scaledSelection.height*/);
+                imdata = ctx.getImageData(0, 0, sw, sh);
+                integralImg = integralImage(imdata.data, imdata.width, imdata.height/*, this.scaledSelection*/);
                 this.integral = integralImg.integral; 
                 this.squares = integralImg.squares; 
                 this.tilted = integralImg.tilted; 
-                integralImg=null;
+                this.canny = integralCanny(integralImg.gray, sw, sh/*, this.scaledSelection.width, this.scaledSelection.height*/);
+                
+                integralImg.gray = null; 
+                integralImg.integral = null; 
+                integralImg.squares = null; 
+                integralImg.tilted = null; 
+                integralImg = null;
             }
             
             return this;
@@ -743,7 +752,7 @@
                         
                         integral : self.integral,
                         squares : self.squares,
-                        tilted: self.tilted,
+                        tilted : self.tilted,
                         
                         doCannyPruning : self.doCannyPruning,
                         canny : (self.doCannyPruning) ? self.canny : null,
