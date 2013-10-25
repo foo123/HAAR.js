@@ -32,7 +32,7 @@ Light-weight (~10kB) minified.
 
 
 ###How To use
-You can use the __existing openCV cascades__  (with minor limitations, see below)  to build your detectors.
+You can use the __existing openCV cascades__  to build your detectors.
 
 To do this just transform the opencv xml file to javascript or json format
 using the haartojs (php) tool (in cascades folder)
