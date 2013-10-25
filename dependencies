@@ -1,0 +1,36 @@
+###################################################
+#
+#   The buildtools repository is at:
+#   https://github.com/foo123/scripts/buildtools
+#
+###################################################
+
+@DEPENDENCIES
+
+# if run on browser, the excanvas lib can be used 
+# to provide canvas support for browsers that lack support for canvas element :P
+#./src/externals/excanvas.js
+./src/haar-detector.js
+
+# TODO, allow some pre-process to take place
+#@PREPROCESS
+
+@MINIFY
+# Minify the Package
+@UGLIFY
+# Options for Node UglifyJS Compiler (if used, default), (mangle and compress)
+-m -c
+@CLOSURE
+# Options for Java Closure Compiler (if used)
+--language_in=ECMASCRIPT5_STRICT
+@YUI
+# Options for Java YUI Compressor Compiler (if used)
+--preserve-semi
+
+@ # dummy separator between blocks, it can be useful
+
+# TODO, allow some post-process to take place
+#@POSTPROCESS
+
+@OUT
+./build/haar-detector.min.js

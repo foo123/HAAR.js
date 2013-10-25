@@ -19,19 +19,20 @@
         <script type="text/javascript" src="../cascades/haarcascade_mcs_mouth.js"></script>
     </head>
     <body>
-        <a href="https://github.com/foo123/HAAR.js">
-        <img style="position: absolute; z-index:100; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_red_aa0000.png" alt="Fork me on GitHub">
-        </a>
+        <style>#forkongithub a{background:#aa0000;color:#fff;text-decoration:none;font-family:arial, sans-serif;text-align:center;font-weight:bold;padding:5px 40px;font-size:0.9rem;line-height:1.4rem;position:relative;transition:0.5s;}#forkongithub a:hover{background:#aa0000;color:#fff;}#forkongithub a::before,#forkongithub a::after{content:"";width:100%;display:block;position:absolute;z-index:100;top:1px;left:0;height:1px;background:#fff;}#forkongithub a::after{bottom:1px;top:auto;}@media screen and (min-width:800px){#forkongithub{position:absolute;display:block;z-index:100;top:0;right:0;width:200px;overflow:hidden;height:200px;}#forkongithub a{width:200px;position:absolute;top:60px;right:-60px;transform:rotate(45deg);-webkit-transform:rotate(45deg);box-shadow:4px 4px 10px rgba(0,0,0,0.8);}}</style><span id="forkongithub"><a href="https://github.com/foo123/HAAR.js">Fork me on GitHub</a></span>
         
-        <h1>Mouth Detection with OpenCV haar cascades in Javascript</h1>
+        <h1>Mouth Detection with OpenCV haar cascades in JavaScript</h1>
         <div id="wait" style="display:none"><img src='ajax-loader.gif' /></div>
         <div id="container" style="position:relative;"><canvas id='image'></canvas></div>
         
         <script>
         //<![CDATA[
         var wait=document.getElementById('wait'), canvas=document.getElementById('image'), 
-            ctx=canvas.getContext('2d'), image=new Image();
+            ctx=canvas.getContext('2d'), image=new Image(),
+            log = (console && console.log) ? console.log : function(s) {}
+            ;
             
+        //Parallel = null;
         image.onload=function(){
             wait.style.display='block';
             canvas.width=image.width; canvas.height=image.height;
@@ -39,8 +40,8 @@
             
             // detect the feature
             new HAAR.Detector(haarcascade_mcs_mouth, Parallel)
-                    .image(image) // use the image
-                    .interval(30) // set detection interval for asynchronous detection (if not parallel)
+                    .image(image, 0.8) // use the image
+                    .interval(40) // set detection interval for asynchronous detection (if not parallel)
                     .complete(function(){  // onComplete callback
                         var i, rect, l=this.objects.length;
                         wait.style.display='none';
@@ -52,11 +53,15 @@
                             rect=this.objects[i];
                             ctx.strokeRect(rect.x, rect.y, rect.width, rect.height);
                         }
-                        console.log(this.Selection, this.objects);
+                        // provide info
+                        log('Selection Rectangle: ');
+                        log(this.Selection.toString());
+                        log('Detected Features (' + l +') :');
+                        log(this.objects.toString());
                         alert(l+" Objects found");
                     })
-                    //.detect(1, 1.15, 0.2, 1, true); // go
-                    .detect(1, 1.19, 0.18, 1, true); // go
+                    .cannyThreshold({low:50, high:110})  // custom thresholds for canny pruning (for best results)
+                    .detect(1, 1.25, 0.1, 1, true); // go
         };
         image.src='model1.jpg'; // load it
         //]]>

@@ -1,24 +1,29 @@
 /**
 *
 * HAAR.js Feature Detection Library based on Viola-Jones Haar Detection algorithm
-* Port of jviolajones (Java) which is a port of openCV C++ Haar Detector
+* port of jViolaJones  for Java (http://code.google.com/p/jviolajones/) to JavaScript and Node
 *
 * https://github.com/foo123/HAAR.js
-* @version: 0.4.2
+* @version: 0.4.3
 *
-* Supports parallel "map-reduce" computation both in browser and nodejs using parallel.js library 
+* Supports parallel "map-reduce" computation both in browser and node using parallel.js library 
 * https://github.com/adambom/parallel.js (included)
 *
 **/
-
-(function(root) {
+(function(root, undef) {
+    // the export object
     var HAAR;
+    var VERSION = "0.4.3";
+    var Detector, Feature;
 
     // export using window object on browser, or export object on node,require
     if ('undefined' != typeof (module) && module.exports)  HAAR = module.exports;
     else if ('undefined' != typeof (exports) )  HAAR = exports;
-    else  HAAR = root.HAAR = {};
-
+    else  HAAR = this.HAAR = {};
+    
+    HAAR.VERSION = VERSION;
+    
+    
     var // typed arrays substitute 
         Array32F = (typeof Float32Array !== "undefined") ? Float32Array : Array,
         Array64F = (typeof Float64Array !== "undefined") ? Float64Array : Array,
@@ -30,69 +35,125 @@
         Array32U = (typeof Uint32Array !== "undefined") ? Uint32Array : Array,
         
         // math functions brevity
-        Abs=Math.abs, Max=Math.max, Min=Math.min, Floor=Math.floor, Round=Math.round, Sqrt=Math.sqrt
+        Abs=Math.abs, Max=Math.max, Min=Math.min, Floor=Math.floor, Round=Math.round, Sqrt=Math.sqrt,
+        slice=Array.prototype.slice
     ;
 
+    
     //
     // Private methods for detection
     //
     
-    // compute gray-scale image, integral image and square image (Viola-Jones)
+    // compute grayscale image, integral image (SAT) and squares image (Viola-Jones)
     function integralImage(canvas/*, selection*/) 
     {
         //var data = canvas.getContext('2d').getImageData(selection.x, selection.y, selection.width, selection.height),
         var data = canvas.getContext('2d').getImageData(0, 0, canvas.width, canvas.height),
-            w = data.width, h = data.height, im = data.data, count=w*h,
-            col, col2, i, j, k, pix, ind,
-            gray = new Array8U(count), integral = new Array32U(count), squares = new Array32U(count)
+            w = data.width, h = data.height, im = data.data, count=w*h, imLen=im.length,
+            sum, sum2, i, j, k, y, g
+            , gray = new Array8U(count)
+            // Viola-Jones
+            , integral = new Array32U(count), squares = new Array32U(count)
+            // Lienhart et al. extension using tilted features
+            , tilted = new Array32U(count)
             ;
         
-        for (i = 0; i < w; i++) 
+        // first row
+        j=0; i=0; sum=sum2=0; 
+        while (j<w)
         {
-            col=col2=0; k=0;
-            for (j = 0; j < h; j++) 
-            {
-                // compute coords using simple add/subtract arithmetic (faster)
-                ind=k+i; pix=ind << 2; k+=w;
-                // use fixed-point gray-scale transform, close to openCV transform
-                // https://github.com/mtschirs/js-objectdetect/issues/3
-                // 0,29901123046875  0,58697509765625  0,114013671875 with roundoff
-                gray[ind] = ((4899 * im[pix] + 9617 * im[pix + 1] + 1868 * im[pix + 2]) + 8192) >>> 14;
-                col += (gray[ind]&0xFF) >>> 0;  col2 += ((gray[ind]*gray[ind])&0xFFFFFFFF) >>> 0;
-                if (i)
-                {
-                    integral[ind] = integral[ind-1] + col;
-                    squares[ind] = squares[ind-1] + col2;
-                }
-                else
-                {
-                    integral[ind] = col;
-                    squares[ind] = col2;
-                }
-            }
+            // use fixed-point gray-scale transform, close to openCV transform
+            // https://github.com/mtschirs/js-objectdetect/issues/3
+            // 0,29901123046875  0,58697509765625  0,114013671875 with roundoff
+            g = ((4899 * im[i] + 9617 * im[i + 1] + 1868 * im[i + 2]) + 8192) >>> 14;
+            
+            g &= 255;  
+            sum += g;  
+            sum2 += ((g*g)&0xFFFFFFFF) >>> 0;
+            
+            // SAT(–1,y)=SAT(x,–1)=SAT(–1,–1)=0
+            // SAT(x,y)=SAT(x,y–1)+SAT(x–1,y)+I(x,y)–SAT(x–1,y–1)  <-- integral image
+            
+            // RSAT(–1,y)=RSAT(x,–1)=RSAT(x,–2)=0 RSAT(–1,–1)=RSAT(–1,–2)=0
+            // RSAT(x,y)=RSAT(x–1,y–1)+RSAT(x+1,y–1)–RSAT(x,y–2)+I(x,y)+I(x,y–1) <-- rotated(tilted) integral image at 45deg
+            gray[j] = g;
+            integral[j] = sum;
+            squares[j] = sum2;
+            tilted[j] = g;
+            
+            j++; i+=4;
         }
-        return {gray:gray, integral:integral, squares:squares};
-    };
+        // other rows
+        k=0; y=1; j=w; i=(w<<2); sum=sum2=0; 
+        while (i<imLen)
+        {
+            // use fixed-point gray-scale transform, close to openCV transform
+            // https://github.com/mtschirs/js-objectdetect/issues/3
+            // 0,29901123046875  0,58697509765625  0,114013671875 with roundoff
+            g = ((4899 * im[i] + 9617 * im[i + 1] + 1868 * im[i + 2]) + 8192) >>> 14;
+            
+            g &= 255;  
+            sum += g;  
+            sum2 += ((g*g)&0xFFFFFFFF) >>> 0;
+            
+            // SAT(–1,y)=SAT(x,–1)=SAT(–1,–1)=0
+            // SAT(x,y)=SAT(x,y–1)+SAT(x–1,y)+I(x,y)–SAT(x–1,y–1)  <-- integral image
+            
+            // RSAT(–1,y)=RSAT(x,–1)=RSAT(x,–2)=0 RSAT(–1,–1)=RSAT(–1,–2)=0
+            // RSAT(x,y)=RSAT(x–1,y–1)+RSAT(x+1,y–1)–RSAT(x,y–2)+I(x,y)+I(x,y–1) <-- rotated(tilted) integral image at 45deg
+            gray[j] = g;
+            integral[j] = integral[j-w] + sum;
+            squares[j] = squares[j-w] + sum2;
+            tilted[j] = tilted[j+1-w] + (g + gray[j-w]) + ((y>1) ? tilted[j-w-w] : 0) + ((k>0) ? tilted[j-1-w] : 0);
+            
+            k++; j++; i+=4; if (k>=w) { k=0; y++; sum=sum2=0; }
+        }
+        
+        return {gray:gray, integral:integral, squares:squares, tilted:tilted};
+    }
 
     // compute Canny edges on gray-scale image to speed up detection if possible
     function integralCanny(gray, w, h) 
     {
-        var i, j, k, sum=0, grad_x, grad_y,
-            ind0, ind1, ind2, ind_1, ind_2, count=w*h, 
+        var i, j, k, sum, grad_x, grad_y,
+            ind0, ind1, ind2, ind_1, ind_2, count=gray.length, 
             grad = new Array8U(count), canny = new Array32U(count)
-            ;
+        ;
         
-        for (i = 0; i < w; i++)
+        // first, second rows, last, second-to-last rows
+        for (i=0; i<w; i++)
         {
-            k=0; sum=0;
-            for (j = 0; j < h; j++) 
+            grad[i]=0;
+            grad[i+w]=0;
+            grad[i+count-w]=0;
+            grad[i+count-w-w]=0;
+            
+            canny[i]=0;
+            canny[i+count-w]=0;
+        }
+        // first, second columns, last, second-to-last columns
+        for (j=0, k=0; j<h; j++, k+=w)
+        {
+            grad[0+k]=0;
+            grad[1+k]=0;
+            grad[w-1+k]=0;
+            grad[w-2+k]=0;
+            
+            canny[0+k]=0;
+            canny[w-1+k]=0;
+        }
+        // lowpass filter
+        // inside area
+        for (i=2; i<w-2; i++)
+        {
+            sum=0;
+            for (j=2, k=(w<<1); j<h-2; j++, k+=w) 
             {
-                // compute coords using simple add/subtract arithmetic (faster)
-                ind0=k+i; k+=w;
-                
-                if (i<2 || i>=w-2 || j<2 || j>=h-2) { grad[ind0]=0; continue; }
-                
-                ind1=ind0+w; ind2=ind1+w; ind_1=ind0-w; ind_2=ind_1-w; 
+                ind0 = i+k;
+                ind1 = ind0+w; 
+                ind2 = ind1+w; 
+                ind_1 = ind0-w; 
+                ind_2 = ind_1-w; 
                 
                 /*
                  Original Code
@@ -156,123 +217,101 @@
             }
         }
         
-        for (i = 0; i < w; i++)
+        // gradient
+        for (i=1; i<w-1 ; i++)
         {
-            k=0; sum=0; 
-            for (j = 0; j < h; j++) 
+            //sum=0; 
+            for (j=1, k=w; j<h-1; j++, k+=w) 
             {
                 // compute coords using simple add/subtract arithmetic (faster)
-                ind0=k+i; k+=w;
+                ind0=k+i;
+                ind1=ind0+w; 
+                ind_1=ind0-w; 
                 
-                if (i<1 || i>=w-1 || j<1 || j>=h-1) 
-                { 
-                    sum=0;
-                }
-                else
-                {
-                    ind1=ind0+w; ind_1=ind0-w; 
-                    
-                    grad_x = ((0
-                            - grad[ind_1-1] 
-                            + grad[ind_1+1] 
-                            - grad[ind0-1] - grad[ind0-1]
-                            + grad[ind0+1] + grad[ind0+1]
-                            - grad[ind1-1] 
-                            + grad[ind1+1]
-                            ))&0xFFFFFFFF
-                            ;
-                    grad_y = ((0
-                            + grad[ind_1-1] 
-                            + grad[ind_1] + grad[ind_1]
-                            + grad[ind_1+1] 
-                            - grad[ind1-1] 
-                            - grad[ind1] - grad[ind1]
-                            - grad[ind1+1]
-                            ))&0xFFFFFFFF
-                            ;
-                    sum+=(Abs(grad_x) + Abs(grad_y));
-                }
-                canny[ind0] = (i) ? (canny[ind0-1]+sum) : sum;
+                grad_x = ((0
+                        - grad[ind_1-1] 
+                        + grad[ind_1+1] 
+                        - grad[ind0-1] - grad[ind0-1]
+                        + grad[ind0+1] + grad[ind0+1]
+                        - grad[ind1-1] 
+                        + grad[ind1+1]
+                        ))//&0xFFFFFFFF
+                        ;
+                grad_y = ((0
+                        + grad[ind_1-1] 
+                        + grad[ind_1] + grad[ind_1]
+                        + grad[ind_1+1] 
+                        - grad[ind1-1] 
+                        - grad[ind1] - grad[ind1]
+                        - grad[ind1+1]
+                        ))//&0xFFFFFFFF
+                        ;
+                
+                //sum += (Abs(grad_x) + Abs(grad_y))&0xFFFFFFFF;
+                canny[ind0] = (Abs(grad_x) + Abs(grad_y))&0xFFFFFFFF;
            }
         }
-        return canny;
-    };
-
-    // Viola-Jones HAAR-Stage evaluator
-    function evalStage(self, s, i, j, scale, vnorm, inv_area) 
-    {
-        var Floor=Floor || Math.floor, 
-            stage=self.haardata.stages[s], threshold=stage.thres, trees=stage.trees, tl=trees.length,
-            integralImage=self.integral, squares=self.squares, ww=self.scaledSelection.width, hh=self.scaledSelection.height, 
-            t, cur_node_ind, where, features, feature, rects, nb_rects, thresholdf, 
-            rect_sum, k, r, rx1, rx2, ry1, ry2, sum=0
-        ;
         
-        for (t = 0; t < tl; t++) 
-        { 
-            //
-            // inline the tree and leaf evaluators to avoid function calls per-loop (faster)
-            //
-            
-            // Viola-Jones HAAR-Tree evaluator
-            features=trees[t].feats; cur_node_ind=0;
-            while (true) 
-            {
-                feature=features[cur_node_ind]; 
-                // Viola-Jones HAAR-Leaf evaluator
-                rects=feature.rects; nb_rects=rects.length; thresholdf=feature.thres; rect_sum=0;
-                for (k = 0; k < nb_rects; k++) 
-                {
-                    r = rects[k];
-                    rx1 = i + Floor(scale * r.x1); rx2 = i + Floor(scale * (r.x1 + r.y1));
-                    ry1 = ww*(j + Floor(scale * r.x2)); ry2 = ww*(j + Floor(scale * (r.x2 + r.y2)));
-                    rect_sum+= /*Floor*/(r.f * (integralImage[rx2 + ry2] - integralImage[rx1 + ry2] - integralImage[rx2 + ry1] + integralImage[rx1 + ry1]));
-                }
-                where = (rect_sum * inv_area < thresholdf * vnorm) ? 0 : 1;
-                // END Viola-Jones HAAR-Leaf evaluator
-                
-                if (0 == where) 
-                {
-                    if (feature.has_l) { sum+=feature.l_val; break; } 
-                    else { cur_node_ind=feature.l_node; }
-                } 
-                else 
-                {
-                    if (feature.has_r) { sum+=feature.r_val; break; } 
-                    else { cur_node_ind=feature.r_node; }
-                }
-            }
-            // END Viola-Jones HAAR-Tree evaluator
+        // integral cany
+        // first row
+        i=0; sum=0;
+        while (i<w)
+        {
+            sum += canny[i];
+            canny[i] = sum&0xFFFFFFFF;
+            i++;
         }
-        return (sum > threshold);
-        // END Viola-Jones HAAR-Stage evaluator
-    };
-    
+        // other rows
+        i=w; k=0; sum=0;
+        while (i<count)
+        {
+            sum += canny[i];
+            canny[i] = (canny[i-w] + sum)&0xFFFFFFFF;
+            i++; k++; if (k>=w) { k=0; sum=0; }
+        }
+        
+        return canny;
+    }
+
     // merge the detected features if needed
     function merge(rects, min_neighbors, ratio, selection) 
     {
         var rlen=rects.length, ref = new Array(rlen), feats=[], 
             nb_classes = 0, neighbors, r, found=false, i, j, n, t, ri;
         
-        for (i = 0; i < rlen; i++) 
+        // original code
+        // find number of neighbour classes
+        for (i = 0; i < rlen; i++) ref[i] = 0;
+        for (i = 0; i < rlen; i++)
         {
-            ref[i] = 0; found = false; rects[i]=new HAAR.Feature(rects[i]);
-            for (j = 0; j < i; j++) { if (rects[j].almostEqual(rects[i])) { found = true; ref[i] = ref[j]; }  }
-            if (!found) { ref[i] = nb_classes;  nb_classes++; }
-        }
-        
-        neighbors = new Array(nb_classes);  r = new Array(nb_classes);
-        for (i = 0; i < nb_classes; i++) { neighbors[i] = 0;  r[i] = new HAAR.Feature(); }
-        for (i = 0; i < rlen; i++) { ri=ref[i]; neighbors[ri]++; r[ri].add(rects[i]); }
+            found = false;
+            for (j = 0; j < i; j++)
+            {
+                if (rects[j].almostEqual(rects[i]))
+                {
+                    found = true;
+                    ref[i] = ref[j];
+                }
+            }
+            
+            if (!found)
+            {
+                ref[i] = nb_classes;
+                nb_classes++;
+            }
+        }        
         
         // merge neighbor classes
+        neighbors = new Array(nb_classes);  r = new Array(nb_classes);
+        for (i = 0; i < nb_classes; i++) { neighbors[i] = 0;  r[i] = new Feature(); }
+        for (i = 0; i < rlen; i++) { ri=ref[i]; neighbors[ri]++; r[ri].add(rects[i]); }
         for (i = 0; i < nb_classes; i++) 
         {
             n = neighbors[i];
             if (n >= min_neighbors) 
             {
                 t=1/(n + n);
-                ri = new HAAR.Feature(
+                ri = new Feature(
                     t*(r[i].x * 2 + n),  t*(r[i].y * 2 + n),
                     t*(r[i].width * 2 + n),  t*(r[i].height * 2 + n)
                 );
@@ -282,6 +321,7 @@
         }
         
         if (ratio != 1) { ratio=1.0/ratio; }
+        
         // filter inside rectangles
         rlen=feats.length;
         for (i=0; i<rlen; i++)
@@ -307,67 +347,17 @@
                 feats[i].round().computeArea(); 
             }
         }
+        
         // sort according to size 
         // (a deterministic way to present results under different cases)
         return feats.sort(byArea);
-    };
+    }
     
     // area used as compare func for sorting
-    function byArea(a, b) { return a.area-b.area; };
+    function byArea(a, b) { return a.area-b.area; }
     
     // serial index used as compare func for sorting
-    function byOrder(a, b) { return a.index-b.imdex; };
-    
-    // used for parallel "map" computation
-    function detectParallel(self) 
-    {
-        var Floor= Floor || Math.floor, Sqrt= Sqrt || Math.sqrt, scale=self.scale, sizex = self.haardata.size1, sizey = self.haardata.size2,
-            ret=[], w = self.scaledSelection.width, h = self.scaledSelection.height, step, size, edges_density, d, ds, pass, 
-            ind1, ind2, k, kw, ks, i, j, s, il, jl, sl,
-            cL=self.cannyLow, cH=self.cannyHigh, starti=self.scaledSelection.x, startj=self.scaledSelection.y, startk,
-            // pre-compute some values for speed
-            sw, sh, swh, wh, inv_area, ii, iih, total_x, total_x2, mu, vnorm;
-        
-        if (scale <= self.maxScale) 
-        {
-            step = Floor(scale * sizex * self.increment); size = Floor(scale * sizex); 
-            kw=size*w; ks=step*w; ds=1/(size*size); startk=(startj) ? startj*ks : 0;
-            // pre-compute some values for speed
-            sw = size; sh = Floor(self.scale * sizey); swh=sw*sh; wh=w*sh; inv_area=1.0/swh;
-            for (i = starti, il=w-size; i < il; i += step) 
-            {
-                k=startk;
-                for (j = startj, jl=h-size; j < jl; j += step) 
-                {
-                    ind1=i + k + kw; ind2=i + k; k+=ks;
-                    if (self.doCannyPruning) 
-                    {
-                        edges_density = self.canny[ind1 + size] + self.canny[ind2] - self.canny[ind1] - self.canny[ind2 + size];
-                        d = ds*edges_density;
-                        if (d < cL || d > cH) continue;
-                    }
-                    // pre-compute some values for speed
-                    ii=ind2; iih=ii+wh;
-                    total_x = self.integral[sw + iih] + self.integral[ii] - self.integral[iih] - self.integral[sw + ii];
-                    total_x2 = self.squares[sw + iih] + self.squares[ii] - self.squares[iih] - self.squares[sw + ii];
-                    mu = total_x * inv_area; vnorm = total_x2 * inv_area - mu * mu;
-                    vnorm = (vnorm > 1) ? Sqrt(vnorm) : 1;
-                    pass = true;
-                    for (s = 0, sl=self.haardata.stages.length; s < sl; s++) 
-                    {
-                        pass = evalStage(self, s, i, j, self.scale, vnorm, inv_area);
-                        if (pass == false) break;
-                    }
-                    if (pass) ret.push({  // maybe use HAARFeature Class here ??
-                            index: self.i,
-                            x: i, y: j,
-                            width: size,  height: size
-                        });
-                }
-            }
-        }
-        return ret;        
-    };
+    function byOrder(a, b) { return a.index-b.index; }
     
     /*
     splice subarray (not used)
@@ -376,80 +366,449 @@
     */
     
     // used for parallel "reduce" computation
-    function mergeParallel(d) 
+    function mergeSteps(d) 
     { 
         // concat and sort according to serial ordering
         if (d[1].length) d[0]=d[0].concat(d[1]).sort(byOrder); 
         return d[0]; 
-    };
+    }
     
-    // used for asynchronous computation using fixed intervals
-    function detectAsync(self) 
+    // used for parallel and/or asynchronous computation
+    function detectSingleStep(self) 
     {
-        var Floor= Floor || Math.floor, sizex = self.haardata.size1, sizey = self.haardata.size2,
-            w = self.scaledSelection.width, h = self.scaledSelection.height, step, size, edges_density, d, ds, pass, 
-            ind1, ind2, k, kw, ks, i, j, s, il, jl, sl, 
-            cL=self.cannyLow, cH=self.cannyHigh, starti=self.scaledSelection.x, startj=self.scaledSelection.y, startk,
-            // pre-compute some values for speed
-            sw, sh, swh, wh, inv_area, ii, iih, total_x, total_x2, mu, vnorm;
+        var Sqrt = Sqrt || Math.sqrt, ret = [],
+            haar = self.haardata, scaledSelection = self.scaledSelection,
+            w = scaledSelection.width, h = scaledSelection.height, imArea=w*h, imArea1=imArea-1,
+            sizex = haar.size1, sizey = haar.size2, xstep, ystep, xsize, ysize,
+            startx = scaledSelection.x, starty = scaledSelection.y, startty,
+            x, y, ty, tyw, tys, sl = haar.stages.length,
+            p0, p1, p2, p3,
+            bx1, bx2, by1, by2,
+            swh, inv_area, total_x, total_x2, vnorm,
+            edges_density, pass, cL = self.cannyLow, cH = self.cannyHigh, 
+            
+            stage, threshold, trees, tl,
+            canny = self.canny, integral = self.integral, squares = self.squares, tilted = self.tilted,
+            t, cur_node_ind, where, features, feature, rects, nb_rects, thresholdf, 
+            rect_sum, kr, r, x1, y1, x2, y2, x3, y3, x4, y4, rw, rh, yw, yh, sum, 
+            scale = self.scale, increment = self.increment, index = self.i||0, doCanny = self.doCannyPruning
+            
+        ;
         
-        if (self.scale <= self.maxScale) 
+        bx1=0; bx2=w-1; by1=0; by2=imArea-w;
+        
+        xsize = ~~(scale * sizex); 
+        xstep = ~~(xsize * increment); 
+        ysize = ~~(scale * sizey); 
+        ystep = ~~(ysize * increment);
+        //ysize = xsize; ystep = xstep;
+        tyw = ysize*w; 
+        tys = ystep*w; 
+        startty = starty*tys; 
+        xl = w-xsize; 
+        yl = h-ysize;
+        swh = xsize*ysize; 
+        inv_area = 1.0/swh;
+        
+        for (y=starty, ty=startty; y<yl; y+=ystep, ty+=tys) 
         {
-            step = Floor(self.scale * sizex * self.increment); size = Floor(self.scale * sizex);
-            kw=size*w; ks=step*w; ds=1/(size*size); startk=(startj) ? startj*ks : 0;
-            // pre-compute some values for speed
-            sw = size; sh = Floor(self.scale * sizey); swh=sw*sh; wh=w*sh; inv_area=1.0/swh;
-            for (i = starti, il=w-size; i < il; i += step) 
+            for (x=startx; x<xl; x+=xstep) 
             {
-                k=startk;
-                for (j = startj, jl=h-size; j < jl; j += step) 
+                p0 = x-1 + ty-w;    p1 = p0 + xsize;
+                p2 = p0 + tyw;    p3 = p2 + xsize;
+                
+                // clamp
+                p0 = (p0<0) ? 0 : (p0>imArea1) ? imArea1 : p0;
+                p1 = (p1<0) ? 0 : (p1>imArea1) ? imArea1 : p1;
+                p2 = (p2<0) ? 0 : (p2>imArea1) ? imArea1 : p2;
+                p3 = (p3<0) ? 0 : (p3>imArea1) ? imArea1 : p3;
+                
+                if (doCanny) 
                 {
-                    ind1=i + k + kw; ind2=i + k; k+=ks;
-                    if (self.doCannyPruning) 
-                    {
-                        edges_density = ((self.canny[ind1 + size] + self.canny[ind2] - self.canny[ind1] - self.canny[ind2 + size]));
-                        d = ds*edges_density;
-                        if (d < cL || d > cH) continue;
+                    // avoid overflow
+                    edges_density = inv_area * (canny[p3] - canny[p2] - canny[p1] + canny[p0]);
+                    if (edges_density < cL || edges_density > cH) continue;
+                }
+                
+                // pre-compute some values for speed
+                
+                // avoid overflow
+                total_x = inv_area * (integral[p3] - integral[p2] - integral[p1] + integral[p0]);
+                // avoid overflow
+                total_x2 = inv_area * (squares[p3] - squares[p2] - squares[p1] + squares[p0]);
+                
+                vnorm = total_x2 - total_x * total_x;
+                vnorm = (vnorm > 1) ? Sqrt(vnorm) : /*vnorm*/  1 ;  
+                
+                pass = true;
+                for (s = 0; s < sl; s++) 
+                {
+                    // Viola-Jones HAAR-Stage evaluator
+                    stage = haar.stages[s];
+                    threshold = stage.thres;
+                    trees = stage.trees; tl = trees.length;
+                    sum=0;
+                    
+                    for (t = 0; t < tl; t++) 
+                    { 
+                        //
+                        // inline the tree and leaf evaluators to avoid function calls per-loop (faster)
+                        //
+                        
+                        // Viola-Jones HAAR-Tree evaluator
+                        features = trees[t].feats; 
+                        cur_node_ind = 0;
+                        while (true) 
+                        {
+                            feature = features[cur_node_ind]; 
+                            
+                            // Viola-Jones HAAR-Leaf evaluator
+                            rects = feature.rects; 
+                            nb_rects = rects.length; 
+                            thresholdf = feature.thres; 
+                            rect_sum = 0;
+                            
+                            if (feature.tilt)
+                            {
+                                // tilted rectangle feature, Lienhart et al. extension
+                                for (kr = 0; kr < nb_rects; kr++) 
+                                {
+                                    r = rects[kr];
+                                    
+                                    // this produces better/larger features, possible rounding effects??
+                                    x1 = x + ~~(scale * r[0]);
+                                    y1 = (y-1 + ~~(scale * r[1])) * w;
+                                    x2 = x + ~~(scale * (r[0] + r[2]));
+                                    y2 = (y-1 + ~~(scale * (r[1] + r[2]))) * w;
+                                    x3 = x + ~~(scale * (r[0] - r[3]));
+                                    y3 = (y-1 + ~~(scale * (r[1] + r[3]))) * w;
+                                    x4 = x + ~~(scale * (r[0] + r[2] - r[3]));
+                                    y4 = (y-1 + ~~(scale * (r[1] + r[2] + r[3]))) * w;
+                                    
+                                    // clamp
+                                    x1 = (x1<bx1) ? bx1 : (x1>bx2) ? bx2 : x1;
+                                    x2 = (x2<bx1) ? bx1 : (x2>bx2) ? bx2 : x2;
+                                    x3 = (x3<bx1) ? bx1 : (x3>bx2) ? bx2 : x3;
+                                    x4 = (x4<bx1) ? bx1 : (x4>bx2) ? bx2 : x4;
+                                    y1 = (y1<by1) ? by1 : (y1>by2) ? by2 : y1;
+                                    y2 = (y2<by1) ? by1 : (y2>by2) ? by2 : y2;
+                                    y3 = (y3<by1) ? by1 : (y3>by2) ? by2 : y3;
+                                    y4 = (y4<by1) ? by1 : (y4>by2) ? by2 : y4;
+                                    
+                                    // RSAT(x–h+w,y+w+h–1)+RSAT(x,y–1)–RSAT(x–h,y+h–1)–RSAT(x+w,y+w–1)
+                                    //      x4     y4           x1  y1      x3   y3          x2  y2
+                                    rect_sum+= r[4] * (tilted[x4 + y4] - tilted[x3 + y3] - tilted[x2 + y2] + tilted[x1 + y1]);
+                                }
+                            }
+                            else
+                            {
+                                // orthogonal rectangle feature, Viola-Jones original
+                                for (kr = 0; kr < nb_rects; kr++) 
+                                {
+                                    r = rects[kr];
+                                    
+                                    // this produces better/larger features, possible rounding effects??
+                                    x1 = x-1 + ~~(scale * r[0]); 
+                                    x2 = x-1 + ~~(scale * (r[0] + r[2]));
+                                    y1 = (w) * (y-1 + ~~(scale * r[1])); 
+                                    y2 = (w) * (y-1 + ~~(scale * (r[1] + r[3])));
+                                    
+                                    // clamp
+                                    x1 = (x1<bx1) ? bx1 : (x1>bx2) ? bx2 : x1;
+                                    x2 = (x2<bx1) ? bx1 : (x2>bx2) ? bx2 : x2;
+                                    y1 = (y1<by1) ? by1 : (y1>by2) ? by2 : y1;
+                                    y2 = (y2<by1) ? by1 : (y2>by2) ? by2 : y2;
+                                    
+                                    // SAT(x–1,y–1)+SAT(x+w–1,y+h–1)–SAT(x–1,y+h–1)–SAT(x+w–1,y–1)
+                                    //     x1  y1        x2    y2         x1  y2         x2   y1
+                                    rect_sum+= r[4] * (integral[x2 + y2]  - integral[x1 + y2] - integral[x2 + y1] + integral[x1 + y1]);
+                                }
+                            }
+                            
+                            where = (rect_sum * inv_area < thresholdf * vnorm) ? 0 : 1;
+                            // END Viola-Jones HAAR-Leaf evaluator
+                            
+                            if (where) 
+                            {
+                                if (feature.has_r) { sum += feature.r_val; break; } 
+                                else { cur_node_ind = feature.r_node; }
+                            } 
+                            else 
+                            {
+                                if (feature.has_l) { sum += feature.l_val; break; } 
+                                else { cur_node_ind = feature.l_node; }
+                            }
+                        }
+                        // END Viola-Jones HAAR-Tree evaluator
+                    
                     }
-                    // pre-compute some values for speed
-                    ii=ind2; iih=ii+wh;
-                    total_x = self.integral[sw + iih] + self.integral[ii] - self.integral[iih] - self.integral[sw + ii];
-                    total_x2 = self.squares[sw + iih] + self.squares[ii] - self.squares[iih] - self.squares[sw + ii];
-                    mu = total_x * inv_area; vnorm = total_x2 * inv_area - mu * mu;
-                    vnorm = (vnorm > 1) ? Sqrt(vnorm) : 1;
-                    pass = true;
-                    for (s = 0, sl=self.haardata.stages.length; s < sl; s++) 
-                    {
-                        pass = evalStage(self, s, i, j, self.scale, vnorm, inv_area);
-                        if(pass == false) break;
-                    }
-                    if (pass) self.ret.push({  // maybe use HAARFeature Class here ??
-                            x: i, y: j,
-                            width: size,  height: size
-                        });
+                    pass = (sum > threshold) ? true : false;
+                    // END Viola-Jones HAAR-Stage evaluator
+                    
+                    if (!pass) break;
+                }
+                
+                if (pass) 
+                {
+                    ret.push({
+                        index: index,
+                        x: x, y: y,
+                        width: xsize,  height: ysize
+                    });
                 }
             }
-            self.scale *= self.scale_inc;
-        } 
-        else { clearInterval(self.TimeInterval); detectEnd(self, self.ret); }
-    };
+        }
+        
+        // return any features found in this step
+        return ret;
+    }
 
-    // called when detection ends, calls user-callback if any
+    // called when detection ends, calls user-defined callback if any
     function detectEnd(self, rects) 
     {
-        //console.log(rects);
-        self.objects = merge(rects, self.min_neighbors, self.Ratio, self.Selection); self.ret=null; self.Ready = true;
+        for (var i=0, l=rects.length; i<l; i++) rects[i] = new Feature(rects[i]);
+        self.objects = merge(rects, self.min_neighbors, self.Ratio, self.Selection); 
+        self.Ready = true;
         if (self.onComplete) self.onComplete.call(self);
+    }
+    
+    //
+    //
+    //
+    // HAAR Detector Class (with the haar cascade data)
+    Detector = HAAR.Detector = function(haardata, ParallelClass) {
+        this.haardata = haardata;
+        this.Ready = false;
+        this.doCannyPruning = false;
+        this.Canvas = null;
+        this.Selection = null;
+        this.scaledSelection = null;
+        this.objects = null;
+        this.TimeInterval = null;
+        this.DetectInterval = 30;
+        this.Ratio = 0.5;
+        this.cannyLow = 20;
+        this.cannyHigh = 100;
+        this.Parallel= ParallelClass || false;
+        this.onComplete = null;
+    };
+    
+    Detector.prototype = {
+
+        constructor : Detector,
+        
+        haardata : null,
+        Canvas : null,
+        objects : null,
+        
+        Selection : null,
+        scaledSelection : null,
+        Ratio : 0.5,
+        origWidth : 0,
+        origHeight : 0,
+        width : 0,
+        height : 0,
+        
+        DetectInterval : 30,
+        TimeInterval : null,
+        
+        doCannyPruning : false,
+        cannyLow : 20,
+        cannyHigh : 100,
+        canny : null,
+        
+        integral : null,
+        squares : null,
+        tilted : null,
+        
+        Parallel : false,
+        Ready : false,
+        onComplete : null,
+        
+        // clear the image and detector data
+        // reload the image to re-compute the needed image data (.image method)
+        // and re-set the detector haar data (.cascade method)
+        clearCache : function() {
+            this.haardata = null; 
+            this.canny = null;
+            this.integral = null;
+            this.squares = null;
+            this.tilted = null;
+            
+            return this;
+        },
+        
+        // set haardata, use same detector with cached data, to detect different feature
+        cascade : function(haardata) { 
+            this.haardata = haardata; 
+            
+            return this; 
+        },
+        
+        // set image for detector along with scaling (and an optional canvas, eg for nodejs)
+        image : function(image, scale, canvas) {
+            if (image)
+            {
+                // re-use the existing canvas if possible and not create new one
+                if (!this.Canvas) this.Canvas = canvas || document.createElement('canvas');
+                this.Ratio = (typeof scale == 'undefined') ? 0.5 : scale; 
+                this.Ready = false;
+                this.origWidth = image.width;  
+                this.origHeight = image.height;
+                this.width = this.Canvas.width = Round(this.Ratio * image.width); 
+                this.height = this.Canvas.height = Round(this.Ratio * image.height);
+                this.Canvas.getContext('2d').drawImage(image, 0, 0, image.width, image.height, 0, 0, this.width, this.height);
+                
+                // compute image data now, once per image change
+                var integralImg = integralImage(this.Canvas/*, this.scaledSelection*/);
+                this.canny = integralCanny(integralImg.gray, this.width, this.height/*, this.scaledSelection.width, this.scaledSelection.height*/);
+                this.integral = integralImg.integral; 
+                this.squares = integralImg.squares; 
+                this.tilted = integralImg.tilted; 
+                integralImg=null;
+            }
+            
+            return this;
+        },
+
+        // detector set detection interval
+        interval : function(it) { 
+            if (it>0) this.DetectInterval = it; 
+            
+            return this; 
+        },
+        
+        // customize canny prunning thresholds for best results
+        cannyThreshold : function(thres) {
+            (thres && "undefined"!=typeof(thres.low)) && (this.cannyLow = thres.low);
+            (thres && "undefined"!=typeof(thres.high)) && (this.cannyHigh = thres.high);
+            
+            return this;
+        },
+        
+        // set custom detection region as selection
+        selection : function(/* ..variable args here.. */) { 
+            var args = slice.call(arguments), argslen=args.length;
+            
+            if (1==argslen && 'auto'==args[0] || !argslen) this.Selection = null;
+            else this.Selection = Feature.prototype.data.apply(new Feature(), args); 
+            
+            return this; 
+        },
+        
+        // detector on complete callback
+        complete : function(callback) { 
+            this.onComplete = callback; 
+            
+            return this; 
+        },
+
+        // Detector detect method to start detection
+        detect : function(baseScale, scale_inc, increment, min_neighbors, doCannyPruning) {
+            var self = this,
+                sizex = self.haardata.size1, sizey = self.haardata.size2;
+            
+            if (!self.Selection) self.Selection = new Feature(0, 0, self.origWidth, self.origHeight);
+            self.Selection.x = ('auto'==self.Selection.x) ? 0 : self.Selection.x;
+            self.Selection.y = ('auto'==self.Selection.y) ? 0 : self.Selection.y;
+            self.Selection.width = ('auto'==self.Selection.width) ? self.origWidth : self.Selection.width;
+            self.Selection.height = ('auto'==self.Selection.height) ? self.origHeight : self.Selection.height;
+            self.scaledSelection = self.Selection.clone().scale(self.Ratio).round();
+            
+            baseScale = (typeof baseScale == 'undefined') ? 1.0 : baseScale;
+            scale_inc = (typeof scale_inc == 'undefined') ? 1.25 : scale_inc;
+            increment = (typeof increment == 'undefined') ? 0.5 : increment;
+            min_neighbors = (typeof min_neighbors == 'undefined') ? 1 : min_neighbors;
+            self.doCannyPruning = (typeof doCannyPruning == 'undefined') ? true : doCannyPruning;
+            
+            self.maxScale = Min(self.width/sizex, self.height/sizey); 
+            self.scale = baseScale; 
+            self.min_neighbors = min_neighbors; 
+            self.scale_inc = scale_inc; 
+            self.increment = increment; 
+            self.Ready = false;
+            
+            // needs parallel.js library (included)
+            if (self.Parallel && self.Parallel.isSupported())
+            {
+                var data=[], sc, i=0; 
+                for (sc=baseScale; sc<=self.maxScale; sc*=self.scale_inc)
+                {
+                    data.push({
+                        haardata : self.haardata,
+                        
+                        width : self.width,
+                        height : self.height,
+                        scaledSelection : {x:self.scaledSelection.x, y:self.scaledSelection.y, width:self.scaledSelection.width, height:self.scaledSelection.height},
+                        
+                        integral : self.integral,
+                        squares : self.squares,
+                        tilted: self.tilted,
+                        
+                        doCannyPruning : self.doCannyPruning,
+                        canny : (self.doCannyPruning) ? self.canny : null,
+                        cannyLow : self.cannyLow,
+                        cannyHigh : self.cannyHigh,
+                        
+                        maxScale : self.maxScale,
+                        min_neighbors : self.min_neighbors,
+                        scale_inc : self.scale_inc,
+                        increment : self.increment,
+                        scale : sc, // current scale to check
+                        i : i++ // serial ordering
+                    });
+                }
+                
+                // needs parallel.js library (included)
+                // parallelize the detection, using map-reduce
+                // should also work in Nodejs (using child processes)
+                new self.Parallel(data, {synchronous: false})
+                    .require( byOrder, detectSingleStep, mergeSteps )
+                    .map( detectSingleStep ).reduce( mergeSteps )
+                    .then( function(rects){
+                        detectEnd(self, rects);
+                    } )
+                ;
+            }
+            else
+            {
+                // else detect asynchronously using fixed intervals
+                var rects = [], 
+                    detectAsync = function() {         
+                        if (self.scale <= self.maxScale) 
+                        {
+                            rects = rects.concat( detectSingleStep(self) ); 
+                            // increase scale
+                            self.scale *= self.scale_inc;
+                            self.TimeInterval = setTimeout(detectAsync, self.DetectInterval);
+                        }
+                        else
+                        {
+                            clearTimeout( self.TimeInterval ); 
+                            detectEnd(self, rects);
+                        }
+                    }
+                ;
+                
+                self.TimeInterval = setTimeout(detectAsync, self.DetectInterval);
+            }
+            
+            return this;
+        }
     };
     
     
     //
     //
     //
-    // Feature/Rectangle Class  (arguably faster than generic Object)
-    HAAR.Feature=function(x, y, w, h, i) { this.data(x, y, w, h, i) };
+    // Feature/Rectangle Class  (arguably better than generic Object)
+    Feature = HAAR.Feature = function(x, y, w, h, i) { 
+        this.data(x, y, w, h, i);
+    };
     
-    HAAR.Feature.prototype={
+    Feature.prototype = {
+        
+        constructor : Feature,
         
         index : 0,
         x : 0,
@@ -457,200 +816,132 @@
         width : 0,
         height : 0,
         area : 0,
+        
         isInside : false,
         
         data : function(x, y, w, h, i) {
-            if (x && (x instanceof HAAR.Feature)) 
+            if (x && (x instanceof Feature)) 
             {
-                x.clone(this);
+                this.copy(x);
             }
             else if (x && (x instanceof Object))
             {
-                this.x=x.x || 0;
-                this.y=x.y || 0;
-                this.width=x.width || 0;
-                this.height=x.height || 0;
-                this.index=x.index || 0;
-                this.area=x.area || 0;
-                this.isInside=x.isInside || false;
+                this.x = x.x || 0;
+                this.y = x.y || 0;
+                this.width = x.width || 0;
+                this.height = x.height || 0;
+                this.index = x.index || 0;
+                this.area = x.area || 0;
+                this.isInside = x.isInside || false;
             }
             else
             {
-                this.x=x || 0;
-                this.y=y || 0;
-                this.width=w || 0;
-                this.height=h || 0;
-                this.index=i || 0;
-                this.area=0;
-                this.isInside=false;
+                this.x = x || 0;
+                this.y = y || 0;
+                this.width = w || 0;
+                this.height = h || 0;
+                this.index = i || 0;
+                this.area = 0;
+                this.isInside = false;
             }
+            
             return this;
         },
         
-        add : function (f) { this.x+=f.x; this.y+=f.y; this.width+=f.width; this.height+=f.height; return this; },
-        
-        scale : function(s) { this.x*=s; this.y*=s; this.width*=s; this.height*=s; return this; },
-        
-        round : function() { this.x=Round(this.x); this.y=Round(this.y); this.width=Round(this.width); this.height=Round(this.height); return this; },
-        
-        computeArea : function() { this.area=this.width*this.height; return this.area; }, 
-        
-        inside : function(f) { return ((this.x>=f.x) && (this.y>=f.y) && (this.x+this.width<=f.x+f.width) && (this.y+this.height<=f.y+f.height)) ? true : false; },
-        
-        contains : function(f) { return f.inside(this); },
-        
-        equal : function(f) { return ((f.x==this.x) && (f.y==this.y) && (f.width==this.width) && (f.height=this.height)) ? true : false; },
-        
-        almostEqual : function(f) { 
-            var d1=Max(f.width, this.width)*0.18, d2=Max(f.height, this.height)*0.18;
-            return ( Abs(this.x-f.x) <= d1 && Abs(this.y-f.y) <= d2 && Abs(this.width-f.width) <= d1 && Abs(this.height-f.height) <= d2 ) ? true : false; 
-        },
-        
-        clone : function(f) {
-            f=f || new HAAR.Feature();
-            f.x=this.x; f.y=this.y; f.width=this.width; f.height=this.height; 
-            f.index=this.index; f.area=this.area; f.isInside=this.isInside;
-            return f;
-        }
-    };
-    
-    //
-    //
-    //
-    // HAAR Detector Class (with the haar cascade data)
-    HAAR.Detector = function(haardata, ParallelClass) {
-        this.haardata = haardata;
-        this.Ready = false;
-        this.doCannyPruning=false;
-        this.Canvas = null;
-        this.ret=null;
-        this.Selection=null;
-        this.scaledSelection=null;
-        this.objects=null;
-        this.TimeInterval=null;
-        this.DetectInterval=30;
-        this.Ratio=0.5;
-        this.ImageChanged=false;
-        this.cannyLow=20;
-        this.cannyHigh=100;
-        this.Parallel= ParallelClass || false;
-        this.onComplete = null;
-    };
-    
-    HAAR.Detector.prototype = {
-
-        haardata : null,
-        objects : null,
-        Selection : null,
-        Ready : false,
-        
-        // set haardata, use same detector with cached data, to detect different feature
-        cascade : function(haardata) { this.haardata=haardata; return this; },
-    
-        // set image for detector along with scaling (and an optional canvas, eg for nodejs)
-        image : function(image, scale, canvas) {
-            if (image)
-            {
-                this.Canvas = canvas || document.createElement('canvas');
-                this.Ratio = (typeof scale == 'undefined') ? 0.5 : scale; this.Async = true; this.Ready = false;
-                this.origWidth=image.width;  this.origHeight=image.height;
-                this.width = this.Canvas.width = Round(this.Ratio * image.width); this.height = this.Canvas.height = Round(this.Ratio * image.height);
-                this.Canvas.getContext('2d').drawImage(image, 0, 0, image.width, image.height, 0, 0, this.width, this.height);
-                this.ImageChanged=true;
-            }
-            return this;
-        },
-
-        // detector set detection interval
-        interval : function(it) { if (it>0) {this.DetectInterval = it;} return this; },
-        
-        // customize canny prunning thresholds for best results
-        cannyThreshold : function(thres) {
-            (thres && 'undefined'!=typeof(thres.low)) && (this.cannyLow=thres.low);
-            (thres && 'undefined'!=typeof(thres.high)) && (this.cannyHigh=thres.high);
-            return this;
-        },
-        
-        // set custom detection region as selection
-        selection : function(/* ..variable args here.. */) { 
-            var args=Array.prototype.slice.call(arguments);
-            if (1==args.length && 'auto'==args[0] || !args.length) this.Selection=null;
-            else this.Selection=HAAR.Feature.prototype.data.apply(new HAAR.Feature(), args); 
+        add : function (f) { 
+            this.x += f.x; 
+            this.y += f.y; 
+            this.width += f.width; 
+            this.height += f.height; 
             return this; 
         },
         
-        // detector on complete callback
-        complete : function(func) { this.onComplete = func; return this; },
-
-        // Detector detect method to start detection
-        detect : function(baseScale, scale_inc, increment, min_neighbors, doCannyPruning) {
-            var self = this, 
-                sizex = self.haardata.size1, sizey = self.haardata.size2, integralImg;
+        scale : function(s) { 
+            this.x *= s; 
+            this.y *= s; 
+            this.width *= s; 
+            this.height *= s; 
+            return this; 
+        },
+        
+        round : function() { 
+            this.x = ~~(this.x+0.5); 
+            this.y = ~~(this.y+0.5); 
+            this.width = ~~(this.width+0.5); 
+            this.height = ~~(this.height+0.5); 
+            return this; 
+        },
+        
+        computeArea : function() { 
+            this.area = this.width*this.height; 
+            return this.area; 
+        }, 
+        
+        inside : function(f) { 
+            return ( 
+                (this.x >= f.x) && 
+                (this.y >= f.y) && 
+                (this.x+this.width <= f.x+f.width) && 
+                (this.y+this.height <= f.y+f.height)
+                ) ? true : false; 
+        },
+        
+        contains : function(f) { 
+            return f.inside(this); 
+        },
+        
+        equal : function(f) { 
+            return (
+                (f.x == this.x) && 
+                (f.y == this.y) && 
+                (f.width == this.width) && 
+                (f.height == this.height)
+            ) ? true : false; 
+        },
+        
+        almostEqual : function(f) { 
+            var d1=Max(f.width, this.width)*0.2, d2=Max(f.height, this.height)*0.2;
+            //var d1=Max(f.width, this.width)*0.5, d2=Max(f.height, this.height)*0.5;
+            //var d2=d1=Max(f.width, this.width, f.height, this.height)*0.4;
+            return ( 
+                Abs(this.x-f.x) <= d1 && 
+                Abs(this.y-f.y) <= d2 && 
+                Abs(this.width-f.width) <= d1 && 
+                Abs(this.height-f.height) <= d2 
+                ) ? true : false; 
+        },
+        
+        clone : function() {
+            var f = new Feature();
+            f.x = this.x; 
+            f.y = this.y; 
+            f.width = this.width; 
+            f.height = this.height; 
+            f.index = this.index; 
+            f.area = this.area; 
+            f.isInside = this.isInside;
             
-            if (!self.Selection) self.Selection = new HAAR.Feature(0, 0, self.origWidth, self.origHeight);
-            self.Selection.x=('auto'==self.Selection.x) ? 0 : self.Selection.x;
-            self.Selection.y=('auto'==self.Selection.y) ? 0 : self.Selection.y;
-            self.Selection.width=('auto'==self.Selection.width) ? self.origWidth : self.Selection.width;
-            self.Selection.height=('auto'==self.Selection.height) ? self.origHeight : self.Selection.height;
-            self.scaledSelection=self.Selection.clone().scale(self.Ratio).round();
-            
-            baseScale = (typeof baseScale == 'undefined') ? 1.0 : baseScale;
-            scale_inc = (typeof scale_inc == 'undefined') ? 1.25 : scale_inc;
-            increment = (typeof increment == 'undefined') ? 0.1 : increment;
-            min_neighbors = (typeof min_neighbors == 'undefined') ? 1 : min_neighbors;
-            self.doCannyPruning = (typeof doCannyPruning == 'undefined') ? true : doCannyPruning;
-            
-            if (self.ImageChanged) // allow to use cached image data with same image/different selection
+            return f;
+        },
+        
+        copy : function(f) {
+            if ( f && (f instanceof Feature) )
             {
-                integralImg = integralImage(self.Canvas/*, self.scaledSelection*/);
-                self.canny = (self.doCannyPruning) ? integralCanny(integralImg.gray, self.width, self.height/*, self.scaledSelection.width, self.scaledSelection.height*/) : null;
-                self.integral=integralImg.integral; self.squares=integralImg.squares; integralImg=null;
+                this.x = f.x; 
+                this.y = f.y; 
+                this.width = f.width; 
+                this.height = f.height; 
+                this.index = f.index; 
+                this.area = f.area; 
+                this.isInside = f.isInside;
             }
-            self.ImageChanged=false;
             
-            self.maxScale = Min(self.width/sizex, self.height/sizey); self.scale = baseScale; self.min_neighbors = min_neighbors; 
-            self.scale_inc = scale_inc; self.increment = increment; self.Ready = false;
-            
-            if (self.Parallel && self.Parallel.isSupported())
-            {
-                var data=[], sc, i=0; 
-                for (sc=baseScale; sc<=self.maxScale; sc*=scale_inc)  
-                    data.push({
-                        haardata : self.haardata,
-                        width : self.width,
-                        height : self.height,
-                        scaledSelection : {x:self.scaledSelection.x, y:self.scaledSelection.y, width:self.scaledSelection.width, height:self.scaledSelection.height},
-                        integral : self.integral,
-                        squares : self.squares,
-                        doCannyPruning : self.doCannyPruning,
-                        canny : self.canny,
-                        cannyLow : self.cannyLow,
-                        cannyHigh : self.cannyHigh,
-                        maxScale : self.maxScale,
-                        min_neighbors : min_neighbors,
-                        scale_inc : scale_inc,
-                        increment : increment,
-                        scale : sc, // current scale to check
-                        i : i++ // serial ordering
-                    });
-                
-                // needs parallel.js library (included)
-                // parallelize the detection, using map-reduce
-                // should also work in Nodejs (using child processes)
-                new self.Parallel(data, {synchronous: false})
-                    .require(byOrder, evalStage, detectParallel, mergeParallel)
-                    .map(detectParallel).reduce(mergeParallel)
-                    .then(function(results){detectEnd(self, results);})
-                ;
-            }
-            else
-            {
-                // else detect asynchronously using fixed intervals
-                self.ret = [];
-                self.TimeInterval = setInterval(function() { detectAsync(self); }, self.DetectInterval);
-            }
             return this;
+        },
+        
+        toString : function() {
+            return '[ x: ' + this.x + ', y: ' + this.y + ', width: ' + this.width + ', height: ' + this.height + ' ]';
         }
     };
 
-})(this);
+}).call(this);

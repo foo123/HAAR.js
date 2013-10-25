@@ -1,4 +1,4 @@
 #!/bin/sh
 
-# $1 is opencv haar xml file name without xml extension
-php -f haartojs.php "$1.xml" "$1" > "$1.js"
+# $1 is opencv haar xml file name
+php -f .\haartojs.php -- --xml="$1" --output=js
