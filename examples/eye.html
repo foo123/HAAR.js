@@ -24,15 +24,33 @@
         <h1>Eye Detection with eye haar cascade by Mar Canet in JavaScript</h1>
         <div id="wait" style="display:none"><img src='ajax-loader.gif' /></div>
         <div id="container" style="position:relative;"><canvas id='image'></canvas></div>
+        <div id="info" style="position:relative;font-size:18px;">
+            <br />
+            If <code>&quot;?parallel&quot;</code> is set in the URL, <strong>Parallel</strong> detection is used
+            <br />
+            else, <strong>Asynchronous (not Parallel)</strong> detection is used
+            <br /> <br />
+        </div>
         
         <script>
         //<![CDATA[
-        var wait=document.getElementById('wait'), canvas=document.getElementById('image'), 
-            ctx=canvas.getContext('2d'), image=new Image(),
-            log = (console && console.log) ? console.log : function(s) {}
+        var wait=document.getElementById('wait'), info=document.getElementById('info'),
+            canvas=document.getElementById('image'), ctx=canvas.getContext('2d'), image=new Image(),
+            log = (window.console && window.console.log) ? function(s) { window.console.log(s); } : function() {},
+            useParallel
             ;
             
-        //Parallel = null;
+        useParallel = (/[?&]parallel/.test(location.href)) ? Parallel : false;
+        
+        if (useParallel)
+        {
+            info.innerHTML += "CURRENT MODE: Parallel Detection";
+        }
+        else
+        {
+            info.innerHTML += "CURRENT MODE: Asynchronous (not Parallel) Detection";
+        }
+        
         image.onload=function(){
             // profile
             //console.timeEnd('ImageLoad');
@@ -43,7 +61,7 @@
             // profile
             //console.time('FeatureDetect');
             // detect the feature
-            new HAAR.Detector(haarcascade_eye, Parallel) // much faster when using parallel computation
+            new HAAR.Detector(haarcascade_eye, useParallel) // much faster when using parallel computation
                     .image(image, 0.8) // use the image
                     .interval(50) // set detection interval for asynchronous detection (if not parallel)
                     .complete(function(){  // onComplete callback
