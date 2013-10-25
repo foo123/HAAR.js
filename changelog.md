@@ -1,5 +1,9 @@
 ###ChangeLog
 
+__0.4.4__
+* array edits
+* compatible examples with IE, Opera
+
 __0.4.3__
 * refactor code (make smaller)
 * add clearCache method, to delete any stored/cached image data in the detector (in case space is an issue)

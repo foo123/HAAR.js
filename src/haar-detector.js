@@ -4,7 +4,7 @@
 * port of jViolaJones  for Java (http://code.google.com/p/jviolajones/) to JavaScript and Node
 *
 * https://github.com/foo123/HAAR.js
-* @version: 0.4.3
+* @version: 0.4.4
 *
 * Supports parallel "map-reduce" computation both in browser and node using parallel.js library 
 * https://github.com/adambom/parallel.js (included)
@@ -13,7 +13,7 @@
 (function(root, undef) {
     // the export object
     var HAAR;
-    var VERSION = "0.4.3";
+    var VERSION = "0.4.4";
     var Detector, Feature;
 
     // export using window object on browser, or export object on node,require
@@ -51,9 +51,9 @@
             , sum, sum2, i, j, k, y, g
             , gray = new Array8U(count)
             // Viola-Jones
-            , integral = new Array32U(count), squares = new Array32U(count)
+            , integral = new Array32F(count), squares = new Array32F(count)
             // Lienhart et al. extension using tilted features
-            , tilted = new Array32U(count)
+            , tilted = new Array32F(count)
             ;
         
         // first row
@@ -67,7 +67,7 @@
             
             g &= 255;  
             sum += g;  
-            sum2 += ((g*g)&0xFFFFFFFF) >>> 0;
+            sum2 += /*(*/(g*g); //&0xFFFFFFFF) >>> 0;
             
             // SAT(–1,y)=SAT(x,–1)=SAT(–1,–1)=0
             // SAT(x,y)=SAT(x,y–1)+SAT(x–1,y)+I(x,y)–SAT(x–1,y–1)  <-- integral image
@@ -92,7 +92,7 @@
             
             g &= 255;  
             sum += g;  
-            sum2 += ((g*g)&0xFFFFFFFF) >>> 0;
+            sum2 += /*(*/(g*g); //&0xFFFFFFFF) >>> 0;
             
             // SAT(–1,y)=SAT(x,–1)=SAT(–1,–1)=0
             // SAT(x,y)=SAT(x,y–1)+SAT(x–1,y)+I(x,y)–SAT(x–1,y–1)  <-- integral image
@@ -115,7 +115,7 @@
     {
         var i, j, k, sum, grad_x, grad_y,
             ind0, ind1, ind2, ind_1, ind_2, count=gray.length, 
-            lowpass = new Array8U(count), canny = new Array32U(count)
+            lowpass = new Array8U(count), canny = new Array32F(count)
         ;
         
         // first, second rows, last, second-to-last rows
@@ -188,7 +188,7 @@
                 // http://stackoverflow.com/questions/6232939/is-there-a-way-to-correctly-multiply-two-32-bit-integers-in-javascript/6422061#6422061
                 // http://stackoverflow.com/questions/6798111/bitwise-operations-on-32-bit-unsigned-ints
                 // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Bitwise_Operators#%3E%3E%3E_%28Zero-fill_right_shift%29
-                sum = ((0
+                sum = /*(*/(0
                         + (gray[ind_2-2] << 1) + (gray[ind_1-2] << 2) + (gray[ind0-2] << 2) + (gray[ind0-2])
                         + (gray[ind1-2] << 2) + (gray[ind2-2] << 1) + (gray[ind_2-1] << 2) + (gray[ind_1-1] << 3)
                         + (gray[ind_1-1]) + (gray[ind0-1] << 4) - (gray[ind0-1] << 2) + (gray[ind1-1] << 3)
@@ -198,7 +198,7 @@
                         + (gray[ind0+1] << 4) - (gray[ind0+1] << 2) + (gray[ind1+1] << 3) + (gray[ind1+1]) + (gray[ind2+1] << 2)
                         + (gray[ind_2+2] << 1) + (gray[ind_1+2] << 2) + (gray[ind0+2] << 2) + (gray[ind0+2])
                         + (gray[ind1+2] << 2) + (gray[ind2+2] << 1)
-                        ) &0xFFFFFFFF ) >>> 0;
+                        );// &0xFFFFFFFF ) >>> 0;
                 
                 /*
                 Original Code
@@ -245,7 +245,7 @@
                         ;
                 
                 //sum += (Abs(grad_x) + Abs(grad_y))&0xFFFFFFFF;
-                canny[ind0] = ( Abs(grad_x) + Abs(grad_y) )&0xFFFFFFFF;
+                canny[ind0] = ( Abs(grad_x) + Abs(grad_y) );//&0xFFFFFFFF;
            }
         }
         
@@ -255,7 +255,7 @@
         while (i<w)
         {
             sum += canny[i];
-            canny[i] = sum&0xFFFFFFFF;
+            canny[i] = sum;//&0xFFFFFFFF;
             i++;
         }
         // other rows
@@ -263,7 +263,7 @@
         while (i<count)
         {
             sum += canny[i];
-            canny[i] = (canny[i-w] + sum)&0xFFFFFFFF;
+            canny[i] = (canny[i-w] + sum);//&0xFFFFFFFF;
             i++; k++; if (k>=w) { k=0; sum=0; }
         }
         

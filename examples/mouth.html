@@ -58,7 +58,7 @@
             
             // detect the feature
             new HAAR.Detector(haarcascade_mcs_mouth, useParallel)
-                    .image(image, 0.8) // use the image
+                    .image(image, 0.9) // use the image
                     .interval(40) // set detection interval for asynchronous detection (if not parallel)
                     .complete(function(){  // onComplete callback
                         var i, rect, l=this.objects.length;
