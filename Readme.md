@@ -171,11 +171,11 @@ detector.detect(baseScale, scale_inc, increment, min_neighbors, doCannyPruning);
 
 __Explanation of parameters__ ([JViolaJones Parameters](http://code.google.com/p/jviolajones/wiki/Parameters))
 
-* _baseScale_ : The initial ratio between the window size and the Haar classifier size (default __1__ ).
-* _scale_inc_ : The scale increment of the window size, at each step (default __1.25__ ).
-* _increment_ : The shift of the window at each sub-step, in terms of percentage of the window size (default __0.1__ ).
-* _min_neighbors_ : The minimum numbers of similar rectangles needed for the region to be considered as a feature (avoid noise) (default __1__ )
-* _doCannyPruning_ : enable Canny Pruning to pre-detect regions unlikely to contain features, in order to speed up the execution (optional default __true__ ). 
+* *baseScale* : The initial ratio between the window size and the Haar classifier size (default __1__ ).
+* *scale_inc* : The scale increment of the window size, at each step (default __1.25__ ).
+* *increment* : The shift of the window at each sub-step, in terms of percentage of the window size (default __0.1__ ).
+* *min_neighbors* : The minimum numbers of similar rectangles needed for the region to be considered as a feature (avoid noise) (default __1__ )
+* *doCannyPruning* : enable Canny Pruning to pre-detect regions unlikely to contain features, in order to speed up the execution (optional default __true__ ). 
 
 __HAAR.js works in the browser and inside Node.js (supports parallel computations both in browser and node)__
 
