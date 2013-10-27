@@ -69,11 +69,11 @@
             sum += g;  
             sum2 += /*(*/(g*g); //&0xFFFFFFFF) >>> 0;
             
-            // SAT(–1,y)=SAT(x,–1)=SAT(–1,–1)=0
-            // SAT(x,y)=SAT(x,y–1)+SAT(x–1,y)+I(x,y)–SAT(x–1,y–1)  <-- integral image
+            // SAT(-1, y) = SAT(x, -1) = SAT(-1, -1) = 0
+            // SAT(x, y) = SAT(x, y-1) + SAT(x-1, y) + I(x, y) - SAT(x-1, y-1)  <-- integral image
             
-            // RSAT(–1,y)=RSAT(x,–1)=RSAT(x,–2)=0 RSAT(–1,–1)=RSAT(–1,–2)=0
-            // RSAT(x,y)=RSAT(x–1,y–1)+RSAT(x+1,y–1)–RSAT(x,y–2)+I(x,y)+I(x,y–1) <-- rotated(tilted) integral image at 45deg
+            // RSAT(-1, y) = RSAT(x, -1) = RSAT(x, -2) = RSAT(-1, -1) = RSAT(-1, -2) = 0
+            // RSAT(x, y) = RSAT(x-1, y-1) + RSAT(x+1, y-1) - RSAT(x, y-2) + I(x, y) + I(x, y-1)    <-- rotated(tilted) integral image at 45deg
             gray[j] = g;
             integral[j] = sum;
             squares[j] = sum2;
@@ -94,11 +94,11 @@
             sum += g;  
             sum2 += /*(*/(g*g); //&0xFFFFFFFF) >>> 0;
             
-            // SAT(–1,y)=SAT(x,–1)=SAT(–1,–1)=0
-            // SAT(x,y)=SAT(x,y–1)+SAT(x–1,y)+I(x,y)–SAT(x–1,y–1)  <-- integral image
+            // SAT(-1, y) = SAT(x, -1) = SAT(-1, -1) = 0
+            // SAT(x, y) = SAT(x, y-1) + SAT(x-1, y) + I(x, y) - SAT(x-1, y-1)  <-- integral image
             
-            // RSAT(–1,y)=RSAT(x,–1)=RSAT(x,–2)=0 RSAT(–1,–1)=RSAT(–1,–2)=0
-            // RSAT(x,y)=RSAT(x–1,y–1)+RSAT(x+1,y–1)–RSAT(x,y–2)+I(x,y)+I(x,y–1) <-- rotated(tilted) integral image at 45deg
+            // RSAT(-1, y) = RSAT(x, -1) = RSAT(x, -2) = RSAT(-1, -1) = RSAT(-1, -2) = 0
+            // RSAT(x, y) = RSAT(x-1, y-1) + RSAT(x+1, y-1) - RSAT(x, y-2) + I(x, y) + I(x, y-1)    <-- rotated(tilted) integral image at 45deg
             gray[j] = g;
             integral[j] = integral[j-w] + sum;
             squares[j] = squares[j-w] + sum2;
@@ -492,8 +492,8 @@
                                     y3 = (y3<by1) ? by1 : (y3>by2) ? by2 : y3;
                                     y4 = (y4<by1) ? by1 : (y4>by2) ? by2 : y4;
                                     
-                                    // RSAT(x–h+w,y+w+h–1)+RSAT(x,y–1)–RSAT(x–h,y+h–1)–RSAT(x+w,y+w–1)
-                                    //      x4     y4           x1  y1      x3   y3          x2  y2
+                                    // RSAT(x-h+w, y+w+h-1) + RSAT(x, y-1) - RSAT(x-h, y+h-1) - RSAT(x+w, y+w-1)
+                                    //        x4     y4            x1  y1          x3   y3            x2   y2
                                     rect_sum+= r[4] * (tilted[x4 + y4] - tilted[x3 + y3] - tilted[x2 + y2] + tilted[x1 + y1]);
                                 }
                             }
@@ -516,8 +516,8 @@
                                     y1 = (y1<by1) ? by1 : (y1>by2) ? by2 : y1;
                                     y2 = (y2<by1) ? by1 : (y2>by2) ? by2 : y2;
                                     
-                                    // SAT(x–1,y–1)+SAT(x+w–1,y+h–1)–SAT(x–1,y+h–1)–SAT(x+w–1,y–1)
-                                    //     x1  y1        x2    y2         x1  y2         x2   y1
+                                    // SAT(x-1, y-1) + SAT(x+w-1, y+h-1) - SAT(x-1, y+h-1) - SAT(x+w-1, y-1)
+                                    //      x1   y1         x2      y2          x1   y1            x2    y1
                                     rect_sum+= r[4] * (integral[x2 + y2]  - integral[x1 + y2] - integral[x2 + y1] + integral[x1 + y1]);
                                 }
                             }
