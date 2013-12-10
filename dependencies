@@ -27,6 +27,19 @@
 # TODO, allow some pre-process to take place
 #@PREPROCESS
 
+# do any replacements in the source (map)
+@REPLACE ={}
+    "@@VERSION@@" = "0.4.4"
+@ # end block
+
+# extract documentation from the source (map)
+@DOC ={}
+    "STARTDOC" = "/**[DOC_MARKDOWN]"
+    "ENDDOC" = "[/DOC_MARKDOWN]**/"
+    "TRIMX" = "\\s*\\*[ ]?"
+    "OUTPUT" = "./api-reference.md"
+@ # end block
+
 # Minify the Package (map of lists)
 @MINIFY ={}
     # Options for Node UglifyJS Compiler (if used, default), (mangle and compress)

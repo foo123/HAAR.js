@@ -3,6 +3,7 @@
 __0.4.4__
 * array edits
 * compatible examples with IE, Opera
+* update buildtools, dependencies, api-reference (latest)
 
 __0.4.3__
 * refactor code (make smaller)
