@@ -103,6 +103,7 @@ detector.complete(callback);
 ```
 
 Set the callback handler when detection completes (for parallel and asynchronous detection)
+
 __Explanation of parameters__
 
 * _callback_ : The user-defined callback function (will be called within the detectors scope, the value of 'this' will be the detector instance).
