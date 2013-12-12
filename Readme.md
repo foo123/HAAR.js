@@ -28,9 +28,9 @@ Light-weight (~10kB) minified.
 * [Credits](/credits.md)
 
 ###Live Examples
-* [Face Detection](http://foo123.github.com/examples/face-detection/)
+* [Interactive Face Detection](http://foo123.github.com/examples/face-detection/)
 * [Many Faces Detection](http://foo123.github.com/examples/faces-detection/)
-* [Mouth Detection](http://foo123.github.com/examples/mouth-detection/)
+* [Interactive Mouth Detection](http://foo123.github.com/examples/mouth-detection/)
 
 
 ###How To use
