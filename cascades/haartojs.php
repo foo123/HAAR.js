@@ -44,7 +44,7 @@ class HaarToJsConverter
      * @author              Patrick Fisher <patrick@pwfisher.com>
      * @see                 https://github.com/pwfisher/CommandLine.php
      */
-    protected function parseArgs($argv = null) 
+    protected static function parseArgs($argv = null) 
     {
         $argv = $argv ? $argv : $_SERVER['argv']; array_shift($argv); $o = array();
         for ($i = 0, $j = count($argv); $i < $j; $i++) 
@@ -219,7 +219,7 @@ class HaarToJsConverter
         // use closure for compatibility with browser, node, common amd and requirejs (similar scheme to Backbone.js)
         if ($var_to_use_in_js)
         {
-            echo("(function(root) { var " . $var_to_use_in_js . "=");
+            echo("(function() { var " . $var_to_use_in_js . "=");
         }
         
         // this is strict json output
@@ -263,31 +263,31 @@ class HaarToJsConverter
                             $thres2=(isset($feature["threshold"])) ? $feature["threshold"] : 0;
                             $left_node='-1';
                             $left_val = '0';
-                            $has_left_val ='false';
+                            $has_left_val ='0';
                             $right_node='-1';
                             $right_val = '0';
-                            $has_right_val ='false';
+                            $has_right_val ='0';
                             //$e;
                             if(isset($feature["left_val"]))
                             {
                                 $left_val=$feature["left_val"];
-                                $has_left_val='true';
+                                $has_left_val='1';
                             }
                             else
                             {
                                 $left_node=$feature["left_node"];
-                                $has_left_val='false';
+                                $has_left_val='0';
                             }
 
                             if(isset($feature["right_val"]))
                             {
                                 $right_val=$feature["right_val"];
-                                $has_right_val='true';
+                                $has_right_val='1';
                             }
                             else
                             {
                                 $right_node=$feature["right_node"];
-                                $has_right_val='false';
+                                $has_right_val='0';
                             }
                             echo('"thres":' . $thres2);
                             echo(',"has_l":' . $has_left_val . ',"l_val":' . $left_val . ',"l_node":' . $left_node);
@@ -301,7 +301,7 @@ class HaarToJsConverter
                             }
                             else
                             {
-                                echo(',"tilt":null');
+                                echo(',"tilt":0');
                             }
                             echo(',"rects":[');
                             if (isset($feature['feature']['rects']['_']))
@@ -337,7 +337,6 @@ class HaarToJsConverter
             echo(";\n");
             echo("if(typeof module !== 'undefined' && module.exports){ module.exports.".$var_to_use_in_js." = ".$var_to_use_in_js."; } ");
             echo("else if(typeof exports !== 'undefined'){ exports.".$var_to_use_in_js." = ".$var_to_use_in_js."; } ");
-            //echo("else { root.".$var_to_use_in_js." = ".$var_to_use_in_js."; } ");
             echo("else { this.".$var_to_use_in_js." = ".$var_to_use_in_js."; } ");
             echo("}).call(this);\n");
         }
