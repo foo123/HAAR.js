@@ -10,7 +10,22 @@
 * https://github.com/adambom/parallel.js (included)
 *
 **/
-(function(root, undef) {
+!function (root, moduleName, moduleDefinition) {
+
+    //
+    // export the module
+    
+    // node, CommonJS, etc..
+    if ( 'object' == typeof(module) && module.exports ) module.exports = moduleDefinition();
+    
+    // AMD, etc..
+    else if ( 'function' == typeof(define) && define.amd ) define( moduleDefinition );
+    
+    // browser, etc..
+    else root[ moduleName ] = moduleDefinition();
+
+
+}(this, 'HAAR', function( undef ) {
     
     // the export object
     var HAAR = { VERSION : "@@VERSION@@" };
@@ -1109,9 +1124,6 @@
         }
     };
 
-    // export using window object on browser, or export object on node,require
-    if ('undefined' != typeof (module) && module.exports)  module.exports = HAAR;
-    else if ('undefined' != typeof (exports) )  exports = HAAR;
-    else  this.HAAR = HAAR;
-    
-}).call(this);
+    // export it
+    return HAAR;
+});
