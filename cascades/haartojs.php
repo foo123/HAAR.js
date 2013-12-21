@@ -28,6 +28,55 @@ if (!class_exists('HaarToJsConverter'))
 {
 class HaarToJsConverter
 {
+    protected static $umdHeader = <<<UMDH
+!function ( root, name, deps, factory ) {
+    // export the module in a umd-style generic way
+    deps = ( deps ) ? [].concat(deps) : [];
+    var i, dl = deps.length, ids = new Array( dl ), paths = new Array( dl ), mods = new Array( dl );
+    for (i=0; i<dl; i++) { ids[i] = deps[i][0]; paths[i] = deps[i][1]; }
+    // node, commonjs, etc..
+    if ( 'object' == typeof( module ) && module.exports ) 
+    {
+        if ( 'undefined' == typeof(module.exports[name]) )
+        {
+            for (i=0; i<dl; i++)
+                mods[i] = module.exports[ ids[i] ] || require( paths[i] )[ ids[i] ];
+            module.exports[ name ] = factory.apply(root, mods );
+        }
+    }
+    // amd, etc..
+    else if ( 'function' == typeof( define ) && define.amd ) 
+    {
+        define( ['exports'].concat( paths ), function( exports ) {
+            if ( 'undefined' == typeof(exports[name]) )
+            {
+                var args = Array.prototype.slice.call( arguments, 1 );
+                for (var i=0, dl=args.length; i<dl; i++)
+                    mods[i] = exports[ ids[i] ];
+                exports[name] = factory.apply(root, mods );
+            }
+        });
+    }
+    // browsers, other loaders, etc..
+    else 
+    {
+        if ( 'undefined' == typeof(root[name]) )
+        {
+            for (i=0; i<dl; i++)
+                mods[i] = root[ ids[i] ];
+            root[name] = factory.apply(root, mods );
+        }
+    }
+}( this, "__{{NAME}}__", null, function( ) { var __{{NAME}}__ = 
+UMDH;
+    
+    protected static $umdFooter = <<<UMDF
+    
+    // export it
+    return __{{NAME}}__;
+});
+UMDF;
+
     public static function error($msg) { trigger_error ( $msg,  E_USER_WARNING );  die(1); }
     
     protected static function __echo($s="") {  echo $s . PHP_EOL; }
@@ -216,11 +265,9 @@ class HaarToJsConverter
         $racine = reset($data);
         
         // if js output, 
-        // use closure for compatibility with browser, node, common amd and requirejs (similar scheme to Backbone.js)
+        // use umd-style module export for compatibility with browser, node, commonjs, amd and requirejs
         if ($var_to_use_in_js)
-        {
-            echo("(function() { var " . $var_to_use_in_js . "=");
-        }
+            echo( str_replace('__{{NAME}}__', $var_to_use_in_js, self::$umdHeader) );
         
         // this is strict json output
         echo('{');
@@ -333,13 +380,7 @@ class HaarToJsConverter
         
         // if js output
         if ($var_to_use_in_js)
-        {
-            echo(";\n");
-            echo("if(typeof module !== 'undefined' && module.exports){ module.exports.".$var_to_use_in_js." = ".$var_to_use_in_js."; } ");
-            echo("else if(typeof exports !== 'undefined'){ exports.".$var_to_use_in_js." = ".$var_to_use_in_js."; } ");
-            echo("else { this.".$var_to_use_in_js." = ".$var_to_use_in_js."; } ");
-            echo("}).call(this);\n");
-        }
+            echo( str_replace('__{{NAME}}__', $var_to_use_in_js, self::$umdFooter) );
     }
     
     public static function Main($argv=null)
@@ -347,14 +388,13 @@ class HaarToJsConverter
         $args = self::parse($argv);
         //print_r($args);  exit;
         $infile = realpath($args['xml']);
+        
         if ('js' == $args['output'])
-        {
             $var_in_js = strval(self::fileinfo($infile));
-        }
+        
         else
-        {
             $var_in_js = false;
-        }
+        
         self::convert($infile, $var_in_js);
     }
 }

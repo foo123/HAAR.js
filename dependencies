@@ -15,7 +15,7 @@
 # A key and/or value can be quoted (with ", ' or `, quotes) or unquoted
 # Lines with one or multiple '@'s define the end of that many previous blocks
 
-@DEPENDENCIES =[]
+@SRC =[]
 
     # if run on browser, the excanvas lib can be used 
     # to provide canvas support for browsers that lack support for canvas element :P
@@ -29,7 +29,7 @@
 
 # do any replacements in the source (map)
 @REPLACE ={}
-    "@@VERSION@@" = "0.4.4"
+    "@@VERSION@@" = "0.4.5"
 @ # end block
 
 # extract documentation from the source (map)
