@@ -84,11 +84,11 @@ with the OpenCV cascades (when they use tilted features, eg mouth cascade)
 __HAAR.js works both in the browser and in Node.js (supporting parallel computations with Parallel.js)__
 
 
-####Runing inside the brower
+####Runing inside the browser
  Loading wth script tags
     You can run the example face.html or mouth.html inside your browser
 
-####Running inside Node
+####Running inside node
  For running, the package have a dependency on canvas
  You can find an example inside examples/nodes.js
 Valid Output
@@ -105,7 +105,7 @@ For example for Ubuntu :
 sudo apt-get install libcairo2-dev libjpeg8-dev libpango1.0-dev libgif-dev
 ```
 
-####Loading with RequireJS
+####Loading with requirejs
  As a third option, you can load the library with requireJS, both on the browser on with node.
 There is an example of loading with RequireJS inside node in examples/require.js.
 The configuration would be the same inside a browser

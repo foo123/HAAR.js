@@ -1,6 +1,6 @@
 var Canvas = require('canvas'),
   fs = require('fs'),
-  HAAR = require('../build/haar-detector.min'),
+  HAAR = require('../build/haar-detector.min').HAAR,
   detector = require('../cascades/haarcascade_frontalface_alt').haarcascade_frontalface_alt,
   Image = Canvas.Image;
   
