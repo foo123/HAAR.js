@@ -84,6 +84,9 @@ with the OpenCV cascades (when they use tilted features, eg mouth cascade)
 __HAAR.js works both in the browser and in Node.js (supporting parallel computations with Parallel.js)__
 
 
+**NOTE** HAAR.js (0.4.4+) (and the generated cascades) support *umd-style* generic loading capability for: **commonjs / node** , **amd** , **browsers script tags**
+
+
 ####Runing inside the browser
  Loading wth script tags
     You can run the example face.html or mouth.html inside your browser
