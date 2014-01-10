@@ -1,6 +1,6 @@
 # HAAR.js 
 
-## Further development on this project has stopped!!
+### Further development on this project has stopped!!
 
 
 __Feature Detection Library for JavaScript__    (uses HTML5 canvas on browser and Canvas package on Node)
