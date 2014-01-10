@@ -21,13 +21,30 @@
     # if run on browser, the excanvas lib can be used 
     # to provide canvas support for browsers that lack support for canvas element :P
     #./src/externals/excanvas.js
+    
+    !tpl:umd-exports-header.tpl.js  # include a umd-header template
     ./src/haar-detector.js
+    !tpl:umd-exports-footer.tpl.js  # include a umd-footer template
 
 @ # end block
 
+# extract header from this file
+@HEADER =
+./src/haar-detector.js
+
 # do any replacements in the source (orderedmap)
 @REPLACE =[{}]
-    "@@VERSION@@" = "0.4.5"
+
+    "@@EXPORTS@@" = "EXPORTS"
+    
+    "@@VERSION@@" = "0.4.6"
+    
+    "@@MODULE_NAME@@" = "HAAR"
+    
+    "@@MODULE_DEPENDENCIES@@" = "null"
+    
+    "@@MODULE_ARGUMENTS@@"  = ""
+    
 @ # end block
 
 # extract documentation from the source (map)

@@ -39,6 +39,19 @@ __Explanation of parameters__
         
 
 
+__parallel(Parallel)__
+```javascript
+detector.paralell(Parallel | false);
+```
+
+Enable/disable parallel processing (passing the Parallel Object or null/false)
+
+__Explanation of parameters__
+
+* _Parallel_ : The actual Parallel object used in parallel.js (included)
+        
+
+
 __image(ImageOrVideoOrCanvas, scale, CanvasClass)__
 ```javascript
 detector.image(ImageOrVideoOrCanvas, scale, CanvasClass);

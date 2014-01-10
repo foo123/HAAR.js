@@ -1,9 +1,14 @@
 ###ChangeLog
 
+__0.4.5__ , __0.4.6__
+* update buildtools, dependencies, api-reference (latest)
+
+
 __0.4.4__
 * array edits
 * compatible examples with IE, Opera
-* update buildtools, dependencies, api-reference (latest)
+* update buildtools
+
 
 __0.4.3__
 * refactor code (make smaller)

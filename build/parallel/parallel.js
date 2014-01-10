@@ -1,12 +1,12 @@
 ﻿(function () {
-	var isNode = typeof module !== 'undefined' && module.exports;
+	var isNode = typeof global !== "undefined" && {}.toString.call(global) == '[object global]';
 	var setImmediate = setImmediate || function (cb) {
 		setTimeout(cb, 0);
 	};
 	var Worker = isNode ? require(__dirname + '/Worker.js') : self.Worker;
 	var URL = typeof self !== 'undefined' ? (self.URL ? self.URL : self.webkitURL) : null;
-    var _supports= isNode || self.Worker; // node always supports parallel
-    
+	var _supports = (isNode || self.Worker) ? true : false; // node always supports parallel
+
 	function extend(from, to) {
 		if (!to) to = {};
 		for (var i in from) {
@@ -82,10 +82,10 @@
 		this.requiredScripts = [];
 		this.requiredFunctions = [];
 	}
-    
-    // static method
-    Parallel.isSupported=function(){ return _supports; }
-    
+
+	// static method
+	Parallel.isSupported=function(){ return _supports; }
+	
 	Parallel.prototype.getWorkerSource = function (cb) {
 		var preStr = '';
 		var i = 0;
