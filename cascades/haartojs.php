@@ -11,7 +11,7 @@ error_reporting(E_ALL);
 * @package HAAR.js
 * https://github.com/foo123/HAAR.js
 *
-* @version: 0.3  
+* @version: 0.3.1 
 *
 * IMPORTANT: **
 *   conversion is different from previous versions (of this script and the associated HAAR.js lib), 
@@ -28,54 +28,9 @@ if (!class_exists('HaarToJsConverter'))
 {
 class HaarToJsConverter
 {
-    protected static $umdHeader = <<<UMDH
-!function ( root, name, deps, factory ) {
-    // export the module in a umd-style generic way
-    deps = ( deps ) ? [].concat(deps) : [];
-    var i, dl = deps.length, ids = new Array( dl ), paths = new Array( dl ), mods = new Array( dl );
-    for (i=0; i<dl; i++) { ids[i] = deps[i][0]; paths[i] = deps[i][1]; }
-    // node, commonjs, etc..
-    if ( 'object' == typeof( module ) && module.exports ) 
-    {
-        if ( 'undefined' == typeof(module.exports[name]) )
-        {
-            for (i=0; i<dl; i++)
-                mods[i] = module.exports[ ids[i] ] || require( paths[i] )[ ids[i] ];
-            module.exports[ name ] = factory.apply(root, mods );
-        }
-    }
-    // amd, etc..
-    else if ( 'function' == typeof( define ) && define.amd ) 
-    {
-        define( ['exports'].concat( paths ), function( exports ) {
-            if ( 'undefined' == typeof(exports[name]) )
-            {
-                var args = Array.prototype.slice.call( arguments, 1 );
-                for (var i=0, dl=args.length; i<dl; i++)
-                    mods[i] = exports[ ids[i] ];
-                exports[name] = factory.apply(root, mods );
-            }
-        });
-    }
-    // browsers, other loaders, etc..
-    else 
-    {
-        if ( 'undefined' == typeof(root[name]) )
-        {
-            for (i=0; i<dl; i++)
-                mods[i] = root[ ids[i] ];
-            root[name] = factory.apply(root, mods );
-        }
-    }
-}( this, "__{{NAME}}__", null, function( ) { var __{{NAME}}__ = 
-UMDH;
+    protected static $umdHeader = '';
     
-    protected static $umdFooter = <<<UMDF
-    
-    // export it
-    return __{{NAME}}__;
-});
-UMDF;
+    protected static $umdFooter = '';
 
     public static function error($msg) { trigger_error ( $msg,  E_USER_WARNING );  die(1); }
     
@@ -156,7 +111,7 @@ UMDF;
             exit(1);
         }
         $args['output'] = strtolower($args['output']);
-        if (!in_array($args['output'], array('js', 'json')))  $args['output'] = 'js';
+        if (!in_array($args['output'], array('js', 'json'))) $args['output'] = 'js';
         
         return $args;
     }
@@ -260,14 +215,61 @@ UMDF;
     
     protected static function convert($infile, $var_to_use_in_js=false)
     {
-        $data=self::readXML($infile);
+        self::$umdHeader = <<<UMDH
+!function ( root, name, deps, factory, undef ) {
+    deps = ( deps ) ? [].concat(deps) : [];
+    var A = Array, AP = A.prototype, i, dl = deps.length, mods = new A( dl ), mod;
+    // node, commonjs, etc..
+    if ( 'object' == typeof( module ) && module.exports ) 
+    {
+        if ( undef === module.exports[name] )
+        {
+            for (i=0; i<dl; i++)  mods[i] = module.exports[ deps[i][0] ] || require( deps[i][1] )[ deps[i][0] ];
+            mod = factory.apply(root, mods );
+            module.exports[ name ] = mod || 1;
+        }
+    }
+    // amd, etc..
+    else if ( 'function' == typeof( define ) && define.amd ) 
+    {
+        define( ['exports'].concat( deps.map(function(d){return d[1];}) ), function( exports ) {
+            if ( undef === exports[name] )
+            {
+                var i, args = AP.slice.call( arguments, 1 ), dl = args.length;
+                for (i=0; i<dl; i++)   mods[i] = exports[ deps[i][0] ] || args[ i ];
+                mod = factory.apply(root, mods );
+                exports[ name ] = mod || 1;
+            }
+        });
+    }
+    // browsers, other loaders, etc..
+    else
+    {
+        if ( undef === root[name] )
+        {
+            
+            for (i=0; i<dl; i++)  mods[i] = root[ deps[i][0] ];
+            mod = factory.apply(root, mods );
+            root[name] = mod || 1;
+        }
+    }
+}( this, "__{{NAME}}__", null, function( ) { var __{{NAME}}__ = 
+UMDH;
+        
+        self::$umdFooter = <<<UMDF
+;    
+    // export it
+    return __{{NAME}}__;
+});
+UMDF;
+
+        $data = self::readXML($infile);
         
         $racine = reset($data);
         
         // if js output, 
         // use umd-style module export for compatibility with browser, node, commonjs, amd and requirejs
-        if ($var_to_use_in_js)
-            echo( str_replace('__{{NAME}}__', $var_to_use_in_js, self::$umdHeader) );
+        if ($var_to_use_in_js) echo( str_replace('__{{NAME}}__', $var_to_use_in_js, self::$umdHeader) );
         
         // this is strict json output
         echo('{');
@@ -379,8 +381,7 @@ UMDF;
         // end json output
         
         // if js output
-        if ($var_to_use_in_js)
-            echo( str_replace('__{{NAME}}__', $var_to_use_in_js, self::$umdFooter) );
+        if ($var_to_use_in_js) echo( str_replace('__{{NAME}}__', $var_to_use_in_js, self::$umdFooter) );
     }
     
     public static function Main($argv=null)
@@ -391,7 +392,6 @@ UMDF;
         
         if ('js' == $args['output'])
             $var_in_js = strval(self::fileinfo($infile));
-        
         else
             $var_in_js = false;
         

@@ -22,7 +22,7 @@
     # to provide canvas support for browsers that lack support for canvas element :P
     #./src/externals/excanvas.js
     
-    !tpl:umd-exports-header.tpl.js  # include a umd-header template
+    !tpl:umd-exports-header-no-worker.tpl.js  # include a umd-header template
     ./src/haar-detector.js
     !tpl:umd-exports-footer.tpl.js  # include a umd-footer template
 
