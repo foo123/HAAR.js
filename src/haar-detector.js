@@ -10,11 +10,10 @@
 * https://github.com/adambom/parallel.js (included)
 *
 **/
-(function( exports, undef ) {
+!function( exports, undef ) {
     
     // the export object
-    var HAAR = { VERSION : "@@VERSION@@" };
-    var Detector, Feature;
+    var HAAR = exports.HAAR = { VERSION : "@@VERSION@@" }, Detector, Feature, proto = 'prototype';
 
     var // typed arrays substitute 
         Array32F = (typeof Float32Array !== "undefined") ? Float32Array : Array,
@@ -30,7 +29,7 @@
         
         // math functions brevity
         Abs=Math.abs, Max=Math.max, Min=Math.min, Floor=Math.floor, Round=Math.round, Sqrt=Math.sqrt,
-        slice=Array.prototype.slice
+        slice=Array[proto].slice
     ;
 
     
@@ -586,23 +585,24 @@
     * * _Parallel_ : Optional, this is the _Parallel_ object, as returned by the _parallel.js_ script (included). It enables HAAR.js to run parallel computations both in browser and node (can be much faster)
     [/DOC_MARKDOWN]**/
     Detector = HAAR.Detector = function(haardata, Parallel) {
-        this.haardata = haardata || null;
-        this.Ready = false;
-        this.doCannyPruning = false;
-        this.Canvas = null;
-        this.Selection = null;
-        this.scaledSelection = null;
-        this.objects = null;
-        this.TimeInterval = null;
-        this.DetectInterval = 30;
-        this.Ratio = 0.5;
-        this.cannyLow = 20;
-        this.cannyHigh = 100;
-        this.Parallel= Parallel || null;
-        this.onComplete = null;
+        var self = this;
+        self.haardata = haardata || null;
+        self.Ready = false;
+        self.doCannyPruning = false;
+        self.Canvas = null;
+        self.Selection = null;
+        self.scaledSelection = null;
+        self.objects = null;
+        self.TimeInterval = null;
+        self.DetectInterval = 30;
+        self.Ratio = 0.5;
+        self.cannyLow = 20;
+        self.cannyHigh = 100;
+        self.Parallel= Parallel || null;
+        self.onComplete = null;
     };
     
-    Detector.prototype = {
+    Detector[proto] = {
 
         constructor: Detector,
         
@@ -634,6 +634,42 @@
         Ready: false,
         onComplete: null,
         
+        /**[DOC_MARKDOWN]
+        * __dispose()__
+        * ```javascript
+        * detector.dispose();
+        * ```
+        * 
+        * Disposes the detector and clears space of data cached
+        [/DOC_MARKDOWN]**/
+        dispose: function() {
+            var self = this;
+            if ( self.DetectInterval ) clearTimeout( self.DetectInterval );
+            self.DetectInterval = null;
+            self.TimeInterval = null;
+            self.haardata = null;
+            self.Canvas = null;
+            self.objects = null;
+            self.Selection = null;
+            self.scaledSelection = null;
+            self.Ratio = null;
+            self.origWidth = null;
+            self.origHeight = null;
+            self.width = null;
+            self.height = null;
+            self.doCannyPruning = null;
+            self.cannyLow = null;
+            self.cannyHigh = null;
+            self.canny = null;
+            self.integral = null;
+            self.squares = null;
+            self.tilted = null;
+            self.Parallel = null;
+            self.Ready = null;
+            self.onComplete = null;
+            return self;
+        },
+        
         // clear the image and detector data
         // reload the image to re-compute the needed image data (.image method)
         // and re-set the detector haar data (.cascade method)
@@ -646,14 +682,15 @@
         * Clear any cached image data and haardata in case space is an issue. Use image method and cascade method (see below) to re-set image and haar data
         [/DOC_MARKDOWN]**/
         clearCache: function() {
-            this.haardata = null; 
-            this.canny = null;
-            this.integral = null;
-            this.squares = null;
-            this.tilted = null;
-            this.Selection = null;
-            this.scaledSelection = null;
-            return this;
+            var self = this;
+            self.haardata = null; 
+            self.canny = null;
+            self.integral = null;
+            self.squares = null;
+            self.tilted = null;
+            self.Selection = null;
+            self.scaledSelection = null;
+            return self;
         },
         
         // set haardata, use same detector with cached data, to detect different feature
@@ -706,32 +743,33 @@
         * * _CanvasClass_ : This is optional and used only when running in node (passing the node-canvas object).
         [/DOC_MARKDOWN]**/
         image: function(image, scale, canvas) {
+            var self = this;
             if (image)
             {
-                var ctx, imdata, integralImg, w, h, sw, sh, r, cnv;
+                var ctx, imdata, integralImg, w, h, sw, sh, r, cnv, isVideo = image instanceof HTMLVideoElement;
                 
                 // re-use the existing canvas if possible and not create new one
-                if (!this.Canvas) this.Canvas = canvas || document.createElement('canvas');
-                cnv = this.Canvas;
-                r = this.Ratio = (undef === scale) ? 0.5 : scale; 
-                this.Ready = false;
+                if (!self.Canvas) self.Canvas = canvas || document.createElement('canvas');
+                cnv = self.Canvas;
+                r = self.Ratio = (undef === scale) ? 0.5 : scale; 
+                self.Ready = false;
                 
                 // make easy for video element to be used as input image
-                w = this.origWidth = (image instanceof HTMLVideoElement) ? image.videoWidth : image.width;
-                h = this.origHeight = (image instanceof HTMLVideoElement) ? image.videoHeight : image.height;
-                sw = this.width = cnv.width = Round(r * w); 
-                sh = this.height = cnv.height = Round(r * h);
+                w = self.origWidth = isVideo ? image.videoWidth : image.width;
+                h = self.origHeight = isVideo ? image.videoHeight : image.height;
+                sw = self.width = cnv.width = Round(r * w); 
+                sh = self.height = cnv.height = Round(r * h);
                 
                 ctx = cnv.getContext('2d');
                 ctx.drawImage(image, 0, 0, w, h, 0, 0, sw, sh);
                 
                 // compute image data now, once per image change
                 imdata = ctx.getImageData(0, 0, sw, sh);
-                integralImg = integralImage(imdata.data, imdata.width, imdata.height/*, this.scaledSelection*/);
-                this.integral = integralImg.integral; 
-                this.squares = integralImg.squares; 
-                this.tilted = integralImg.tilted; 
-                this.canny = integralCanny(integralImg.gray, sw, sh/*, this.scaledSelection.width, this.scaledSelection.height*/);
+                integralImg = integralImage(imdata.data, imdata.width, imdata.height/*, self.scaledSelection*/);
+                self.integral = integralImg.integral; 
+                self.squares = integralImg.squares; 
+                self.tilted = integralImg.tilted; 
+                self.canny = integralCanny(integralImg.gray, sw, sh/*, self.scaledSelection.width, self.scaledSelection.height*/);
                 
                 integralImg.gray = null; 
                 integralImg.integral = null; 
@@ -739,7 +777,7 @@
                 integralImg.tilted = null; 
                 integralImg = null;
             }
-            return this;
+            return self;
         },
 
         // detector set detection interval
@@ -782,7 +820,7 @@
         
         // set custom detection region as selection
         /**[DOC_MARKDOWN]
-        * __selection('auto'|object|feature|x [,y, width, height])__
+        * __select|selection('auto'|object|feature|x [,y, width, height])__
         * ```javascript
         * detector.selection('auto'|object|feature|x [,y, width, height]);
         * ```
@@ -798,11 +836,11 @@
         * 
         * The actual selection rectangle/feature is available as this.Selection or detector.Selection
         [/DOC_MARKDOWN]**/
-        selection: function(/* ..variable args here.. */) { 
+        select: function(/* ..variable args here.. */) { 
             var args = slice.call(arguments), argslen=args.length;
             
             if (1==argslen && 'auto'==args[0] || !argslen) this.Selection = null;
-            else this.Selection = Feature.prototype.data.apply(new Feature(), args); 
+            else this.Selection = Feature[proto].data.apply(new Feature(), args); 
             return this; 
         },
         
@@ -936,7 +974,7 @@
                 
                 self.TimeInterval = setTimeout(detectAsync, self.DetectInterval);
             }
-            return this;
+            return self;
         }/*,
         
         detectSync: function(baseScale, scale_inc, increment, min_neighbors, doCannyPruning) {
@@ -983,7 +1021,8 @@
         }
         */
     };
-    
+    // aliases
+    Detector[proto].selection = Detector[proto].select;
     
     //
     //
@@ -993,7 +1032,7 @@
         this.data(x, y, w, h, i);
     };
     
-    Feature.prototype = {
+    Feature[proto] = {
         
         constructor: Feature,
         
@@ -1007,70 +1046,76 @@
         isInside: false,
         
         data: function(x, y, w, h, i) {
+            var self = this;
             if (x && (x instanceof Feature)) 
             {
-                this.copy(x);
+                self.copy(x);
             }
             else if (x && (x instanceof Object))
             {
-                this.x = x.x || 0;
-                this.y = x.y || 0;
-                this.width = x.width || 0;
-                this.height = x.height || 0;
-                this.index = x.index || 0;
-                this.area = x.area || 0;
-                this.isInside = x.isInside || false;
+                self.x = x.x || 0;
+                self.y = x.y || 0;
+                self.width = x.width || 0;
+                self.height = x.height || 0;
+                self.index = x.index || 0;
+                self.area = x.area || 0;
+                self.isInside = x.isInside || false;
             }
             else
             {
-                this.x = x || 0;
-                this.y = y || 0;
-                this.width = w || 0;
-                this.height = h || 0;
-                this.index = i || 0;
-                this.area = 0;
-                this.isInside = false;
+                self.x = x || 0;
+                self.y = y || 0;
+                self.width = w || 0;
+                self.height = h || 0;
+                self.index = i || 0;
+                self.area = 0;
+                self.isInside = false;
             }
             
-            return this;
+            return self;
         },
         
         add: function (f) { 
-            this.x += f.x; 
-            this.y += f.y; 
-            this.width += f.width; 
-            this.height += f.height; 
-            return this; 
+            var self = this;
+            self.x += f.x; 
+            self.y += f.y; 
+            self.width += f.width; 
+            self.height += f.height; 
+            return self; 
         },
         
         scale: function(s) { 
-            this.x *= s; 
-            this.y *= s; 
-            this.width *= s; 
-            this.height *= s; 
-            return this; 
+            var self = this;
+            self.x *= s; 
+            self.y *= s; 
+            self.width *= s; 
+            self.height *= s; 
+            return self; 
         },
         
         round: function() { 
-            this.x = ~~(this.x+0.5); 
-            this.y = ~~(this.y+0.5); 
-            this.width = ~~(this.width+0.5); 
-            this.height = ~~(this.height+0.5); 
-            return this; 
+            var self = this;
+            self.x = ~~(self.x+0.5); 
+            self.y = ~~(self.y+0.5); 
+            self.width = ~~(self.width+0.5); 
+            self.height = ~~(self.height+0.5); 
+            return self; 
         },
         
         computeArea: function() { 
-            this.area = this.width*this.height; 
-            return this.area; 
+            var self = this;
+            self.area = self.width*self.height; 
+            return self.area; 
         }, 
         
         inside: function(f) { 
-            return ( 
-                (this.x >= f.x) && 
-                (this.y >= f.y) && 
-                (this.x+this.width <= f.x+f.width) && 
-                (this.y+this.height <= f.y+f.height)
-                ) ? true : false; 
+            var self = this;
+            return !!( 
+                (self.x >= f.x) && 
+                (self.y >= f.y) && 
+                (self.x+self.width <= f.x+f.width) && 
+                (self.y+self.height <= f.y+f.height)
+            ); 
         },
         
         contains: function(f) { 
@@ -1078,58 +1123,57 @@
         },
         
         equal: function(f) { 
-            return (
-                (f.x == this.x) && 
-                (f.y == this.y) && 
-                (f.width == this.width) && 
-                (f.height == this.height)
-            ) ? true : false; 
+            var self = this;
+            return !!(
+                (f.x === self.x) && 
+                (f.y === self.y) && 
+                (f.width === self.width) && 
+                (f.height === self.height)
+            ); 
         },
         
         almostEqual: function(f) { 
-            var d1=Max(f.width, this.width)*0.2, d2=Max(f.height, this.height)*0.2;
+            var self = this, d1=Max(f.width, self.width)*0.2, d2=Max(f.height, self.height)*0.2;
             //var d1=Max(f.width, this.width)*0.5, d2=Max(f.height, this.height)*0.5;
             //var d2=d1=Max(f.width, this.width, f.height, this.height)*0.4;
-            return ( 
-                Abs(this.x-f.x) <= d1 && 
-                Abs(this.y-f.y) <= d2 && 
-                Abs(this.width-f.width) <= d1 && 
-                Abs(this.height-f.height) <= d2 
-                ) ? true : false; 
+            return !!( 
+                Abs(self.x-f.x) <= d1 && 
+                Abs(self.y-f.y) <= d2 && 
+                Abs(self.width-f.width) <= d1 && 
+                Abs(self.height-f.height) <= d2 
+            ); 
         },
         
         clone: function() {
-            var f = new Feature();
-            f.x = this.x; 
-            f.y = this.y; 
-            f.width = this.width; 
-            f.height = this.height; 
-            f.index = this.index; 
-            f.area = this.area; 
-            f.isInside = this.isInside;
+            var self = this, f = new Feature();
+            f.x = self.x; 
+            f.y = self.y; 
+            f.width = self.width; 
+            f.height = self.height; 
+            f.index = self.index; 
+            f.area = self.area; 
+            f.isInside = self.isInside;
             return f;
         },
         
         copy: function(f) {
+            var self = this;
             if ( f && (f instanceof Feature) )
             {
-                this.x = f.x; 
-                this.y = f.y; 
-                this.width = f.width; 
-                this.height = f.height; 
-                this.index = f.index; 
-                this.area = f.area; 
-                this.isInside = f.isInside;
+                self.x = f.x; 
+                self.y = f.y; 
+                self.width = f.width; 
+                self.height = f.height; 
+                self.index = f.index; 
+                self.area = f.area; 
+                self.isInside = f.isInside;
             }
-            return this;
+            return self;
         },
         
         toString: function() {
             return ['[ x:', this.x, 'y:', this.y, 'width:', this.width, 'height:', this.height, ']'].join(' ');
         }
     };
-
-    // export it
-    exports.HAAR = HAAR;
     
-})(@@EXPORTS@@);
+}(@@EXPORTS@@);

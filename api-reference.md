@@ -17,6 +17,15 @@ __Explanation of parameters__
     
 
 
+__dispose()__
+```javascript
+detector.dispose();
+```
+
+Disposes the detector and clears space of data cached
+        
+
+
 __clearCache()__
 ```javascript
 detector.clearCache();
@@ -92,7 +101,7 @@ __Explanation of parameters__
         
 
 
-__selection('auto'|object|feature|x [,y, width, height])__
+__select|selection('auto'|object|feature|x [,y, width, height])__
 ```javascript
 detector.selection('auto'|object|feature|x [,y, width, height]);
 ```

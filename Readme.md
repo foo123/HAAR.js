@@ -9,7 +9,7 @@ Based on [Viola-Jones Feature Detection Algorithm using Haar Cascades](http://ww
 
 This is a port of [OpenCV C++ Haar Detection](http://opencv.org/) (actually a port of [JViolaJones](http://code.google.com/p/jviolajones/) which is a port of OpenCV for Java) to JavaScript and Node
 
-Light-weight (~10kB) minified.
+Light-weight (~10kB minified, ~5kB gzipped).
 
 [![Haar.js Face Detection](/examples/haar-face-detection.png)](http://foo123.github.com/examples/face-detection/)
 [![Haar.js Many Faces Detection](/examples/haar-faces-detection.png)](http://foo123.github.com/examples/faces-detection/)

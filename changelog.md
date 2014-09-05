@@ -1,6 +1,6 @@
 ###ChangeLog
 
-__0.4.5__ , __0.4.6__
+__0.4.5__ , __0.4.6__, __0.4.7__
 * update buildtools, dependencies, api-reference (latest)
 
 

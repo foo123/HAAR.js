@@ -21,9 +21,11 @@ SRC =[]
     # to provide canvas support for browsers that lack support for canvas element :P
     #./src/externals/excanvas.js
     
-    !tpl:umd-exports-header-no-worker.tpl.js  # include a umd-header template
+    !tpl:umd-header-single.tpl.js  # include a umd-header template
+    
     ./src/haar-detector.js
-    !tpl:umd-exports-footer.tpl.js  # include a umd-footer template
+    
+    !tpl:umd-footer.tpl.js  # include a umd-footer template
 
 @ # end block
 
@@ -34,15 +36,10 @@ HEADER =
 # do any replacements in the source (orderedmap)
 REPLACE =[{}]
 
-    "@@EXPORTS@@" = "EXPORTS"
-    
-    "@@VERSION@@" = "0.4.6"
-    
+    "@@ROOT@@" = "this"
+    "@@EXPORTS@@" = "exports"
     "@@MODULE_NAME@@" = "HAAR"
-    
-    "@@MODULE_DEPENDENCIES@@" = "null"
-    
-    "@@MODULE_ARGUMENTS@@"  = ""
+    "@@VERSION@@" = "0.4.7"
     
 @ # end block
 
