@@ -13,7 +13,7 @@
 !function( exports, undef ) {
     
     // the export object
-    var HAAR = exports.HAAR = { VERSION : "@@VERSION@@" }, Detector, Feature, proto = 'prototype';
+    var HAAR = exports['@@MODULE_NAME@@'] = { VERSION : "@@VERSION@@" }, Detector, Feature, proto = 'prototype';
 
     var // typed arrays substitute 
         Array32F = (typeof Float32Array !== "undefined") ? Float32Array : Array,
