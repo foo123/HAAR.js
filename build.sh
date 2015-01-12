@@ -3,15 +3,15 @@
 ###################################################
 #
 #   The buildtools repository is at:
-#   https://github.com/foo123/scripts/buildtools
+#   https://github.com/foo123/Beeld
 #
 ###################################################
 
 # to use the python build tool do:
-#python ../scripts/buildtools/build.py --deps "./dependencies"
+#python ../Beeld/Beeld.py --config "./config.custom"
 
 # to use the php build tool do:
-#php -f ../scripts/buildtools/build.php -- --deps="./dependencies"
+#php -f ../Beeld/Beeld.php -- --config="./config.custom"
 
 # to use the node build tool do:
-node ../scripts/buildtools/build.js --deps "./dependencies"
+node ../Beeld/Beeld.js --config "./config.custom"
