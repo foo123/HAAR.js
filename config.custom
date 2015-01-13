@@ -49,7 +49,7 @@ minify ={}
     
     # Options for Java Closure Compiler (if used)
     "closure" =[]
-        --language_in=ECMASCRIPT5_STRICT
+        "--language_in=ECMASCRIPT5_STRICT"
     @ # end block
     
     # Options for Java YUI Compressor Compiler (if used)

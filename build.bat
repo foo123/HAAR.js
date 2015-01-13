@@ -11,7 +11,7 @@ REM to use the python build tool do:
 REM python %BUILDTOOLS%\Beeld.py --config ".\config.custom"
 
 REM to use the php build tool do:
-REM php -f %BUILDTOOLS%\Beeld.php -- --config=".\config.custom"
+REM php -f %BUILDTOOLS%\Beeld.php --  --config=".\config.custom"
 
 REM to use the node build tool do:
-node %BUILDTOOLS%\Beeld.js --config ".\config.custom"
+node %BUILDTOOLS%\Beeld.js  --config ".\config.custom"
