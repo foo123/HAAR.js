@@ -5,58 +5,70 @@
 #
 ###################################################
 
-src =[]
+plugins =[{}]
+    # include 'doc' plugin from plugins folder
+    "doc" = "!plg:doc"
+@
 
-    # if run on browser, the excanvas lib can be used 
-    # to provide canvas support for browsers that lack support for canvas element :P
-    #./src/externals/excanvas.js
+tasks =[{}]
     
-    !tpl:umd-header-single.tpl.js  # include a umd-header template
-    
-    ./src/haar-detector.js
-    
-    !tpl:umd-footer.tpl.js  # include a umd-footer template
+    build =[{}]
+        
+        src =[]
 
-@ # end block
+            # if run on browser, the excanvas lib can be used 
+            # to provide canvas support for browsers that lack support for canvas element :P
+            #./src/externals/excanvas.js
+            
+            !tpl:umd-header-single.tpl.js  # include a umd-header template
+            
+            ./src/haar-detector.js
+            
+            !tpl:umd-footer.tpl.js  # include a umd-footer template
 
-# extract header from this file
-header = ./src/haar-detector.js
+        @
 
-# do any replacements in the source (orderedmap)
-replace =[{}]
+        # extract header from this file
+        header = ./src/haar-detector.js
 
-    "@@ROOT@@" = "this"
-    "@@EXPORTS@@" = "exports"
-    "@@MODULE_NAME@@" = "HAAR"
-    "@@VERSION@@" = "0.4.7"
-    
-@ # end block
+        # do any replacements in the source (orderedmap)
+        replace =[{}]
 
-# extract documentation from the source (map)
-doc ={}
-    "startdoc" = "/**[DOC_MARKDOWN]"
-    "enddoc" = "[/DOC_MARKDOWN]**/"
-    "trimx" = "\\s*\\*[ ]?"
-    "output" = "./api-reference.md"
-@ # end block
+            "@@ROOT@@" = "this"
+            "@@EXPORTS@@" = "exports"
+            "@@MODULE_NAME@@" = "HAAR"
+            "@@VERSION@@" = "0.4.7"
+            
+        @
 
-# Minify the Package (map of lists)
-minify ={}
-    # Options for Node UglifyJS Compiler (if used, default), (mangle and compress)
-    "uglifyjs" =[]
-        -m -c
-    @ # end block
-    
-    # Options for Java Closure Compiler (if used)
-    "closure" =[]
-        "--language_in=ECMASCRIPT5_STRICT"
-    @ # end block
-    
-    # Options for Java YUI Compressor Compiler (if used)
-    "yui" =[]
-        --preserve-semi
-    @ # end block
+        # extract documentation from the source (map)
+        doc ={}
+            "startdoc" = "/**[DOC_MARKDOWN]"
+            "enddoc" = "[/DOC_MARKDOWN]**/"
+            "trimx" = "\\s*\\*[ ]?"
+            "output" = "./api-reference.md"
+        @
 
-@ # end block
+        # Minify the Package (map of lists)
+        minify ={}
+            # Options for Node UglifyJS Compiler (if used, default), (mangle and compress)
+            uglifyjs =[]
+                -m -c
+            @
+            
+            # Options for Java Closure Compiler (if used)
+            closure =[]
+                "--language_in=ECMASCRIPT5_STRICT"
+            @
+            
+            # Options for Java YUI Compressor Compiler (if used)
+            yui =[]
+                --preserve-semi
+            @
 
-out = ./build/haar-detector.min.js
+        @
+
+        out = ./build/haar-detector.min.js
+    @
+
+@
