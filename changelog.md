@@ -1,5 +1,11 @@
 ###ChangeLog
 
+__0.4.8__
+* fix undeclared variable issue in *detectSingleStep* method
+* add *detectSync* method
+* [**HaarDetector**](https://github.com/foo123/FILTER.js/blob/master/src/plugins/HaarDetector.js) continues now as a plugin of the project [FILTER.js](https://github.com/foo123/FILTER.js) for Image Processing and Computer Vision
+ 
+
 __0.4.5__ , __0.4.6__, __0.4.7__
 * update buildtools, dependencies, api-reference (latest)
 

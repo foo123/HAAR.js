@@ -11,6 +11,7 @@
 *
 **/
 !function( exports, undef ) {
+    "use strict";
     
     // the export object
     var HAAR = exports['@@MODULE_NAME@@'] = { VERSION : "@@VERSION@@" }, Detector, Feature, proto = 'prototype';
@@ -367,12 +368,12 @@
     function detectSingleStep(self) 
     {
         var Sqrt = Sqrt || Math.sqrt, ret = [],
-            haar = self.haardata, scaledSelection = self.scaledSelection,
+            haar = self.haardata, haar_stages = haar.stages, scaledSelection = self.scaledSelection,
             w = scaledSelection.width, h = scaledSelection.height, imArea=w*h, imArea1=imArea-1,
             sizex = haar.size1, sizey = haar.size2, xstep, ystep, xsize, ysize,
             startx = scaledSelection.x, starty = scaledSelection.y, startty,
-            x, y, ty, tyw, tys, sl = haar.stages.length,
-            p0, p1, p2, p3,
+            x, y, ty, tyw, tys, sl = haar_stages.length,
+            p0, p1, p2, p3, xl, yl, s, t,
             bx1, bx2, by1, by2,
             swh, inv_area, total_x, total_x2, vnorm,
             edges_density, pass, cL = self.cannyLow, cH = self.cannyHigh, 
@@ -434,7 +435,7 @@
                 for (s = 0; s < sl; s++) 
                 {
                     // Viola-Jones HAAR-Stage evaluator
-                    stage = haar.stages[s];
+                    stage = haar_stages[s];
                     threshold = stage.thres;
                     trees = stage.trees; tl = trees.length;
                     sum=0;
@@ -975,8 +976,19 @@
                 self.TimeInterval = setTimeout(detectAsync, self.DetectInterval);
             }
             return self;
-        }/*,
+        },
         
+        /**[DOC_MARKDOWN]
+        * __detectSync(baseScale, scale_inc, increment, min_neighbors, doCannyPruning)__
+        * ```javascript
+        * var features = detector.detectSync(baseScale, scale_inc, increment, min_neighbors, doCannyPruning);
+        * ```
+        * 
+        * Run detector synchronously in one step, instead of parallel or asynchronously. Can be useful when immediate results are needed. Due to massive amount of processing the UI thread may be blocked.
+        *
+        * __Explanation of parameters__ (similar to *detect* method)
+        * 
+        [/DOC_MARKDOWN]**/
         detectSync: function(baseScale, scale_inc, increment, min_neighbors, doCannyPruning) {
             var self = this, scale, maxScale,
                 sizex = self.haardata.size1, sizey = self.haardata.size2;
@@ -1019,7 +1031,7 @@
             // return results
             return self.objects;
         }
-        */
+        
     };
     // aliases
     Detector[proto].selection = Detector[proto].select;

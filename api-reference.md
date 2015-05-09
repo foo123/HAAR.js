@@ -145,3 +145,15 @@ __Explanation of parameters__ ([JViolaJones Parameters](http://code.google.com/p
 * *min_neighbors* : The minimum numbers of similar rectangles needed for the region to be considered as a feature (avoid noise) (default __1__ )
 * *doCannyPruning* : enable Canny Pruning to pre-detect regions unlikely to contain features, in order to speed up the execution (optional default __true__ ). 
         
+
+
+__detectSync(baseScale, scale_inc, increment, min_neighbors, doCannyPruning)__
+```javascript
+var features = detector.detectSync(baseScale, scale_inc, increment, min_neighbors, doCannyPruning);
+```
+
+Run detector synchronously in one step, instead of parallel or asynchronously. Can be useful when immediate results are needed. Due to massive amount of processing the UI thread may be blocked.
+
+__Explanation of parameters__ (similar to *detect* method)
+
+        
