@@ -1,7 +1,6 @@
 #!/usr/bin/env php
 <?php
 error_reporting(E_ALL);
-
 /**
 *
 * CLI script
@@ -11,7 +10,7 @@ error_reporting(E_ALL);
 * @package HAAR.js
 * https://github.com/foo123/HAAR.js
 *
-* @version: 0.3.1 
+* @version: 0.4 
 *
 * IMPORTANT: **
 *   conversion is different from previous versions (of this script and the associated HAAR.js lib), 
@@ -216,44 +215,21 @@ class HaarToJsConverter
     protected static function convert($infile, $var_to_use_in_js=false)
     {
         self::$umdHeader = <<<UMDH
-!function ( root, name, deps, factory, undef ) {
-    deps = ( deps ) ? [].concat(deps) : [];
-    var A = Array, AP = A.prototype, i, dl = deps.length, mods = new A( dl ), mod;
-    // node, commonjs, etc..
-    if ( 'object' == typeof( module ) && module.exports ) 
-    {
-        if ( undef === module.exports[name] )
-        {
-            for (i=0; i<dl; i++)  mods[i] = module.exports[ deps[i][0] ] || require( deps[i][1] )[ deps[i][0] ];
-            mod = factory.apply(root, mods );
-            module.exports[ name ] = mod || 1;
-        }
-    }
-    // amd, etc..
-    else if ( 'function' == typeof( define ) && define.amd ) 
-    {
-        define( ['exports'].concat( deps.map(function(d){return d[1];}) ), function( exports ) {
-            if ( undef === exports[name] )
-            {
-                var i, args = AP.slice.call( arguments, 1 ), dl = args.length;
-                for (i=0; i<dl; i++)   mods[i] = exports[ deps[i][0] ] || args[ i ];
-                mod = factory.apply(root, mods );
-                exports[ name ] = mod || 1;
-            }
-        });
-    }
-    // browsers, other loaders, etc..
-    else
-    {
-        if ( undef === root[name] )
-        {
-            
-            for (i=0; i<dl; i++)  mods[i] = root[ deps[i][0] ];
-            mod = factory.apply(root, mods );
-            root[name] = mod || 1;
-        }
-    }
-}( this, "__{{NAME}}__", null, function( ) { var __{{NAME}}__ = 
+!function( root, name, factory ) {
+"use strict";
+// export the module, umd-style (no other dependencies)
+var isCommonJS = ("object" === typeof(module)) && module.exports, 
+    isAMD = ("function" === typeof(define)) && define.amd, m;
+// CommonJS, node, etc..
+if ( isCommonJS ) 
+    module.exports = (module.\$deps = module.\$deps || {})[ name ] = module.\$deps[ name ] || (factory.call( root ) || 1);
+// AMD, requireJS, etc..
+else if ( isAMD && ("function" === typeof(require)) && ("function" === typeof(require.specified)) && require.specified(name) ) 
+    define( ['exports'], function(exports){ exports[name] = factory.call( root ) || 1; } );
+// browser, web worker, etc.. + AMD, other loaders
+else if ( !(name in root) ) 
+    (root[ name ] = (m=factory.call( root ) || 1)) && isAMD && define( ['exports'], function(exports){ exports[name] =  m; } );
+}( this, "__{{NAME}}__", function( ) { var __{{NAME}}__ = 
 UMDH;
         
         self::$umdFooter = <<<UMDF
