@@ -8,6 +8,7 @@ This project has stopped, no new features are added or updated. However the func
 __Feature Detection Library for JavaScript__    (uses HTML5 canvas on browser and Canvas package on Node)
 
 Based on [Viola-Jones Feature Detection Algorithm using Haar Cascades](http://www.cs.cmu.edu/~efros/courses/LBMV07/Papers/viola-cvpr-01.pdf)
+and improvement [Viola-Jones-Lienhart et al Feature Detection Algorithm](http://www.multimedia-computing.de/mediawiki//images/5/52/MRL-TR-May02-revised-Dec02.pdf)
 
 This is a port of [OpenCV C++ Haar Detection](http://opencv.org/) (actually a port of [JViolaJones](http://code.google.com/p/jviolajones/) which is a port of OpenCV for Java) to JavaScript and Node
 
