@@ -21,7 +21,7 @@ Light-weight (~10kB minified, ~5kB gzipped).
 
 ###Contents
 
-* [Live Examples](#live-examples)
+* [Live Playground Examples](#live-examples)
 * [How to Use](#how-to-use)
 * [API Reference](/api-reference.md)
 * [Haar Cascades](#where-to-find-haar-cascades-xml-files-to-use-for-feature-detection)
