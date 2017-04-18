@@ -19,7 +19,7 @@ Light-weight (~10kB minified, ~5kB gzipped).
 [![Haar.js Mouth Detection](/examples/haar-mouth-detection.png)](http://foo123.github.com/examples/mouth-detection/)
 ![Haar.js Eyes Detection](/examples/haar-eyes-detection.png)
 
-###Contents
+### Contents
 
 * [Live Playground Examples](#live-examples)
 * [How to Use](#how-to-use)
@@ -30,13 +30,13 @@ Light-weight (~10kB minified, ~5kB gzipped).
 * [Changelog](/changelog.md)
 * [Credits](/credits.md)
 
-###Live Examples
+### Live Examples
 * [Interactive Face Detection](http://foo123.github.com/examples/face-detection/)
 * [Many Faces Detection](http://foo123.github.com/examples/faces-detection/)
 * [Interactive Mouth Detection](http://foo123.github.com/examples/mouth-detection/)
 
 
-###How To use
+### How To use
 You can use the __existing openCV cascades__  to build your detectors.
 
 To do this just transform the __opencv xml file__ to *javascript* or *json* format
@@ -90,11 +90,11 @@ __HAAR.js works both in the browser and in Node.js (supporting parallel computat
 **NOTE** HAAR.js (0.4.4+) (and the generated cascades) support *umd-style* generic loading capability for: **commonjs / node** , **amd** , **browsers script tags**
 
 
-####Runing inside the browser
+#### Runing inside the browser
  Loading wth script tags
     You can run the example face.html or mouth.html inside your browser
 
-####Running inside node
+#### Running inside node
  For running, the package have a dependency on canvas
  You can find an example inside examples/nodes.js
 Valid Output
@@ -111,18 +111,18 @@ For example for Ubuntu :
 sudo apt-get install libcairo2-dev libjpeg8-dev libpango1.0-dev libgif-dev
 ```
 
-####Loading with requirejs
+#### Loading with requirejs
  As a third option, you can load the library with requireJS, both on the browser on with node.
 There is an example of loading with RequireJS inside node in examples/require.js.
 The configuration would be the same inside a browser
 
 
-####Supporting parallel computation
+#### Supporting parallel computation
  The [parallel.js](https://github.com/adambom/parallel.js) library is included in this repository, see the _face.html_ example for how to use.
  In most cases using parallel computation (if supported) can be much faster (eg _eye.html_ example)
 
 
-###Where to find Haar Cascades xml files to use for feature detection
+### Where to find Haar Cascades xml files to use for feature detection
 * [OpenCV](http://opencv.org/)
 * [This resource](http://alereimondo.no-ip.org/OpenCV/34)
 * search the web :)
@@ -131,13 +131,13 @@ The configuration would be the same inside a browser
 
 
 
-###Usage Ideas
+### Usage Ideas
 * [SmileDetectJS](https://github.com/roironn/SmileDetectJS)
 * [ObjectDetect](https://github.com/mtschirs/js-objectdetect) (some common ideas with HAAR.js are used with extra functionality like object tracking)
 
 
 
-###TODO
+### TODO
 - [x] optimize detector for real-time usage on browsers (eg. -> https://github.com/liuliu/ccv) [DONE use parallel.js]
 - [x] add selection option, detection is confined to that selection (eg detect nose while face already detected) [DONE]
 - [x] check if some operations can use fixed-point arithmetic, or other micro-optimizations [DONE where applicable]

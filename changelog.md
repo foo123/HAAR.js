@@ -1,4 +1,4 @@
-###ChangeLog
+### ChangeLog
 
 __0.4.8__
 * fix undeclared variable issue in *detectSingleStep* method

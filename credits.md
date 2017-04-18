@@ -1,6 +1,6 @@
 __HAAR.js Credits__
 
-###People
+### People
 
 _The following people have contributed more or less to this project_
 
@@ -10,7 +10,7 @@ _The following people have contributed more or less to this project_
 * [Mar Canet](https://github.com/mcanet)
 
 
-###Code
+### Code
 
 _The following packages have been used by this project in one or another way_
 
