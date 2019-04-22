@@ -14,9 +14,9 @@ This is a port of [OpenCV C++ Haar Detection](http://opencv.org/) (actually a po
 
 Light-weight (~10kB minified, ~5kB gzipped).
 
-[![Haar.js Face Detection](/examples/haar-face-detection.png)](http://foo123.github.com/examples/face-detection/)
-[![Haar.js Many Faces Detection](/examples/haar-faces-detection.png)](http://foo123.github.com/examples/faces-detection/)
-[![Haar.js Mouth Detection](/examples/haar-mouth-detection.png)](http://foo123.github.com/examples/mouth-detection/)
+[![Haar.js Face Detection](/examples/haar-face-detection.png)](https://foo123.github.com/examples/face-detection/)
+[![Haar.js Many Faces Detection](/examples/haar-faces-detection.png)](https://foo123.github.com/examples/faces-detection/)
+[![Haar.js Mouth Detection](/examples/haar-mouth-detection.png)](https://foo123.github.com/examples/mouth-detection/)
 ![Haar.js Eyes Detection](/examples/haar-eyes-detection.png)
 
 ### Contents
@@ -31,9 +31,9 @@ Light-weight (~10kB minified, ~5kB gzipped).
 * [Credits](/credits.md)
 
 ### Live Examples
-* [Interactive Face Detection](http://foo123.github.com/examples/face-detection/)
-* [Many Faces Detection](http://foo123.github.com/examples/faces-detection/)
-* [Interactive Mouth Detection](http://foo123.github.com/examples/mouth-detection/)
+* [Interactive Face Detection](https://foo123.github.com/examples/face-detection/)
+* [Many Faces Detection](https://foo123.github.com/examples/faces-detection/)
+* [Interactive Mouth Detection](https://foo123.github.com/examples/mouth-detection/)
 
 
 ### How To use
@@ -144,7 +144,8 @@ The configuration would be the same inside a browser
 - [ ] keep up with the changes in openCV cascades xml format (will try)
 - [ ] add some real performance tests (anyone interested??)
 
-
+<!--
 *URL* [Nikos Web Development](http://nikos-web-development.netai.net/ "Nikos Web Development")  
 *URL* [Haar.js blog post](http://nikos-web-development.netai.net/blog/haar-js-feature-detection-in-javascript-and-html5-canvas/ "Haar.js blog post")  
 *URL* [WorkingClassCode](http://workingclasscode.uphero.com/ "Working Class Code")  
+-->
