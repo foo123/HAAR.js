@@ -1,8 +1,6 @@
 # HAAR.js 
 
-### Further development on this project has stopped!!
-
-This project has stopped, no new features are added or updated. However the functionality works as stated in this document and the API reference. Further development has moved to the [FILTER.js](https://github.com/foo123/FILTER.js) project, for Image Processing and Computer Vision, which includes a new [**HaarDetector plugin**](https://github.com/foo123/FILTER.js/blob/master/src/plugins/HaarDetector.js) which can be seen as the continuation of this project.
+**Note:** Further development has moved to the [FILTER.js](https://github.com/foo123/FILTER.js) project, for Image Processing and Computer Vision, which includes a new [**HaarDetector plugin**](https://github.com/foo123/FILTER.js/blob/master/src/plugins/HaarDetector.js) which can be seen as the continuation of this project.
 
 
 __Feature Detection Library for JavaScript__    (uses HTML5 canvas on browser and Canvas package on Node)
@@ -145,7 +143,7 @@ The configuration would be the same inside a browser
 - [ ] add some real performance tests (anyone interested??)
 
 <!--
-*URL* [Nikos Web Development](http://nikos-web-development.netai.net/ "Nikos Web Development")  
+*URL* [Nikos Web Development](http://nikos-web-dev.000webhostapp.com/ "Nikos Web Development")  
 *URL* [Haar.js blog post](http://nikos-web-development.netai.net/blog/haar-js-feature-detection-in-javascript-and-html5-canvas/ "Haar.js blog post")  
 *URL* [WorkingClassCode](http://workingclasscode.uphero.com/ "Working Class Code")  
 -->

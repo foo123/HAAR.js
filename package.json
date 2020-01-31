@@ -1,6 +1,6 @@
 {
   "name": "HAAR.js",
-  "version": "0.4.8",
+  "version": "1.0.0",
   "description": "HAAR.js Feature Detection Library for JavaScript and Node based on Viola-Jones algorithm",
   "main": "build/haar-detector.min.js",
   "directories": {

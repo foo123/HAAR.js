@@ -368,7 +368,8 @@ function detectSingleStep(self)
 {
     var Sqrt = Sqrt || Math.sqrt, ret = [],
         haar = self.haardata, haar_stages = haar.stages, scaledSelection = self.scaledSelection,
-        w = scaledSelection.width, h = scaledSelection.height, imArea=w*h, imArea1=imArea-1,
+        w = self.width, h = self.height,
+        selw = scaledSelection.width, selh = scaledSelection.height, imArea=w*h, imArea1=imArea-1,
         sizex = haar.size1, sizey = haar.size2, xstep, ystep, xsize, ysize,
         startx = scaledSelection.x, starty = scaledSelection.y, startty,
         x, y, ty, tyw, tys, sl = haar_stages.length,
@@ -395,8 +396,8 @@ function detectSingleStep(self)
     tyw = ysize*w; 
     tys = ystep*w; 
     startty = starty*tys; 
-    xl = w-xsize; 
-    yl = h-ysize;
+    xl = selw-xsize; 
+    yl = selh-ysize;
     swh = xsize*ysize; 
     inv_area = 1.0/swh;
     
@@ -565,7 +566,7 @@ function detectEnd(self, rects)
 
 /**[DOC_MARKDOWN]
 *
-* ####Detector Methods
+* #### Detector Methods
 *
 [/DOC_MARKDOWN]**/
 
@@ -903,7 +904,7 @@ Detector[proto] = {
         min_neighbors = (undef === min_neighbors) ? 1 : min_neighbors;
         doCannyPruning = self.doCannyPruning = (undef === doCannyPruning) ? true : doCannyPruning;
         
-        maxScale = self.maxScale = Min(width/sizex, height/sizey); 
+        maxScale = self.maxScale = Min(scaledSelection.width/sizex, scaledSelection.height/sizey); 
         scale = self.scale = baseScale; 
         self.min_neighbors = min_neighbors; 
         self.scale_inc = scale_inc; 
@@ -1005,7 +1006,7 @@ Detector[proto] = {
         min_neighbors = (typeof min_neighbors == 'undefined') ? 1 : min_neighbors;
         self.doCannyPruning = (typeof doCannyPruning == 'undefined') ? true : doCannyPruning;
         
-        maxScale = self.maxScale = Min(self.width/sizex, self.height/sizey); 
+        maxScale = self.maxScale = Min(self.scaledSelection.width/sizex, self.scaledSelection.height/sizey); 
         scale = self.scale = baseScale; 
         self.min_neighbors = min_neighbors; 
         self.scale_inc = scale_inc; 
