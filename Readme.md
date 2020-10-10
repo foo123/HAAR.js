@@ -10,6 +10,10 @@ and improvement [Viola-Jones-Lienhart et al Feature Detection Algorithm](http://
 
 This is a port of [OpenCV C++ Haar Detection](http://opencv.org/) (actually a port of [JViolaJones](http://code.google.com/p/jviolajones/) which is a port of OpenCV for Java) to JavaScript and Node
 
+
+**there is also a [`php` version: HAARPHP](https://github.com/foo123/HAARPHP)**
+
+
 Light-weight (~10kB minified, ~5kB gzipped).
 
 [![Haar.js Face Detection](/examples/haar-face-detection.png)](https://foo123.github.com/examples/face-detection/)
@@ -63,29 +67,10 @@ haartojson haarcascades_frontalface_alt.xml > haarcascades_frontalface_alt.json
 The structure of the *.js* and *.json* formats is exactly the same, so you can interchange between the two freely
 
 
-__IMPORTANT__ : The conversion process has changed from previous versions (both in the CLI script and in HAAR.js)
-
-The changes are :
-
-* the feature rectangle coordinates are stored in an array instead of an object hash
-* the tilted flag/attribute for rectangles (Rainer Lienhart et al.) is incorporated in the conversion
-
-so __make sure to re-convert your .js xml cascades__ for this version of HAAR.js
-
-The tilted attribute for rectangles (Rainer Lienhart et al. extension of the algorithm) describes tilted (rotated 45 deg) features (rectangles)
-in order to detect more features at rotated positions
-
-The tilted flag is added in the *.js* or *.json* files (as *tilt* ), 
-(see also [js-objectdetect](https://github.com/mtschirs/js-objectdetect) , which uses the Lienhart extension of the algorithm)
-
-This is now incorporated into HAAR.js and this increases the compatibility 
-with the OpenCV cascades (when they use tilted features, eg mouth cascade)
+__HAAR.js works both in the browser and in Node.js (supporting parallel computations with `Parallel.js`)__
 
 
-__HAAR.js works both in the browser and in Node.js (supporting parallel computations with Parallel.js)__
-
-
-**NOTE** HAAR.js (0.4.4+) (and the generated cascades) support *umd-style* generic loading capability for: **commonjs / node** , **amd** , **browsers script tags**
+**NOTE** `HAAR.js` (0.4.4+) (and the generated cascades) support *umd-style* generic loading capability for: **commonjs / node** , **amd** , **browsers script tags**
 
 
 #### Runing inside the browser
@@ -140,10 +125,3 @@ The configuration would be the same inside a browser
 - [x] add selection option, detection is confined to that selection (eg detect nose while face already detected) [DONE]
 - [x] check if some operations can use fixed-point arithmetic, or other micro-optimizations [DONE where applicable]
 - [ ] keep up with the changes in openCV cascades xml format (will try)
-- [ ] add some real performance tests (anyone interested??)
-
-<!--
-*URL* [Nikos Web Development](http://nikos-web-dev.000webhostapp.com/ "Nikos Web Development")  
-*URL* [Haar.js blog post](http://nikos-web-development.netai.net/blog/haar-js-feature-detection-in-javascript-and-html5-canvas/ "Haar.js blog post")  
-*URL* [WorkingClassCode](http://workingclasscode.uphero.com/ "Working Class Code")  
--->
