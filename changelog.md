@@ -1,8 +1,11 @@
 ### ChangeLog
 
+__1.0.2__
+* port code from latest version of opencv
+
 __1.0.0__
 * backport from FILTER.js HAARDetector plugin correct handling of detecting with selection
-* release final version 1.0.0
+* release version 1.0.0
 
 __0.4.8__
 * fix undeclared variable issue in *detectSingleStep* method

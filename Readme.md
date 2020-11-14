@@ -8,7 +8,7 @@ __Feature Detection Library for JavaScript__    (uses HTML5 canvas on browser an
 Based on [Viola-Jones Feature Detection Algorithm using Haar Cascades](http://www.cs.cmu.edu/~efros/courses/LBMV07/Papers/viola-cvpr-01.pdf)
 and improvement [Viola-Jones-Lienhart et al Feature Detection Algorithm](http://www.multimedia-computing.de/mediawiki//images/5/52/MRL-TR-May02-revised-Dec02.pdf)
 
-This is a port of [OpenCV C++ Haar Detection](http://opencv.org/) (actually a port of [JViolaJones](http://code.google.com/p/jviolajones/) which is a port of OpenCV for Java) to JavaScript and Node
+This is a port of [OpenCV C++ Haar Detection](https://github.com/opencv/opencv) and of [JViolaJones Java](http://code.google.com/p/jviolajones/)) to JavaScript.
 
 
 **there is also a [`php` version: HAARPHP](https://github.com/foo123/HAARPHP)**

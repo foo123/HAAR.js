@@ -69,7 +69,7 @@ detector.image(ImageOrVideoOrCanvas, scale, CanvasClass);
 __Explanation of parameters__
 
 * _ImageOrVideoOrCanvas_ : an actual Image or Video element or Canvas Object (in this case they are equivalent).
-* _scale_ : The percent of scaling from the original image, so detection proceeds faster on a smaller image (default __0.5__ ). __NOTE__ scaling might alter the detection results sometimes, if having problems opt towards 1 (slower)
+* _scale_ : The percent of scaling from the original image, so detection proceeds faster on a smaller image (default __1.0__ ). __NOTE__ scaling might alter the detection results sometimes, if having problems opt towards 1 (slower)
 * _CanvasClass_ : This is optional and used only when running in node (passing the node-canvas object).
     
 
@@ -90,8 +90,8 @@ __cannyThreshold({low: lowThreshold, high: highThreshold})__
 detector.cannyThreshold({low: lowThreshold, high: highThreshold});
 ```
 
-Set the thresholds when Canny Pruning is used, for extra fine-tuning. 
-Canny Pruning detects the number/density of edges in a given region. A region with too few or too many edges is unlikely to be a feature. 
+Set the thresholds when Canny Pruning is used, for extra fine-tuning.
+Canny Pruning detects the number/density of edges in a given region. A region with too few or too many edges is unlikely to be a feature.
 Default values work fine in most cases, however depending on image size and the specific feature, some fine tuning could be needed
 
 __Explanation of parameters__
@@ -132,9 +132,9 @@ __Explanation of parameters__
     
 
 
-__detect(baseScale, scale_inc, increment, min_neighbors, doCannyPruning)__
+__detect(baseScale, scale_inc, increment, min_neighbors, epsilon, doCannyPruning)__
 ```javascript
-detector.detect(baseScale, scale_inc, increment, min_neighbors, doCannyPruning);
+detector.detect(baseScale, scale_inc, increment, min_neighbors, epsilon, doCannyPruning);
 ```
 
 __Explanation of parameters__ ([JViolaJones Parameters](http://code.google.com/p/jviolajones/wiki/Parameters))
@@ -143,7 +143,8 @@ __Explanation of parameters__ ([JViolaJones Parameters](http://code.google.com/p
 * *scale_inc* : The scale increment of the window size, at each step (default __1.25__ ).
 * *increment* : The shift of the window at each sub-step, in terms of percentage of the window size (default __0.5__ ).
 * *min_neighbors* : The minimum numbers of similar rectangles needed for the region to be considered as a feature (avoid noise) (default __1__ )
-* *doCannyPruning* : enable Canny Pruning to pre-detect regions unlikely to contain features, in order to speed up the execution (optional default __true__ ). 
+* *epsilon*   : Epsilon value that determines similarity between detected rectangles. `0` means identical (default __0.2__ )
+* *doCannyPruning* : enable Canny Pruning to pre-detect regions unlikely to contain features, in order to speed up the execution (optional default __false__ ).
     
 
 
