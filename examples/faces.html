@@ -52,13 +52,14 @@
         }
         
         image.onload=function(){
-            wait.style.display='block';
-            canvas.width=image.width; canvas.height=image.height;
-            ctx.drawImage(image,0,0);
+            wait.style.display = 'block';
+            canvas.width = image.width;
+            canvas.height = image.height;
+            ctx.drawImage(image, 0, 0);
             
             // detect the feature
             new HAAR.Detector(haarcascade_frontalface_alt, useParallel)
-                    .image(image, 0.5) // use the image
+                    .image(image, 150 / image.width) // use the image with standardised dimensions
                     .interval(40) // set detection interval for asynchronous detection (if not parallel)
                     .selection('auto')  // set custom detection region
                     //.selection({x:100, y:0, width:'auto', height:'auto'})  // set custom detection region
@@ -81,8 +82,8 @@
                         log(this.objects.toString());
                         alert(l+" Objects found");
                     })
-                    .cannyThreshold({low:90, high:200})  // custom thresholds for canny pruning (for best results)
-                    .detect(1, 1.1, 0.12, 1, true); // go
+                    .cannyThreshold({low:20, high:400})  // custom thresholds for canny pruning (for best results)
+                    .detect(1, 1.1, 0.12, 1, 0.2, true); // go
         };
         image.src='Group_Faces2.jpg'; // load it
         //]]>

@@ -18,7 +18,7 @@ fs.readFile(__dirname + '/model1.jpg', function(err, squid) {
     new HAAR.Detector(detector).image(img, 1, new Canvas()).complete(function() {
       //processing done
       console.log(JSON.stringify(this.objects))
-    }).detect(1, 1.25, 0.1, 1, true);
+    }).detect(1, 1.25, 0.1, 1, 0.2, true);
   };
 
   img.src = squid;

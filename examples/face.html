@@ -52,13 +52,14 @@
         }
         
         image.onload=function(){
-            wait.style.display='block';
-            canvas.width=image.width; canvas.height=image.height;
-            ctx.drawImage(image,0,0);
+            wait.style.display = 'block';
+            canvas.width = image.width;
+            canvas.height = image.height;
+            ctx.drawImage(image, 0, 0);
             
             // detect the feature
             new HAAR.Detector(haarcascade_frontalface_alt, useParallel)
-                    .image(image) // use the image
+                    .image(image, 150 / image.width) // use the image with standardised dimensions
                     .interval(40) // set detection interval for asynchronous detection (if not parallel)
                     .complete(function(){  // onComplete callback
                         var i, rect, l=this.objects.length;
@@ -78,7 +79,7 @@
                         log(this.objects.toString());
                         alert(l+" Objects found");
                     })
-                    .detect(1, 1.25, 0.5, 1, true); // go
+                    .detect(1, 1.1, 0.12, 1, 0.2, true); // go
         };
         image.src='model1.jpg'; // load it
         //]]>

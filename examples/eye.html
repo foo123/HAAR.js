@@ -54,15 +54,16 @@
         image.onload=function(){
             // profile
             //console.timeEnd('ImageLoad');
-            wait.style.display='block';
-            canvas.width=image.width; canvas.height=image.height;
-            canvas.getContext('2d').drawImage(image,0,0);
+            wait.style.display = 'block';
+            canvas.width = image.width;
+            canvas.height = image.height;
+            canvas.getContext('2d').drawImage(image, 0, 0);
             
             // profile
             //console.time('FeatureDetect');
             // detect the feature
             new HAAR.Detector(haarcascade_eye, useParallel) // much faster when using parallel computation
-                    .image(image, 0.8) // use the image
+                    .image(image, /*0.8*/150 / image.width) // use the image with standardised dimensions
                     .interval(50) // set detection interval for asynchronous detection (if not parallel)
                     .complete(function(){  // onComplete callback
                         // profile
@@ -85,8 +86,8 @@
                         log(this.objects.toString());
                         alert(l+" Objects found");
                     })
-                    .cannyThreshold({low:5, high:100})  // custom thresholds for canny pruning (for best results)
-                    .detect(1, 1.25, 0.5, 1, true); // go
+                    .cannyThreshold({low:5, high:200})  // custom thresholds for canny pruning (for best results)
+                    .detect(1, 1.1, 0.12, 1, 0.2, true); // go
         };
         // profile
         //console.time('ImageLoad');        

@@ -52,13 +52,14 @@
         }
         
         image.onload=function(){
-            wait.style.display='block';
-            canvas.width=image.width; canvas.height=image.height;
-            ctx.drawImage(image,0,0);
+            wait.style.display = 'block';
+            canvas.width = image.width;
+            canvas.height = image.height;
+            ctx.drawImage(image, 0, 0);
             
             // detect the feature
             new HAAR.Detector(haarcascade_mcs_mouth, useParallel)
-                    .image(image, 0.9) // use the image
+                    .image(image, 300 / image.width) // use the image with standardised dimensions
                     .interval(40) // set detection interval for asynchronous detection (if not parallel)
                     .complete(function(){  // onComplete callback
                         var i, rect, l=this.objects.length;
@@ -79,7 +80,7 @@
                         alert(l+" Objects found");
                     })
                     .cannyThreshold({low:50, high:110})  // custom thresholds for canny pruning (for best results)
-                    .detect(1, 1.25, 0.1, 1, true); // go
+                    .detect(1, 1.25, 0.1, 1, 0.2, true); // go
         };
         image.src='model1.jpg'; // load it
         //]]>
