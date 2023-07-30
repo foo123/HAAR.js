@@ -1,4 +1,4 @@
-# HAAR.js 
+# HAAR.js
 
 **Note:** Further development has moved to the [FILTER.js](https://github.com/foo123/FILTER.js) project, for Image Processing and Computer Vision, which includes a new [**HaarDetector plugin**](https://github.com/foo123/FILTER.js/blob/master/src/plugins/HaarDetector.js) which can be seen as the continuation of this project.
 
@@ -40,8 +40,9 @@ Light-weight (~10kB minified, ~5kB gzipped).
 * [syntaxhighlighter-grammar](https://github.com/foo123/syntaxhighlighter-grammar) transform a formal grammar in JSON format to a highlight brush for SyntaxHighlighter code highlighter
 * [SortingAlgorithms](https://github.com/foo123/SortingAlgorithms) implementations of Sorting Algorithms in JavaScript
 * [PatternMatchingAlgorithms](https://github.com/foo123/PatternMatchingAlgorithms) implementations of Pattern Matching Algorithms in JavaScript
-* [Rasterizer](https://github.com/foo123/Rasterizer) stroke and fill lines, rectangles, curves and paths, without canvas.
-* [Gradient](https://github.com/foo123/Gradient) create linear, radial, conic and elliptic gradients and image patterns without canvas.
+* [CanvasLite](https://github.com/foo123/CanvasLite) an html canvas implementation in pure JavaScript
+* [Rasterizer](https://github.com/foo123/Rasterizer) stroke and fill lines, rectangles, curves and paths, without canvaσ
+* [Gradient](https://github.com/foo123/Gradient) create linear, radial, conic and elliptic gradients and image patterns without canvas
 * [css-color](https://github.com/foo123/css-color) simple class to parse and manipulate colors in various formats
 
 
@@ -55,6 +56,7 @@ Light-weight (~10kB minified, ~5kB gzipped).
 * [Todo](#todo)
 * [Changelog](/changelog.md)
 * [Credits](/credits.md)
+
 
 ### Live Examples
 * [Interactive Face Detection](https://foo123.github.io/examples/face-detection/)
@@ -79,7 +81,7 @@ haartojs haarcascades_frontalface_alt.xml > haarcascades_frontalface_alt.js
 this creates a javascript file:   *haarcascades_frontalface_alt.js*
 which you can include in your html file or node file
 
-the variable to use in javascript is similarly  
+the variable to use in javascript is similarly
 *haarcascades_frontalface_alt*  (both in browser and node)
 
 to transform a cascade xml file to *json* format do:
@@ -98,35 +100,43 @@ __HAAR.js works both in the browser and in Node.js (supporting parallel computat
 
 
 #### Runing inside the browser
- Loading wth script tags
-    You can run the example face.html or mouth.html inside your browser
+Loading with script tags.
+
+You can run the example face.html or mouth.html inside your browser.
 
 #### Running inside node
- For running, the package have a dependency on canvas
- You can find an example inside examples/nodes.js
-Valid Output
-```bash
-node examples/node.js 
-processing the picture
-[{"x":102.5,"y":105.5,"width":160.66666666666666,"height":160.66666666666666}]
-```
+For running in nodejs, the package has a dependency on canvas.
 
-To work properly, canvas need some system depencencies.
-You can find instruction on https://github.com/LearnBoost/node-canvas/wiki
-For example for Ubuntu : 
+`Canvas` alternatives for nodejs:
+
+1. [CanvasLite](https://github.com/foo123/CanvasLite)
+2. [node-canvas](https://github.com/Automattic/node-canvas)
+
+To work properly `node-canvas` needs some system dependencies.
+You can find instruction on https://github.com/Automattic/node-canvas/wiki
+For example for Ubuntu :
 ```bash
 sudo apt-get install libcairo2-dev libjpeg8-dev libpango1.0-dev libgif-dev
 ```
 
+You can find an example inside examples/nodes.js for both alternatives.
+
+Example Output
+```bash
+node examples/node.js
+processing the picture
+[{"x":84,"y":90,"width":202,"height":202,"index":0,"area":40804,"isInside":false}]
+```
+
 #### Loading with requirejs
- As a third option, you can load the library with requireJS, both on the browser on with node.
+As a third option, you can load the library with requireJS, both in the browser in node.
 There is an example of loading with RequireJS inside node in examples/require.js.
 The configuration would be the same inside a browser
 
 
 #### Supporting parallel computation
- The [parallel.js](https://github.com/adambom/parallel.js) library is included in this repository, see the _face.html_ example for how to use.
- In most cases using parallel computation (if supported) can be much faster (eg _eye.html_ example)
+The [parallel.js](https://github.com/adambom/parallel.js) library is included in this repository, see the _face.html_ example for how to use.
+In most cases using parallel computation (if supported) can be much faster (eg _eye.html_ example)
 
 
 ### Where to find Haar Cascades xml files to use for feature detection

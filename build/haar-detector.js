@@ -4,7 +4,31 @@
 * modified port of jViolaJones for Java (http://code.google.com/p/jviolajones/) and OpenCV for C++ (https://github.com/opencv/opencv) to JavaScript
 *
 * https://github.com/foo123/HAAR.js
-* @version: @@VERSION@@
+* @version: 1.0.2
+*
+* Supports parallel "map-reduce" computation both in browser and node using parallel.js library
+* https://github.com/adambom/parallel.js (included)
+*
+**/!function( root, name, factory ){
+"use strict";
+if ( ('object'===typeof module)&&module.exports ) /* CommonJS */
+    (module.$deps = module.$deps||{}) && (module.exports = module.$deps[name] = factory.call(root));
+else if ( ('function'===typeof define)&&define.amd&&('function'===typeof require)&&('function'===typeof require.specified)&&require.specified(name) /*&& !require.defined(name)*/ ) /* AMD */
+    define(name,['module'],function(module){factory.moduleUri = module.uri; return factory.call(root);});
+else if ( !(name in root) ) /* Browser/WebWorker/.. */
+    (root[name] = factory.call(root)||1)&&('function'===typeof(define))&&define.amd&&define(function(){return root[name];} );
+}(  /* current root */          'undefined' !== typeof self ? self : this, 
+    /* module name */           "HAAR",
+    /* module factory */        function ModuleFactory__HAAR( ){
+/* main code starts here */
+
+/**
+*
+* HAAR.js Feature Detection Library based on Viola-Jones / Lienhart et al. Haar Detection algorithm
+* modified port of jViolaJones for Java (http://code.google.com/p/jviolajones/) and OpenCV for C++ (https://github.com/opencv/opencv) to JavaScript
+*
+* https://github.com/foo123/HAAR.js
+* @version: 1.0.2
 *
 * Supports parallel "map-reduce" computation both in browser and node using parallel.js library
 * https://github.com/adambom/parallel.js (included)
@@ -13,7 +37,7 @@
 "use strict";
 
 // the export object
-var HAAR = { VERSION : "@@VERSION@@" }, Detector, Feature, proto = 'prototype', undef = undefined;
+var HAAR = { VERSION : "1.0.2" }, Detector, Feature, proto = 'prototype', undef = undefined;
 
 var // typed arrays substitute
     Array32F = (typeof Float32Array !== "undefined") ? Float32Array : Array,
@@ -1174,3 +1198,8 @@ Feature[proto] = {
         return ['[ x:', this.x, 'y:', this.y, 'width:', this.width, 'height:', this.height, ']'].join(' ');
     }
 };
+
+/* main code ends here */
+/* export the module */
+return HAAR;
+});
