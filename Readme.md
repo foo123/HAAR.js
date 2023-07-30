@@ -3,7 +3,7 @@
 **Note:** Further development has moved to the [FILTER.js](https://github.com/foo123/FILTER.js) project, for Image Processing and Computer Vision, which includes a new [**HaarDetector plugin**](https://github.com/foo123/FILTER.js/blob/master/src/plugins/HaarDetector.js) which can be seen as the continuation of this project.
 
 
-__Feature Detection Library for JavaScript__    (uses HTML5 canvas on browser and Canvas package on Node)
+__Feature Detection Library for JavaScript__    (uses HTML5 canvas on browser and canvas alternative on Node)
 
 Based on [Viola-Jones Feature Detection Algorithm using Haar Cascades](http://www.cs.cmu.edu/~efros/courses/LBMV07/Papers/viola-cvpr-01.pdf)
 and improvement [Viola-Jones-Lienhart et al Feature Detection Algorithm](http://www.multimedia-computing.de/mediawiki//images/5/52/MRL-TR-May02-revised-Dec02.pdf)
@@ -14,36 +14,12 @@ This is a port of [OpenCV C++ Haar Detection](https://github.com/opencv/opencv) 
 **there is also a [`php` version: HAARPHP](https://github.com/foo123/HAARPHP)**
 
 
-Light-weight (~10kB minified, ~5kB gzipped).
+Light-weight (~11kB minified, ~5kB gzipped).
 
 [![Haar.js Face Detection](/examples/haar-face-detection.png)](https://foo123.github.io/examples/face-detection/)
 [![Haar.js Many Faces Detection](/examples/haar-faces-detection.png)](https://foo123.github.io/examples/faces-detection/)
 [![Haar.js Mouth Detection](/examples/haar-mouth-detection.png)](https://foo123.github.io/examples/mouth-detection/)
 ![Haar.js Eyes Detection](/examples/haar-eyes-detection.png)
-
-**see also:**
-
-* [Abacus](https://github.com/foo123/Abacus) advanced Combinatorics and Algebraic Number Theory Symbolic Computation library for JavaScript, Python
-* [MOD3](https://github.com/foo123/MOD3) 3D Modifier Library in JavaScript
-* [Geometrize](https://github.com/foo123/Geometrize) Computational Geometry and Rendering Library for JavaScript
-* [Plot.js](https://github.com/foo123/Plot.js) simple and small library which can plot graphs of functions and various simple charts and can render to Canvas, SVG and plain HTML
-* [HAAR.js](https://github.com/foo123/HAAR.js) image feature detection based on Haar Cascades in JavaScript (Viola-Jones-Lienhart et al Algorithm)
-* [HAARPHP](https://github.com/foo123/HAARPHP) image feature detection based on Haar Cascades in PHP (Viola-Jones-Lienhart et al Algorithm)
-* [FILTER.js](https://github.com/foo123/FILTER.js) video and image processing and computer vision Library in pure JavaScript (browser and node)
-* [Xpresion](https://github.com/foo123/Xpresion) a simple and flexible eXpression parser engine (with custom functions and variables support), based on [GrammarTemplate](https://github.com/foo123/GrammarTemplate), for PHP, JavaScript, Python
-* [Regex Analyzer/Composer](https://github.com/foo123/RegexAnalyzer) Regular Expression Analyzer and Composer for PHP, JavaScript, Python
-* [GrammarTemplate](https://github.com/foo123/GrammarTemplate) grammar-based templating for PHP, JavaScript, Python
-* [codemirror-grammar](https://github.com/foo123/codemirror-grammar) transform a formal grammar in JSON format into a syntax-highlight parser for CodeMirror editor
-* [ace-grammar](https://github.com/foo123/ace-grammar) transform a formal grammar in JSON format into a syntax-highlight parser for ACE editor
-* [prism-grammar](https://github.com/foo123/prism-grammar) transform a formal grammar in JSON format into a syntax-highlighter for Prism code highlighter
-* [highlightjs-grammar](https://github.com/foo123/highlightjs-grammar) transform a formal grammar in JSON format into a syntax-highlight mode for Highlight.js code highlighter
-* [syntaxhighlighter-grammar](https://github.com/foo123/syntaxhighlighter-grammar) transform a formal grammar in JSON format to a highlight brush for SyntaxHighlighter code highlighter
-* [SortingAlgorithms](https://github.com/foo123/SortingAlgorithms) implementations of Sorting Algorithms in JavaScript
-* [PatternMatchingAlgorithms](https://github.com/foo123/PatternMatchingAlgorithms) implementations of Pattern Matching Algorithms in JavaScript
-* [CanvasLite](https://github.com/foo123/CanvasLite) an html canvas implementation in pure JavaScript
-* [Rasterizer](https://github.com/foo123/Rasterizer) stroke and fill lines, rectangles, curves and paths, without canvaσ
-* [Gradient](https://github.com/foo123/Gradient) create linear, radial, conic and elliptic gradients and image patterns without canvas
-* [css-color](https://github.com/foo123/css-color) simple class to parse and manipulate colors in various formats
 
 
 ### Contents
@@ -159,3 +135,27 @@ In most cases using parallel computation (if supported) can be much faster (eg _
 - [x] add selection option, detection is confined to that selection (eg detect nose while face already detected) [DONE]
 - [x] check if some operations can use fixed-point arithmetic, or other micro-optimizations [DONE where applicable]
 - [ ] keep up with the changes in openCV cascades xml format (will try)
+
+**see also:**
+
+* [Abacus](https://github.com/foo123/Abacus) advanced Combinatorics and Algebraic Number Theory Symbolic Computation library for JavaScript, Python
+* [MOD3](https://github.com/foo123/MOD3) 3D Modifier Library in JavaScript
+* [Geometrize](https://github.com/foo123/Geometrize) Computational Geometry and Rendering Library for JavaScript
+* [Plot.js](https://github.com/foo123/Plot.js) simple and small library which can plot graphs of functions and various simple charts and can render to Canvas, SVG and plain HTML
+* [HAAR.js](https://github.com/foo123/HAAR.js) image feature detection based on Haar Cascades in JavaScript (Viola-Jones-Lienhart et al Algorithm)
+* [HAARPHP](https://github.com/foo123/HAARPHP) image feature detection based on Haar Cascades in PHP (Viola-Jones-Lienhart et al Algorithm)
+* [FILTER.js](https://github.com/foo123/FILTER.js) video and image processing and computer vision Library in pure JavaScript (browser and node)
+* [Xpresion](https://github.com/foo123/Xpresion) a simple and flexible eXpression parser engine (with custom functions and variables support), based on [GrammarTemplate](https://github.com/foo123/GrammarTemplate), for PHP, JavaScript, Python
+* [Regex Analyzer/Composer](https://github.com/foo123/RegexAnalyzer) Regular Expression Analyzer and Composer for PHP, JavaScript, Python
+* [GrammarTemplate](https://github.com/foo123/GrammarTemplate) grammar-based templating for PHP, JavaScript, Python
+* [codemirror-grammar](https://github.com/foo123/codemirror-grammar) transform a formal grammar in JSON format into a syntax-highlight parser for CodeMirror editor
+* [ace-grammar](https://github.com/foo123/ace-grammar) transform a formal grammar in JSON format into a syntax-highlight parser for ACE editor
+* [prism-grammar](https://github.com/foo123/prism-grammar) transform a formal grammar in JSON format into a syntax-highlighter for Prism code highlighter
+* [highlightjs-grammar](https://github.com/foo123/highlightjs-grammar) transform a formal grammar in JSON format into a syntax-highlight mode for Highlight.js code highlighter
+* [syntaxhighlighter-grammar](https://github.com/foo123/syntaxhighlighter-grammar) transform a formal grammar in JSON format to a highlight brush for SyntaxHighlighter code highlighter
+* [SortingAlgorithms](https://github.com/foo123/SortingAlgorithms) implementations of Sorting Algorithms in JavaScript
+* [PatternMatchingAlgorithms](https://github.com/foo123/PatternMatchingAlgorithms) implementations of Pattern Matching Algorithms in JavaScript
+* [CanvasLite](https://github.com/foo123/CanvasLite) an html canvas implementation in pure JavaScript
+* [Rasterizer](https://github.com/foo123/Rasterizer) stroke and fill lines, rectangles, curves and paths, without canvaσ
+* [Gradient](https://github.com/foo123/Gradient) create linear, radial, conic and elliptic gradients and image patterns without canvas
+* [css-color](https://github.com/foo123/css-color) simple class to parse and manipulate colors in various formats

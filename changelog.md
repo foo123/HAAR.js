@@ -1,5 +1,9 @@
 ### ChangeLog
 
+__1.0.3__
+* fix haartojs xml conversion scripts
+* nodejs example with both node-canvas and CanvasLite
+
 __1.0.2__
 * port code from latest version of opencv
 

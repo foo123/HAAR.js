@@ -4,7 +4,7 @@
 * modified port of jViolaJones for Java (http://code.google.com/p/jviolajones/) and OpenCV for C++ (https://github.com/opencv/opencv) to JavaScript
 *
 * https://github.com/foo123/HAAR.js
-* @version: 1.0.2
+* @version: 1.0.3
 *
 * Supports parallel "map-reduce" computation both in browser and node using parallel.js library
 * https://github.com/adambom/parallel.js (included)
@@ -28,7 +28,7 @@ else if ( !(name in root) ) /* Browser/WebWorker/.. */
 * modified port of jViolaJones for Java (http://code.google.com/p/jviolajones/) and OpenCV for C++ (https://github.com/opencv/opencv) to JavaScript
 *
 * https://github.com/foo123/HAAR.js
-* @version: 1.0.2
+* @version: 1.0.3
 *
 * Supports parallel "map-reduce" computation both in browser and node using parallel.js library
 * https://github.com/adambom/parallel.js (included)
@@ -37,7 +37,7 @@ else if ( !(name in root) ) /* Browser/WebWorker/.. */
 "use strict";
 
 // the export object
-var HAAR = { VERSION : "1.0.2" }, Detector, Feature, proto = 'prototype', undef = undefined;
+var HAAR = { VERSION : "1.0.3" }, Detector, Feature, proto = 'prototype', undef = undefined;
 
 var // typed arrays substitute
     Array32F = (typeof Float32Array !== "undefined") ? Float32Array : Array,
@@ -761,7 +761,7 @@ Detector[proto] = {
     *
     * * _ImageOrVideoOrCanvas_ : an actual Image or Video element or Canvas Object (in this case they are equivalent).
     * * _scale_ : The percent of scaling from the original image, so detection proceeds faster on a smaller image (default __1.0__ ). __NOTE__ scaling might alter the detection results sometimes, if having problems opt towards 1 (slower)
-    * * _CanvasClass_ : This is optional and used only when running in node (passing the node-canvas object).
+    * * _CanvasClass_ : This is optional and used only when running in nodejs (passing an alternative Canvas object for nodejs).
     [/DOC_MARKDOWN]**/
     image: function(image, scale, canvas) {
         var self = this;

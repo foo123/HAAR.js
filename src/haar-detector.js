@@ -737,7 +737,7 @@ Detector[proto] = {
     *
     * * _ImageOrVideoOrCanvas_ : an actual Image or Video element or Canvas Object (in this case they are equivalent).
     * * _scale_ : The percent of scaling from the original image, so detection proceeds faster on a smaller image (default __1.0__ ). __NOTE__ scaling might alter the detection results sometimes, if having problems opt towards 1 (slower)
-    * * _CanvasClass_ : This is optional and used only when running in node (passing the node-canvas object).
+    * * _CanvasClass_ : This is optional and used only when running in nodejs (passing an alternative Canvas object for nodejs).
     [/DOC_MARKDOWN]**/
     image: function(image, scale, canvas) {
         var self = this;
