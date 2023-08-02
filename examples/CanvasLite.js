@@ -2,14 +2,14 @@
 *   CanvasLite
 *   an html canvas implementation in pure JavaScript
 *
-*   @version 0.9.92 (2023-07-31 22:54:20)
+*   @version 0.9.92r2 (2023-08-02 12:05:01)
 *   https://github.com/foo123/CanvasLite
 *
 **//**
 *   CanvasLite
 *   an html canvas implementation in pure JavaScript
 *
-*   @version 0.9.92 (2023-07-31 22:54:20)
+*   @version 0.9.92r2 (2023-08-02 12:05:01)
 *   https://github.com/foo123/CanvasLite
 *
 **/
@@ -277,7 +277,7 @@ function RenderingContext2D(width, height, set_rgba_at, get_rgba_from)
         set: function(c) {
            if (c instanceof Gradient || c instanceof Pattern)
            {
-               get_stroke_at = c.getColorAt.bind(c);
+               get_stroke_at = Rasterizer.getRGBAFrom(c.getColorAt.bind(c));
            }
            else
            {
@@ -292,7 +292,7 @@ function RenderingContext2D(width, height, set_rgba_at, get_rgba_from)
         set: function(c) {
            if (c instanceof Gradient || c instanceof Pattern)
            {
-               get_fill_at = c.getColorAt.bind(c);
+               get_fill_at = Rasterizer.getRGBAFrom(c.getColorAt.bind(c));
            }
            else
            {
@@ -6644,7 +6644,7 @@ function CanvasLite(width, height)
     };
     self.toPNG = async function() {
         // only PNG output format
-        return await imagepng('binary', imageData.data, imageData.width, imageData.height/*, encoderOptions*/);
+        return await imagepng('binary', imageData.data, imageData.width, imageData.height/*, {deflateLevel: 0}*/);
     };
     reset();
 }
@@ -6657,6 +6657,7 @@ CanvasLite[PROTO] = {
     toBlob: null,
     toPNG: null
 };
+CanvasLite.VERSION = "0.9.92r2";
 CanvasLite.Image = Image;
 CanvasLite.RenderingContext2D = Rasterizer.RenderingContext2D;
 
