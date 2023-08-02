@@ -2,14 +2,14 @@
 *   CanvasLite
 *   an html canvas implementation in pure JavaScript
 *
-*   @version 0.9.92r2 (2023-08-02 12:05:01)
+*   @version 0.9.92r2 (2023-08-02 12:49:06)
 *   https://github.com/foo123/CanvasLite
 *
 **//**
 *   CanvasLite
 *   an html canvas implementation in pure JavaScript
 *
-*   @version 0.9.92r2 (2023-08-02 12:05:01)
+*   @version 0.9.92r2 (2023-08-02 12:49:06)
 *   https://github.com/foo123/CanvasLite
 *
 **/
@@ -277,7 +277,7 @@ function RenderingContext2D(width, height, set_rgba_at, get_rgba_from)
         set: function(c) {
            if (c instanceof Gradient || c instanceof Pattern)
            {
-               get_stroke_at = Rasterizer.getRGBAFrom(c.getColorAt.bind(c));
+               get_stroke_at = c.getColorAt.bind(c);
            }
            else
            {
@@ -292,7 +292,7 @@ function RenderingContext2D(width, height, set_rgba_at, get_rgba_from)
         set: function(c) {
            if (c instanceof Gradient || c instanceof Pattern)
            {
-               get_fill_at = Rasterizer.getRGBAFrom(c.getColorAt.bind(c));
+               get_fill_at = c.getColorAt.bind(c);
            }
            else
            {
@@ -3314,28 +3314,8 @@ function Gradient(grad_color_at)
     self.getColorAt = function(x, y) {
         var im = transform.imatrix(true),
             p = im ? im.transform(x, y) : null,
-            rgba = new ImArray(4);
+            rgba = [0, 0, 0, 0];
         return p ? grad_color_at(p[0], p[1], colorStops(), rgba, 0) : rgba;
-    };
-    self.getBitmap = function(width, height) {
-        width = stdMath.round(width);
-        height = stdMath.round(height);
-        var imatrix = transform.imatrix(true),
-            color_stops,
-            i, x, y, p,
-            size = (width*height) << 2,
-            bmp = new ImArray(size);
-        if (imatrix)
-        {
-            color_stops = colorStops();
-            for (x=0,y=0,i=0; i<size; i+=4,++x)
-            {
-                if (x >= width) {x=0; ++y;}
-                p = imatrix.transform(x, y);
-                grad_color_at(p[0], p[1], color_stops, bmp, i);
-            }
-        }
-        return bmp;
     };
 }
 Gradient.VERSION = "1.2.3";
@@ -3343,8 +3323,7 @@ Gradient[PROTO] = {
     constructor: Gradient,
     transform: null,
     addColorStop: null,
-    getColorAt: null,
-    getBitmap: null
+    getColorAt: null
 };
 Gradient.createLinearGradient = function(x1, y1, x2, y2) {
     x1 = x1 || 0;
@@ -3487,38 +3466,20 @@ function Pattern(pat_color_at)
         configurable: false
     });
     self.getColorAt = function(x, y) {
-        var im = transform.imatrix(true), p, rgba = new ImArray(4);
+        var im = transform.imatrix(true), p, rgba = [0, 0, 0, 0];
         if (im)
         {
             p = im.transform(x, y);
             pat_color_at(p[0], p[1], rgba, 0);
         }
+        rgba[3] /= 255;
         return rgba;
-    };
-    self.getBitmap = function(width, height) {
-        width = stdMath.round(width);
-        height = stdMath.round(height);
-        var imatrix = transform.imatrix(true),
-            i, x, y, p,
-            size = (width*height) << 2,
-            bmp = new ImArray(size);
-        if (imatrix)
-        {
-            for (x=0,y=0,i=0; i<size; i+=4,++x)
-            {
-                if (x >= width) {x=0; ++y;}
-                p = imatrix.transform(x, y);
-                pat_color_at(p[0], p[1], bmp, i);
-            }
-        }
-        return bmp;
     };
 }
 Pattern[PROTO] = {
     constructor: Pattern,
     transform: null,
-    getColorAt: null,
-    getBitmap: null
+    getColorAt: null
 };
 Pattern.createPattern = function(imageData, repetition) {
     if (imageData && ('function' === typeof imageData.getImageData)) imageData = imageData.getImageData();
@@ -3733,7 +3694,7 @@ function interpolatePixel(pixel, index, rgba0, rgba1, t)
     pixel[index + 0] = clamp(stdMath.round(rgba0[0] + t*(rgba1[0] - rgba0[0])), 0, 255);
     pixel[index + 1] = clamp(stdMath.round(rgba0[1] + t*(rgba1[1] - rgba0[1])), 0, 255);
     pixel[index + 2] = clamp(stdMath.round(rgba0[2] + t*(rgba1[2] - rgba0[2])), 0, 255);
-    pixel[index + 3] = 3 < rgba0.length ? clamp(stdMath.round(255*(rgba0[3] + t*(rgba1[3] - rgba0[3]))), 0, 255) : 255;
+    pixel[index + 3] = 3 < rgba0.length ? clamp(rgba0[3] + t*(rgba1[3] - rgba0[3]), 0, 1) : 1;
     return pixel;
 }
 var hexRE = /^#([0-9a-fA-F]{3,6})\b/,
