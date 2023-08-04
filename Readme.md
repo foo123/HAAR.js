@@ -1,9 +1,9 @@
 # HAAR.js
 
-**Note:** Further development has moved to the [FILTER.js](https://github.com/foo123/FILTER.js) project, for Image Processing and Computer Vision, which includes a new [**HaarDetector plugin**](https://github.com/foo123/FILTER.js/blob/master/src/plugins/HaarDetector.js) which can be seen as the continuation of this project.
+**Note:** [FILTER.js](https://github.com/foo123/FILTER.js) project, for Image Processing and Computer Vision, includes a [**HaarDetector plugin**](https://github.com/foo123/FILTER.js/blob/master/src/plugins/HaarDetector.js) which can be seen as the continuation of this project.
 
 
-__Feature Detection Library for JavaScript__    (uses HTML5 canvas on browser and canvas alternative on Node)
+__Feature Detection Library for JavaScript__   (uses HTML5 canvas on browser and canvas alternative on Node)
 
 Based on [Viola-Jones Feature Detection Algorithm using Haar Cascades](http://www.cs.cmu.edu/~efros/courses/LBMV07/Papers/viola-cvpr-01.pdf)
 and improvement [Viola-Jones-Lienhart et al Feature Detection Algorithm](http://www.multimedia-computing.de/mediawiki//images/5/52/MRL-TR-May02-revised-Dec02.pdf)
@@ -90,10 +90,6 @@ For running in nodejs, the package has a dependency on canvas.
 
 To work properly `node-canvas` needs some system dependencies.
 You can find instruction on https://github.com/Automattic/node-canvas/wiki
-For example for Ubuntu :
-```bash
-sudo apt-get install libcairo2-dev libjpeg8-dev libpango1.0-dev libgif-dev
-```
 
 You can find an example inside examples/nodes.js for both alternatives.
 
@@ -101,7 +97,7 @@ Example Output
 ```bash
 node examples/node.js
 processing the picture
-[{"x":84,"y":90,"width":202,"height":202,"index":0,"area":40804,"isInside":false}]
+[{"x":84,"y":90,"width":202,"height":202,"area":40804}]
 ```
 
 #### Loading with requirejs
@@ -126,7 +122,7 @@ In most cases using parallel computation (if supported) can be much faster (eg _
 
 ### Usage Ideas
 * [SmileDetectJS](https://github.com/roironn/SmileDetectJS)
-* [ObjectDetect](https://github.com/mtschirs/js-objectdetect) (some common ideas with HAAR.js are used with extra functionality like object tracking)
+* [ObjectDetect](https://github.com/mtschirs/js-objectdetect) (some common ideas with HAAR.js are used)
 
 
 

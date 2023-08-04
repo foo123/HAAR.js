@@ -1,5 +1,10 @@
 ### ChangeLog
 
+__1.0.4__
+* better square root approximation in canny edges
+* update CanvasLite
+* update and fix tests/examples
+
 __1.0.3__
 * fix haartojs xml conversion scripts
 * nodejs example with both node-canvas and CanvasLite
@@ -12,10 +17,10 @@ __1.0.0__
 * release version 1.0.0
 
 __0.4.8__
-* fix undeclared variable issue in *detectSingleStep* method
-* add *detectSync* method
-* [**HaarDetector**](https://github.com/foo123/FILTER.js/blob/master/src/plugins/HaarDetector.js) continues now as a plugin of the project [FILTER.js](https://github.com/foo123/FILTER.js) for Image Processing and Computer Vision
- 
+* fix undeclared variable issue in `detectSingleStep` method
+* add `detectSync` method
+* [**HaarDetector**](https://github.com/foo123/FILTER.js/blob/master/src/plugins/HaarDetector.js) is a plugin of the project [FILTER.js](https://github.com/foo123/FILTER.js) for Image Processing and Computer Vision
+
 
 __0.4.5__ , __0.4.6__, __0.4.7__
 * update buildtools, dependencies, api-reference (latest)
@@ -44,7 +49,7 @@ __0.4.1__
 * inline the haar-tree and haar-leaf evaluators inside the haar-stage evaluator for speed
 
 __0.4__
-* add selection option to confine detection to a specific image region 
+* add selection option to confine detection to a specific image region
 * add fine-tuning for canny pruning thresholds
 * refactor/optimize merge method (filter features/rectangles that are inside other features), detection features may be slightly different now
 * reduce unnecessary loops/computations from java port (now it is more javascript-esque or in some cases even asm-esque)
@@ -73,7 +78,7 @@ __0.2__
 * haartojs produces a javascript file using closures (fixes previous issue with the java tool)
 
 __0.1.1__
-* customization to work with Node.js and require.js by [maxired](https://github.com/maxired)  (using js closures) 
+* customization to work with Node.js and require.js by [maxired](https://github.com/maxired)  (using js closures)
 
 __0.1__
 * initial commit by [Nikos M.](https://github.com/foo123) (works on browser)

@@ -4,7 +4,7 @@
 * modified port of jViolaJones for Java (http://code.google.com/p/jviolajones/) and OpenCV for C++ (https://github.com/opencv/opencv) to JavaScript
 *
 * https://github.com/foo123/HAAR.js
-* @version: 1.0.3
+* @version: 1.0.4
 *
 * Supports parallel "map-reduce" computation both in browser and node using parallel.js library
 * https://github.com/adambom/parallel.js (included)
@@ -28,7 +28,7 @@ else if ( !(name in root) ) /* Browser/WebWorker/.. */
 * modified port of jViolaJones for Java (http://code.google.com/p/jviolajones/) and OpenCV for C++ (https://github.com/opencv/opencv) to JavaScript
 *
 * https://github.com/foo123/HAAR.js
-* @version: 1.0.3
+* @version: 1.0.4
 *
 * Supports parallel "map-reduce" computation both in browser and node using parallel.js library
 * https://github.com/adambom/parallel.js (included)
@@ -37,7 +37,7 @@ else if ( !(name in root) ) /* Browser/WebWorker/.. */
 "use strict";
 
 // the export object
-var HAAR = { VERSION : "1.0.3" }, Detector, Feature, proto = 'prototype', undef = undefined;
+var HAAR = {VERSION : "1.0.4"}, Detector, Feature, proto = 'prototype', undef = undefined;
 
 var // typed arrays substitute
     Array32F = (typeof Float32Array !== "undefined") ? Float32Array : Array,
@@ -52,7 +52,10 @@ var // typed arrays substitute
     */
 
     // math functions brevity
-    Abs = Math.abs, Max = Math.max, Min = Math.min, Floor = Math.floor, Round = Math.round, Sqrt = Math.sqrt,
+    stdMath = Math,
+    Abs = stdMath.abs, Max = stdMath.max,
+    Min = stdMath.min, Floor = stdMath.floor,
+    Round = stdMath.round, Sqrt = stdMath.sqrt,
     slice = Array[proto].slice
 ;
 
@@ -96,7 +99,7 @@ function integralImage(im, w, h/*, selection*/)
         squares[j] = sum2;
         tilted[j] = g;
 
-        j++; i+=4;
+        ++j; i+=4;
     }
     // other rows
     k=0; y=1; j=w; i=(w<<2); sum=sum2=0;
@@ -121,7 +124,7 @@ function integralImage(im, w, h/*, selection*/)
         squares[j] = squares[j-w] + sum2;
         tilted[j] = tilted[j+1-w] + (g + gray[j-w]) + ((y>1) ? tilted[j-w-w] : 0) + ((k>0) ? tilted[j-1-w] : 0);
 
-        k++; j++; i+=4; if (k>=w) { k=0; y++; sum=sum2=0; }
+        ++k; ++j; i+=4; if (k>=w) {k=0; ++y; sum=sum2=0;}
     }
 
     return {gray:gray, integral:integral, squares:squares, tilted:tilted};
@@ -130,13 +133,13 @@ function integralImage(im, w, h/*, selection*/)
 // compute Canny edges on gray-scale image to speed up detection if possible
 function integralCanny(gray, w, h)
 {
-    var i, j, k, sum, grad_x, grad_y,
+    var i, j, k, sum, grad_x, grad_y, tm, tM,
         ind0, ind1, ind2, ind_1, ind_2, count=gray.length,
         lowpass = new Array8U(count), canny = new Array32F(count)
     ;
 
     // first, second rows, last, second-to-last rows
-    for (i=0; i<w; i++)
+    for (i=0; i<w; ++i)
     {
         lowpass[i]=0;
         lowpass[i+w]=0;
@@ -147,7 +150,7 @@ function integralCanny(gray, w, h)
         canny[i+count-w]=0;
     }
     // first, second columns, last, second-to-last columns
-    for (j=0, k=0; j<h; j++, k+=w)
+    for (j=0, k=0; j<h; ++j, k+=w)
     {
         lowpass[0+k]=0;
         lowpass[1+k]=0;
@@ -158,10 +161,10 @@ function integralCanny(gray, w, h)
         canny[w-1+k]=0;
     }
     // gauss lowpass
-    for (i=2; i<w-2; i++)
+    for (i=2; i+2<w; ++i)
     {
         sum=0;
-        for (j=2, k=(w<<1); j<h-2; j++, k+=w)
+        for (j=2, k=(w<<1); j+2<h; ++j, k+=w)
         {
             ind0 = i+k;
             ind1 = ind0+w;
@@ -232,10 +235,10 @@ function integralCanny(gray, w, h)
     }
 
     // sobel gradient
-    for (i=1; i<w-1 ; i++)
+    for (i=1; i+1<w ; ++i)
     {
         //sum=0;
-        for (j=1, k=w; j<h-1; j++, k+=w)
+        for (j=1, k=w; j+1<h; ++j, k+=w)
         {
             // compute coords using simple add/subtract arithmetic (faster)
             ind0=k+i;
@@ -262,7 +265,13 @@ function integralCanny(gray, w, h)
                     ;
 
             //sum += (Abs(grad_x) + Abs(grad_y))&0xFFFFFFFF;
-            canny[ind0] = ( Abs(grad_x) + Abs(grad_y) );//&0xFFFFFFFF;
+            grad_x = Abs(grad_x);
+            grad_y = Abs(grad_y);
+            //canny[ind0] = grad_x+grad_y;//&0xFFFFFFFF;
+            tM = Max(grad_x, grad_y);
+            tm = Min(grad_x, grad_y);
+            // approximation of square root
+            canny[ind0] = tM ? (tM*(1+0.43*tm/tM*tm/tM)) : 0;//&0xFFFFFFFF;
        }
     }
 
@@ -273,7 +282,7 @@ function integralCanny(gray, w, h)
     {
         sum += canny[i];
         canny[i] = sum;//&0xFFFFFFFF;
-        i++;
+        ++i;
     }
     // other rows
     i=w; k=0; sum=0;
@@ -281,7 +290,7 @@ function integralCanny(gray, w, h)
     {
         sum += canny[i];
         canny[i] = (canny[i-w] + sum);//&0xFFFFFFFF;
-        i++; k++; if (k>=w) { k=0; sum=0; }
+        ++i; ++k; if (k>=w) {k=0; sum=0;}
     }
 
     return canny;
@@ -295,11 +304,11 @@ function groupRectangles(rects, min_neighbors, epsilon)
 
     // original code
     // find number of neighbour classes
-    for(i = 0; i < rlen; i++) ref[i] = 0;
-    for(i = 0; i < rlen; i++)
+    for (i = 0; i < rlen; ++i) ref[i] = 0;
+    for (i = 0; i < rlen; ++i)
     {
         found = false;
-        for (j = 0; j < i; j++)
+        for (j = 0; j < i; ++j)
         {
             if (rects[j].equals(rects[i], epsilon))
             {
@@ -308,18 +317,18 @@ function groupRectangles(rects, min_neighbors, epsilon)
             }
         }
 
-        if (! found)
+        if (!found)
         {
             ref[i] = nb_classes;
-            nb_classes++;
+            ++nb_classes;
         }
     }
 
     // merge neighbor classes
     neighbors = new Array(nb_classes);  r = new Array(nb_classes);
-    for(i = 0; i < nb_classes; i++) { neighbors[i] = 0;  r[i] = new Feature(); }
-    for(i = 0; i < rlen; i++) { ri=ref[i]; neighbors[ri]++; r[ri].add(rects[i]); }
-    for(i = 0; i < nb_classes; i++)
+    for (i = 0; i < nb_classes; ++i) {neighbors[i] = 0;  r[i] = new Feature();}
+    for (i = 0; i < rlen; ++i) {ri=ref[i]; ++neighbors[ri]; r[ri].add(rects[i]);}
+    for (i = 0; i < nb_classes; ++i)
     {
         n = neighbors[i];
         if (n >= min_neighbors)
@@ -336,31 +345,29 @@ function groupRectangles(rects, min_neighbors, epsilon)
 
     // filter inside rectangles
     rlen = feats.length;
-    for(i=0; i<rlen; i++)
+    for (i=0; i<rlen; ++i)
     {
-        for (j=i+1; j<rlen; j++)
+        for (j=i+1; j<rlen; ++j)
         {
-            if (!feats[i].isInside && feats[i].inside(feats[j])) { feats[i].isInside=true; }
-            else if (!feats[j].isInside && feats[j].inside(feats[i])) { feats[j].isInside=true; }
+            if ((!feats[i].isInside && feats[i].inside(feats[j]))
+            || (!feats[j].isInside && feats[j].inside(feats[i])))
+                feats[i].isInside = true;
         }
     }
     i = rlen;
-    while(--i >= 0)
+    while (--i >= 0)
     {
-        if (feats[i].isInside)
-        {
-            feats.splice(i, 1);
-        }
+        if (feats[i].isInside) feats.splice(i, 1);
     }
 
     return feats;
 }
 
 // area used as compare func for sorting
-function byArea(a, b) { return b.area-a.area; }
+function byArea(a, b) {return b.area-a.area;}
 
 // serial index used as compare func for sorting
-function byOrder(a, b) { return a.index-b.index; }
+function byOrder(a, b) {return a.index-b.index;}
 
 /*
 splice subarray (not used)
@@ -372,14 +379,18 @@ Array.prototype.splice.apply(d[0], [prev, 0].concat(d[1]));
 function mergeSteps(d)
 {
     // concat and sort according to serial ordering
-    if (d[1].length) d[0]=d[0].concat(d[1]).sort(byOrder);
+    if (d[1].length)
+    {
+        d[0].push.apply(d[0], d[1]);
+        d[0].sort(byOrder);
+    }
     return d[0];
 }
 
 // used for parallel, asynchronous and/or synchronous computation
 function detectSingleStep(self)
 {
-    var Sqrt = Sqrt || Math.sqrt, ret = [],
+    var Sqrt = Sqrt || stdMath.sqrt, ret = [],
         haar = self.haardata, haar_stages = haar.stages, scaledSelection = self.scaledSelection,
         w = self.width, h = self.height,
         selw = scaledSelection.width, selh = scaledSelection.height, imArea=w*h, imArea1=imArea-1,
@@ -445,7 +456,7 @@ function detectSingleStep(self)
             vnorm = (vnorm > 1) ? Sqrt(vnorm) : /*vnorm*/  1 ;
 
             pass = true;
-            for (s = 0; s < sl; s++)
+            for (s = 0; s < sl; ++s)
             {
                 // Viola-Jones HAAR-Stage evaluator
                 stage = haar_stages[s];
@@ -453,7 +464,7 @@ function detectSingleStep(self)
                 trees = stage.trees; tl = trees.length;
                 sum=0;
 
-                for (t = 0; t < tl; t++)
+                for (t = 0; t < tl; ++t)
                 {
                     //
                     // inline the tree and leaf evaluators to avoid function calls per-loop (faster)
@@ -507,7 +518,7 @@ function detectSingleStep(self)
                         else
                         {
                             // orthogonal rectangle feature, Viola-Jones original
-                            for (kr = 0; kr < nb_rects; kr++)
+                            for (kr = 0; kr < nb_rects; ++kr)
                             {
                                 r = rects[kr];
 
@@ -570,12 +581,22 @@ function detectSingleStep(self)
 // called when detection ends, calls user-defined callback if any
 function detectEnd(self, rects, withOnComplete)
 {
-    var i, n, ratio;
-    for (i=0, n=rects.length; i<n; i++) rects[i] = new Feature(rects[i]);
+    var i, n, o, ratio;
+    for (i=0, n=rects.length; i<n; ++i) rects[i] = new Feature(rects[i]);
     self.objects = groupRectangles(rects, self.min_neighbors, self.epsilon);
     ratio = 1.0 / self.Ratio;
-    for(i=0, n=self.objects.length; i<n; i++)
-        self.objects[i].scale(ratio).round().computeArea();
+    for (i=0, n=self.objects.length; i<n; ++i)
+    {
+        o = self.objects[i];
+        o.scale(ratio).round().computeArea();
+        self.objects[i] = {
+            x: o.x,
+            y: o.y,
+            width: o.width,
+            height: o.height,
+            area: o.area
+        };
+    }
     // sort according to size
     // (a deterministic way to present results under different cases)
     self.objects.sort(byArea);
@@ -772,7 +793,7 @@ Detector[proto] = {
             // re-use the existing canvas if possible and not create new one
             if (!self.Canvas) self.Canvas = canvas || document.createElement('canvas');
             cnv = self.Canvas;
-            r = self.Ratio = (undef === scale) ? 1.0 : scale;
+            r = self.Ratio = (null == scale) ? 1.0 : (+scale);
             self.Ready = false;
 
             // make easy for video element to be used as input image
@@ -919,12 +940,12 @@ Detector[proto] = {
         selection.height = ('auto'==selection.height) ? origHeight : selection.height;
         scaledSelection = self.scaledSelection = selection.clone().scale(self.Ratio).round();
 
-        baseScale = (undef === baseScale) ? 1.0 : baseScale;
-        scale_inc = (undef === scale_inc) ? 1.25 : scale_inc;
-        increment = (undef === increment) ? 0.5 : increment;
-        min_neighbors = (undef === min_neighbors) ? 1 : min_neighbors;
-        epsilon = (typeof epsilon == 'undefined') ? 0.2 : epsilon;
-        doCannyPruning = (typeof doCannyPruning == 'undefined') ? false : doCannyPruning;
+        baseScale = (null == baseScale) ? 1.0 : (+baseScale);
+        scale_inc = (null == scale_inc) ? 1.25 : (+scale_inc);
+        increment = (null == increment) ? 0.5 : (+increment);
+        min_neighbors = (null == min_neighbors) ? 1 : (+min_neighbors);
+        epsilon = (typeof epsilon == 'undefined') ? 0.2 : (+epsilon);
+        doCannyPruning = (typeof doCannyPruning == 'undefined') ? false : (!!doCannyPruning);
 
         maxScale = self.maxScale = Min(scaledSelection.width/sizex, scaledSelection.height/sizey);
         scale = self.scale = baseScale;
@@ -973,26 +994,26 @@ Detector[proto] = {
             // parallelize the detection, using map-reduce
             // should also work in Nodejs (using child processes)
             new parallel(data, {synchronous: false})
-                .require( byOrder, detectSingleStep, mergeSteps )
-                .map( detectSingleStep ).reduce( mergeSteps )
-                .then( function(rects){ detectEnd(self, rects, true); } )
+                .require(byOrder, detectSingleStep, mergeSteps)
+                .map(detectSingleStep).reduce(mergeSteps)
+                .then(function(rects) {detectEnd(self, rects, true);})
             ;
         }
         else
         {
             // else detect asynchronously using fixed intervals
             var rects = [],
-                detectAsync = function() {
+                detectAsync = function detectAsync() {
                     if (self.scale <= self.maxScale)
                     {
-                        rects = rects.concat( detectSingleStep(self) );
+                        rects.push.apply(rects, detectSingleStep(self));
                         // increase scale
                         self.scale *= self.scale_inc;
                         self.TimeInterval = setTimeout(detectAsync, self.DetectInterval);
                     }
                     else
                     {
-                        clearTimeout( self.TimeInterval );
+                        clearTimeout(self.TimeInterval);
                         detectEnd(self, rects, true);
                     }
                 }
@@ -1025,12 +1046,12 @@ Detector[proto] = {
         self.Selection.height = ('auto'==self.Selection.height) ? self.origHeight : self.Selection.height;
         self.scaledSelection = self.Selection.clone().scale(self.Ratio).round();
 
-        baseScale = (typeof baseScale == 'undefined') ? 1.0 : baseScale;
-        scale_inc = (typeof scale_inc == 'undefined') ? 1.25 : scale_inc;
-        increment = (typeof increment == 'undefined') ? 0.5 : increment;
-        min_neighbors = (typeof min_neighbors == 'undefined') ? 1 : min_neighbors;
-        self.epsilon = (typeof epsilon == 'undefined') ? 0.2 : epsilon;
-        self.doCannyPruning = (typeof doCannyPruning == 'undefined') ? false : doCannyPruning;
+        baseScale = (null == baseScale) ? 1.0 : (+baseScale);
+        scale_inc = (null == scale_inc) ? 1.25 : (+scale_inc);
+        increment = (null == increment) ? 0.5 : (+increment);
+        min_neighbors = (null == min_neighbors) ? 1 : (+min_neighbors);
+        self.epsilon = (typeof epsilon == 'undefined') ? 0.2 : (+epsilon);
+        self.doCannyPruning = (typeof doCannyPruning == 'undefined') ? false : (!!doCannyPruning);
 
         maxScale = self.maxScale = Min(self.scaledSelection.width/sizex, self.scaledSelection.height/sizey);
         self.scale = baseScale;
@@ -1044,7 +1065,7 @@ Detector[proto] = {
         // detection loop
         while (self.scale <= maxScale)
         {
-            rects = rects.concat( detectSingleStep(self) );
+            rects.push.apply(rects, detectSingleStep(self));
             // increase scale
             self.scale *= scale_inc;
         }

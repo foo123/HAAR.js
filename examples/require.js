@@ -1,23 +1,15 @@
-var requirejs = require('requirejs');
+var requirejs = require('./r.js');
 
 requirejs.config({
   nodeRequire: require,
   paths: {
-    'haar-detector': '../build/haar-detector.min',
+    'haar-detector': '../build/haar-detector',
     'haarcascade_frontalface_alt': '../cascades/haarcascade_frontalface_alt'
-  },
-  shim: {
-    'haar-detector': {
-      exports: 'HAAR'
-    },
-    'haarcascade_frontalface_alt': {
-      exports: 'haarcascade_frontalface_alt'
-    }
   }
 });
 
 
-var Canvas = require('canvas'),
+var Canvas = require('./CanvasLite.js')/*require('canvas')*/,
   fs = require('fs'),
   Image = Canvas.Image;
 
@@ -25,17 +17,15 @@ requirejs(['haar-detector', 'haarcascade_frontalface_alt'], function(HAAR, detec
 
   fs.readFile(__dirname + '/model1.jpg', function(err, squid) {
     if(err) throw err;
-    img = new Image;
-
-    var loaded = false;
+    var img = new Image(), loaded = false;
 
     /*callback called when the src will be filled*/
     img.onload = function() {
       loaded = true;
-      console.log("processing the picture") /*Launching the processing*/
-      new HAAR.Detector(detector).image(img, 1, new Canvas()).complete(function() {
+      console.log("processing the picture"); /*Launching the processing*/
+      (new HAAR.Detector(detector.haarcascade_frontalface_alt)).image(img, 1, new Canvas()).complete(function() {
         //processing done
-        console.log(JSON.stringify(this.objects))
+        console.log(JSON.stringify(this.objects));
       }).detect(1, 1.25, 0.1, 1, 0.2, true);
     };
 
@@ -43,7 +33,7 @@ requirejs(['haar-detector', 'haarcascade_frontalface_alt'], function(HAAR, detec
 
     setTimeout(function() {
       if(loaded) return;
-      console.log("Your image is long to be loaded - Have you followed canvas installation ? https://github.com/LearnBoost/node-canvas/wiki ")
-    }, 2000);
+      console.log("Image is long to be loaded");
+    }, 3000);
   });
 });
