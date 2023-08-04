@@ -83,7 +83,7 @@
                         log('Selection Rectangle: ');
                         log(this.Selection.toString());
                         log('Detected Features (' + l +') :');
-                        log(this.objects.toString());
+                        log(JSON.stringify(this.objects));
                         alert(l+" Objects found");
                     })
                     .cannyThreshold({low:5, high:200})  // custom thresholds for canny pruning (for best results)

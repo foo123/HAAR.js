@@ -79,11 +79,11 @@
                         log('Selection Rectangle: ');
                         log(this.Selection.toString());
                         log('Detected Features (' + l +') :');
-                        log(this.objects.toString());
+                        log(JSON.stringify(this.objects));
                         alert(l+" Objects found");
                     })
-                    .cannyThreshold({low:20, high:400})  // custom thresholds for canny pruning (for best results)
-                    .detect(1, 1.1, 0.12, 1, 0.2, true); // go
+                    .cannyThreshold({low:20, high:600})  // custom thresholds for canny pruning (for best results)
+                    .detect(1, 1.1, 0.1, 1, 0.2, true); // go
         };
         image.src='Group_Faces2.jpg'; // load it
         //]]>

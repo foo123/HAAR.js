@@ -325,9 +325,10 @@ function groupRectangles(rects, min_neighbors, epsilon)
     {
         for (j=i+1; j<rlen; ++j)
         {
-            if ((!feats[i].isInside && feats[i].inside(feats[j]))
-            || (!feats[j].isInside && feats[j].inside(feats[i])))
+            if (!feats[i].isInside && feats[i].inside(feats[j], epsilon))
                 feats[i].isInside = true;
+            if (!feats[j].isInside && feats[j].inside(feats[i], epsilon))
+                feats[j].isInside = true;
         }
     }
     i = rlen;

@@ -76,7 +76,7 @@
                         log('Selection Rectangle: ');
                         log(this.Selection.toString());
                         log('Detected Features (' + l +') :');
-                        log(this.objects.toString());
+                        log(JSON.stringify(this.objects));
                         alert(l+" Objects found");
                     })
                     .detect(1, 1.1, 0.12, 1, 0.2, true); // go
