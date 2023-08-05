@@ -1,5 +1,8 @@
 ### ChangeLog
 
+__1.0.5__
+* fix detection with selected region
+
 __1.0.4__
 * better square root approximation in canny edges
 * update CanvasLite

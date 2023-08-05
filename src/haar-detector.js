@@ -397,8 +397,8 @@ function detectSingleStep(self)
     tyw = ysize*w;
     tys = ystep*w;
     startty = starty*tys;
-    xl = selw-xsize;
-    yl = selh-ysize;
+    xl = startx+selw-xsize;
+    yl = starty+selh-ysize;
     swh = xsize*ysize;
     inv_area = 1.0/swh;
 
@@ -463,7 +463,7 @@ function detectSingleStep(self)
                         if (feature.tilt)
                         {
                             // tilted rectangle feature, Lienhart et al. extension
-                            for (kr = 0; kr < nb_rects; kr++)
+                            for (kr = 0; kr < nb_rects; ++kr)
                             {
                                 r = rects[kr];
 
@@ -924,7 +924,7 @@ Detector[proto] = {
         epsilon = (typeof epsilon == 'undefined') ? 0.2 : (+epsilon);
         doCannyPruning = (typeof doCannyPruning == 'undefined') ? false : (!!doCannyPruning);
 
-        maxScale = self.maxScale = Min(scaledSelection.width/sizex, scaledSelection.height/sizey);
+        maxScale = self.maxScale = Min(/*scaledSelection.*/width/sizex, /*scaledSelection.*/height/sizey);
         scale = self.scale = baseScale;
         self.min_neighbors = min_neighbors;
         self.scale_inc = scale_inc;
@@ -1030,7 +1030,7 @@ Detector[proto] = {
         self.epsilon = (typeof epsilon == 'undefined') ? 0.2 : (+epsilon);
         self.doCannyPruning = (typeof doCannyPruning == 'undefined') ? false : (!!doCannyPruning);
 
-        maxScale = self.maxScale = Min(self.scaledSelection.width/sizex, self.scaledSelection.height/sizey);
+        maxScale = self.maxScale = Min(self/*.scaledSelection*/.width/sizex, self/*.scaledSelection*/.height/sizey);
         self.scale = baseScale;
         self.min_neighbors = min_neighbors;
         self.scale_inc = scale_inc;
