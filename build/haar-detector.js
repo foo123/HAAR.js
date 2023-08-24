@@ -4,7 +4,7 @@
 * modified port of jViolaJones for Java (http://code.google.com/p/jviolajones/) and OpenCV for C++ (https://github.com/opencv/opencv) to JavaScript
 *
 * https://github.com/foo123/HAAR.js
-* @version: 1.0.5
+* @version: 1.0.6
 *
 * Supports parallel "map-reduce" computation both in browser and node using parallel.js library
 * https://github.com/adambom/parallel.js (included)
@@ -28,7 +28,7 @@ else if ( !(name in root) ) /* Browser/WebWorker/.. */
 * modified port of jViolaJones for Java (http://code.google.com/p/jviolajones/) and OpenCV for C++ (https://github.com/opencv/opencv) to JavaScript
 *
 * https://github.com/foo123/HAAR.js
-* @version: 1.0.5
+* @version: 1.0.6
 *
 * Supports parallel "map-reduce" computation both in browser and node using parallel.js library
 * https://github.com/adambom/parallel.js (included)
@@ -37,7 +37,7 @@ else if ( !(name in root) ) /* Browser/WebWorker/.. */
 "use strict";
 
 // the export object
-var HAAR = {VERSION : "1.0.5"}, Detector, Feature, proto = 'prototype', undef = undefined;
+var HAAR = {VERSION : "1.0.6"}, Detector, Feature, proto = 'prototype', undef = undefined;
 
 var // typed arrays substitute
     Array32F = (typeof Float32Array !== "undefined") ? Float32Array : Array,
@@ -454,7 +454,8 @@ function detectSingleStep(self)
             total_x2 = inv_area * (squares[p3] - squares[p2] - squares[p1] + squares[p0]);
 
             vnorm = total_x2 - total_x * total_x;
-            vnorm = (vnorm > 1) ? Sqrt(vnorm) : /*vnorm*/  1 ;
+            if (0 >= vnorm) continue;
+            vnorm = /*(vnorm > 1) ?*/ Sqrt(vnorm) /*: /*vnorm* /  1*/;
 
             pass = true;
             for (s = 0; s < sl; ++s)
@@ -948,7 +949,7 @@ Detector[proto] = {
         epsilon = (typeof epsilon == 'undefined') ? 0.2 : (+epsilon);
         doCannyPruning = (typeof doCannyPruning == 'undefined') ? false : (!!doCannyPruning);
 
-        maxScale = self.maxScale = Min(/*scaledSelection.*/width/sizex, /*scaledSelection.*/height/sizey);
+        maxScale = self.maxScale = Min(scaledSelection.width/sizex, scaledSelection.height/sizey);
         scale = self.scale = baseScale;
         self.min_neighbors = min_neighbors;
         self.scale_inc = scale_inc;
@@ -1054,7 +1055,7 @@ Detector[proto] = {
         self.epsilon = (typeof epsilon == 'undefined') ? 0.2 : (+epsilon);
         self.doCannyPruning = (typeof doCannyPruning == 'undefined') ? false : (!!doCannyPruning);
 
-        maxScale = self.maxScale = Min(self/*.scaledSelection*/.width/sizex, self/*.scaledSelection*/.height/sizey);
+        maxScale = self.maxScale = Min(self.scaledSelection.width/sizex, self.scaledSelection.height/sizey);
         self.scale = baseScale;
         self.min_neighbors = min_neighbors;
         self.scale_inc = scale_inc;

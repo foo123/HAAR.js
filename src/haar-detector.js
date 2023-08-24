@@ -430,7 +430,8 @@ function detectSingleStep(self)
             total_x2 = inv_area * (squares[p3] - squares[p2] - squares[p1] + squares[p0]);
 
             vnorm = total_x2 - total_x * total_x;
-            vnorm = (vnorm > 1) ? Sqrt(vnorm) : /*vnorm*/  1 ;
+            if (0 >= vnorm) continue;
+            vnorm = /*(vnorm > 1) ?*/ Sqrt(vnorm) /*: /*vnorm* /  1*/;
 
             pass = true;
             for (s = 0; s < sl; ++s)
@@ -924,7 +925,7 @@ Detector[proto] = {
         epsilon = (typeof epsilon == 'undefined') ? 0.2 : (+epsilon);
         doCannyPruning = (typeof doCannyPruning == 'undefined') ? false : (!!doCannyPruning);
 
-        maxScale = self.maxScale = Min(/*scaledSelection.*/width/sizex, /*scaledSelection.*/height/sizey);
+        maxScale = self.maxScale = Min(scaledSelection.width/sizex, scaledSelection.height/sizey);
         scale = self.scale = baseScale;
         self.min_neighbors = min_neighbors;
         self.scale_inc = scale_inc;
@@ -1030,7 +1031,7 @@ Detector[proto] = {
         self.epsilon = (typeof epsilon == 'undefined') ? 0.2 : (+epsilon);
         self.doCannyPruning = (typeof doCannyPruning == 'undefined') ? false : (!!doCannyPruning);
 
-        maxScale = self.maxScale = Min(self/*.scaledSelection*/.width/sizex, self/*.scaledSelection*/.height/sizey);
+        maxScale = self.maxScale = Min(self.scaledSelection.width/sizex, self.scaledSelection.height/sizey);
         self.scale = baseScale;
         self.min_neighbors = min_neighbors;
         self.scale_inc = scale_inc;

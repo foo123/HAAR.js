@@ -1,5 +1,8 @@
 ### ChangeLog
 
+__1.0.6__
+* fix detection with selected region again (revert to previous)
+
 __1.0.5__
 * fix detection with selected region
 
