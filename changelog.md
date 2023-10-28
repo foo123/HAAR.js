@@ -1,5 +1,8 @@
 ### ChangeLog
 
+__1.0.7__
+* stdMath not defined in Worker fixed
+
 __1.0.6__
 * fix detection with selected region again (revert to previous)
 

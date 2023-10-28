@@ -367,7 +367,7 @@ function mergeSteps(d)
 // used for parallel, asynchronous and/or synchronous computation
 function detectSingleStep(self)
 {
-    var Sqrt = Sqrt || stdMath.sqrt, ret = [],
+    var Sqrt = Math.sqrt, ret = [],
         haar = self.haardata, haar_stages = haar.stages, scaledSelection = self.scaledSelection,
         w = self.width, h = self.height,
         selw = scaledSelection.width, selh = scaledSelection.height, imArea=w*h, imArea1=imArea-1,

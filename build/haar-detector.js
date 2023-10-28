@@ -4,7 +4,7 @@
 * modified port of jViolaJones for Java (http://code.google.com/p/jviolajones/) and OpenCV for C++ (https://github.com/opencv/opencv) to JavaScript
 *
 * https://github.com/foo123/HAAR.js
-* @version: 1.0.6
+* @version: 1.0.7
 *
 * Supports parallel "map-reduce" computation both in browser and node using parallel.js library
 * https://github.com/adambom/parallel.js (included)
@@ -28,7 +28,7 @@ else if ( !(name in root) ) /* Browser/WebWorker/.. */
 * modified port of jViolaJones for Java (http://code.google.com/p/jviolajones/) and OpenCV for C++ (https://github.com/opencv/opencv) to JavaScript
 *
 * https://github.com/foo123/HAAR.js
-* @version: 1.0.6
+* @version: 1.0.7
 *
 * Supports parallel "map-reduce" computation both in browser and node using parallel.js library
 * https://github.com/adambom/parallel.js (included)
@@ -37,7 +37,7 @@ else if ( !(name in root) ) /* Browser/WebWorker/.. */
 "use strict";
 
 // the export object
-var HAAR = {VERSION : "1.0.6"}, Detector, Feature, proto = 'prototype', undef = undefined;
+var HAAR = {VERSION : "1.0.7"}, Detector, Feature, proto = 'prototype', undef = undefined;
 
 var // typed arrays substitute
     Array32F = (typeof Float32Array !== "undefined") ? Float32Array : Array,
@@ -391,7 +391,7 @@ function mergeSteps(d)
 // used for parallel, asynchronous and/or synchronous computation
 function detectSingleStep(self)
 {
-    var Sqrt = Sqrt || stdMath.sqrt, ret = [],
+    var Sqrt = Math.sqrt, ret = [],
         haar = self.haardata, haar_stages = haar.stages, scaledSelection = self.scaledSelection,
         w = self.width, h = self.height,
         selw = scaledSelection.width, selh = scaledSelection.height, imArea=w*h, imArea1=imArea-1,
