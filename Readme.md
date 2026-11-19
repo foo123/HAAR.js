@@ -134,10 +134,10 @@ In most cases using parallel computation (if supported) can be much faster (eg _
 
 **see also:**
 
-* [Abacus](https://github.com/foo123/Abacus) Computer Algebra and Symbolic Computation System for Combinatorics and Algebraic Number Theory for JavaScript and Python
+* [Abacus](https://github.com/foo123/Abacus) Computer Algebra and Symbolic Computation System for Combinatorics and Algebraic Number Theory for JavaScript
 * [SciLite](https://github.com/foo123/SciLite) Scientific Computing Environment similar to Octave/Matlab/SciPy in pure JavaScript
 * [TensorView](https://github.com/foo123/TensorView) view array data as multidimensional tensors of various shapes efficiently
-* [FILTER.js](https://github.com/foo123/FILTER.js) video and image processing and computer vision Library in pure JavaScript (browser and nodejs)
+* [FILTER.js](https://github.com/foo123/FILTER.js) Video and Image Processing and Computer Vision Library similar to OpenCV in pure JavaScript (browser and nodejs)
 * [HAAR.js](https://github.com/foo123/HAAR.js) image feature detection based on Haar Cascades in JavaScript (Viola-Jones-Lienhart et al Algorithm)
 * [HAARPHP](https://github.com/foo123/HAARPHP) image feature detection based on Haar Cascades in PHP (Viola-Jones-Lienhart et al Algorithm)
 * [MOD3](https://github.com/foo123/MOD3) 3D Modifier Library in JavaScript
